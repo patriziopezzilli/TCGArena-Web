@@ -9,16 +9,13 @@ export default function Landing() {
           <div className="text-2xl font-bold text-gray-900">TCG Arena</div>
           <div className="flex items-center gap-4">
             <Link
-              to="/merchant/login"
-              className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
+              to="/waiting-list"
+              className="group px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-gray-900 to-gray-700 rounded-xl hover:shadow-xl transition-all duration-300 hover:scale-105"
             >
-              Accedi
-            </Link>
-            <Link
-              to="/merchant/register"
-              className="px-4 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors"
-            >
-              Registra il negozio
+              <span className="flex items-center gap-2">
+                Unisciti alla lista d'attesa
+                <span className="transform group-hover:translate-x-1 transition-transform">→</span>
+              </span>
             </Link>
           </div>
         </div>
@@ -27,31 +24,38 @@ export default function Landing() {
       {/* Hero Section */}
       <section className="pt-32 pb-20 px-6">
         <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-6xl md:text-7xl font-bold tracking-tight text-gray-900 mb-6">
+          <h1 className="text-6xl md:text-7xl font-bold tracking-tight text-gray-900 mb-6 animate-fade-in-up">
             Dove collezionisti
             <br />
             e negozi
             <br />
-            <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent animate-gradient">
               si incontrano
             </span>
           </h1>
-          <p className="text-xl text-gray-600 mb-12 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-600 mb-12 max-w-2xl mx-auto animate-fade-in-up animation-delay-200">
             L'unica piattaforma che unisce giocatori, collezionisti e negozi TCG. 
             Trova carte, prenota, partecipa a tornei. Tutti premiati, tutti connessi.
           </p>
-          <div className="flex gap-4 justify-center">
+          <div className="flex flex-col items-center gap-6 animate-fade-in-up animation-delay-400">
             <Link
-              to="/merchant/register"
-              className="px-8 py-4 text-lg font-semibold text-white bg-gray-900 rounded-xl hover:bg-gray-800 transition-all hover:scale-105"
+              to="/waiting-list"
+              className="group px-12 py-5 text-lg font-bold text-white bg-gradient-to-r from-gray-900 to-gray-700 rounded-2xl hover:shadow-2xl transition-all duration-300 hover:scale-110"
             >
-              Registra il tuo negozio
+              <span className="flex items-center gap-3">
+                🚀 Unisciti alla lista d'attesa
+                <span className="transform group-hover:translate-x-2 transition-transform">→</span>
+              </span>
             </Link>
+            <p className="text-sm text-gray-500 animate-pulse">
+              Sii tra i primi • Coming 2026
+            </p>
             <a
               href="#features"
-              className="px-8 py-4 text-lg font-semibold text-gray-900 border-2 border-gray-200 rounded-xl hover:border-gray-300 transition-all"
+              className="text-sm text-gray-600 hover:text-gray-900 transition-colors flex items-center gap-2"
             >
               Scopri di più
+              <span>↓</span>
             </a>
           </div>
         </div>
@@ -122,12 +126,12 @@ export default function Landing() {
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
                 📦 Inventario sempre aggiornato
               </h3>
-      {/* Footer */}
-      <footer className="border-t border-gray-100 py-12 px-6">
-        <div className="max-w-7xl mx-auto text-center text-gray-600">
-          <p>© 2025 TCG Arena. Tutti i diritti riservati.</p>
-        </div>
-      </footer>h3 className="text-lg font-semibold text-gray-900 mb-2">
+              <p className="text-gray-600">
+                Gestisci le scorte facilmente con aggiornamenti in tempo reale
+              </p>
+            </div>
+            <div className="p-6 bg-white rounded-xl border border-gray-100">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
                 🎯 Più visibilità locale
               </h3>
               <p className="text-gray-600">
@@ -154,13 +158,16 @@ export default function Landing() {
 
           <div className="text-center">
             <Link
-              to="/merchant/register"
-              className="inline-block px-10 py-5 text-lg font-semibold text-white bg-gray-900 rounded-xl hover:bg-gray-800 transition-all hover:scale-105"
+              to="/waiting-list"
+              className="group inline-block px-10 py-5 text-lg font-semibold text-white bg-gradient-to-r from-gray-900 to-gray-700 rounded-2xl hover:shadow-2xl transition-all duration-300 hover:scale-105"
             >
-              Registra il tuo negozio gratis
+              <span className="flex items-center gap-3">
+                Iscriviti alla lista d'attesa
+                <span className="transform group-hover:translate-x-2 transition-transform">→</span>
+              </span>
             </Link>
-            <p className="mt-4 text-sm text-gray-500">
-              Configurazione in 5 minuti • Nessuna carta di credito richiesta
+            <p className="mt-6 text-sm text-gray-500">
+              Ti contatteremo appena saremo pronti • Nessun impegno
             </p>
           </div>
         </div>
@@ -184,10 +191,10 @@ interface FeatureCardProps {
 
 function FeatureCard({ icon, title, description }: FeatureCardProps) {
   return (
-    <div className="p-8 bg-white rounded-2xl border border-gray-100 hover:border-gray-200 transition-all hover:shadow-lg">
-      <div className="text-4xl mb-4">{icon}</div>
-      <h3 className="text-xl font-semibold text-gray-900 mb-2">{title}</h3>
-      <p className="text-gray-600">{description}</p>
+    <div className="group p-8 bg-white rounded-2xl border border-gray-100 hover:border-gray-900 transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 cursor-pointer">
+      <div className="text-4xl mb-4 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3">{icon}</div>
+      <h3 className="text-xl font-semibold text-gray-900 mb-2 transition-colors group-hover:text-primary">{title}</h3>
+      <p className="text-gray-600 transition-colors group-hover:text-gray-900">{description}</p>
     </div>
   )
 }

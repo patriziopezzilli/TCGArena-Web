@@ -11,6 +11,7 @@ export default function MerchantOnboarding() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+  const [focusedField, setFocusedField] = useState<string | null>(null)
 
   const {
     register,
@@ -43,9 +44,10 @@ export default function MerchantOnboarding() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center px-6">
-        <div className="max-w-md w-full text-center">
-          <div className="mb-6 text-6xl">✓</div>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 flex items-center justify-center px-6">
+        <div className="absolute inset-0 bg-grid-pattern opacity-5 pointer-events-none"></div>
+        <div className="max-w-md w-full text-center animate-fade-in-up">
+          <div className="mb-6 text-7xl animate-bounce">✓</div>
           <h1 className="text-3xl font-bold text-gray-900 mb-4">
             Registrazione completata!
           </h1>
