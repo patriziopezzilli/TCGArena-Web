@@ -62,7 +62,7 @@ export default function AdminDashboard() {
       const [shops, statistics, waiting] = await Promise.all([
         adminService.getPendingShops(),
         adminService.getShopStats(),
-        axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:8080/api'}/waiting-list/all`).then(res => res.data),
+        axios.get(`${import.meta.env.VITE_API_URL || 'http://80.211.236.249:8080/api'}/waiting-list/all`).then(res => res.data),
       ])
       setPendingShops(shops)
       setStats(statistics)
@@ -90,7 +90,7 @@ export default function AdminDashboard() {
 
   const handleMarkContacted = async (entryId: number) => {
     try {
-      await axios.put(`${import.meta.env.VITE_API_URL || 'http://localhost:8080/api'}/waiting-list/${entryId}/contacted`)
+      await axios.put(`${import.meta.env.VITE_API_URL || 'http://80.211.236.249:8080/api'}/waiting-list/${entryId}/contacted`)
       await loadData()
     } catch (err: any) {
       alert('Errore durante l\'aggiornamento: ' + (err.response?.data?.message || err.message))
@@ -128,83 +128,84 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
+      <header className="bg-gradient-to-r from-gray-900 to-gray-700 border-b border-gray-800 sticky top-0 z-10 shadow-lg">
+        <div className="max-w-7xl mx-auto px-6 py-6">
+          <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-xl font-semibold text-gray-900">
-                🔐 Admin Panel - TCG Arena
+              <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+                <span className="text-3xl">🎯</span>
+                TCG Arena Admin
               </h1>
-              <p className="text-sm text-gray-600 mt-1">Gestione Negozi e Waiting List</p>
+              <p className="text-sm text-gray-300 mt-1">Gestione completa della piattaforma</p>
             </div>
             <button
               onClick={handleLogout}
-              className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
+              className="px-4 py-2 text-sm font-medium text-white bg-white/10 hover:bg-white/20 rounded-lg transition-colors border border-white/20"
             >
               Logout
             </button>
           </div>
           
           {/* Tabs */}
-          <div className="flex gap-4 mt-4 border-b border-gray-200 overflow-x-auto">
+          <div className="flex gap-2 overflow-x-auto pb-2">
             <button
               onClick={() => setActiveTab('all-shops')}
-              className={`pb-3 px-1 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+              className={`px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap ${
                 activeTab === 'all-shops'
-                  ? 'border-primary text-primary'
-                  : 'border-transparent text-gray-600 hover:text-gray-900'
+                  ? 'bg-white text-gray-900 shadow-lg'
+                  : 'bg-white/10 text-white hover:bg-white/20 border border-white/20'
               }`}
             >
               Tutti i Negozi
             </button>
             <button
               onClick={() => setActiveTab('pending-shops')}
-              className={`pb-3 px-1 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+              className={`px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap ${
                 activeTab === 'pending-shops'
-                  ? 'border-primary text-primary'
-                  : 'border-transparent text-gray-600 hover:text-gray-900'
+                  ? 'bg-white text-gray-900 shadow-lg'
+                  : 'bg-white/10 text-white hover:bg-white/20 border border-white/20'
               }`}
             >
-              Negozi in Attesa ({stats?.pending || 0})
+              In Attesa {stats?.pending ? <span className="ml-1 px-2 py-0.5 bg-amber-500 rounded-full text-xs text-white">{stats.pending}</span> : null}
             </button>
             <button
               onClick={() => setActiveTab('waiting-list')}
-              className={`pb-3 px-1 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+              className={`px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap ${
                 activeTab === 'waiting-list'
-                  ? 'border-primary text-primary'
-                  : 'border-transparent text-gray-600 hover:text-gray-900'
+                  ? 'bg-white text-gray-900 shadow-lg'
+                  : 'bg-white/10 text-white hover:bg-white/20 border border-white/20'
               }`}
             >
-              Waiting List ({waitingList.length})
+              Waiting List {waitingList.length > 0 ? <span className="ml-1 px-2 py-0.5 bg-blue-500 rounded-full text-xs text-white">{waitingList.length}</span> : null}
             </button>
             <button
               onClick={() => setActiveTab('rewards')}
-              className={`pb-3 px-1 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+              className={`px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap ${
                 activeTab === 'rewards'
-                  ? 'border-primary text-primary'
-                  : 'border-transparent text-gray-600 hover:text-gray-900'
+                  ? 'bg-white text-gray-900 shadow-lg'
+                  : 'bg-white/10 text-white hover:bg-white/20 border border-white/20'
               }`}
             >
               Rewards
             </button>
             <button
               onClick={() => setActiveTab('achievements')}
-              className={`pb-3 px-1 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+              className={`px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap ${
                 activeTab === 'achievements'
-                  ? 'border-primary text-primary'
-                  : 'border-transparent text-gray-600 hover:text-gray-900'
+                  ? 'bg-white text-gray-900 shadow-lg'
+                  : 'bg-white/10 text-white hover:bg-white/20 border border-white/20'
               }`}
             >
               Achievements
             </button>
             <button
               onClick={() => setActiveTab('batch-import')}
-              className={`pb-3 px-1 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+              className={`px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap ${
                 activeTab === 'batch-import'
-                  ? 'border-primary text-primary'
-                  : 'border-transparent text-gray-600 hover:text-gray-900'
+                  ? 'bg-white text-gray-900 shadow-lg'
+                  : 'bg-white/10 text-white hover:bg-white/20 border border-white/20'
               }`}
             >
               Batch Import
@@ -218,31 +219,32 @@ export default function AdminDashboard() {
         {activeTab === 'pending-shops' ? (
           <>
             {/* Shop Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-              <div className="bg-white rounded-lg border border-gray-200 p-6">
-                <div className="text-sm font-medium text-gray-600 mb-1">Totale Negozi</div>
-                <div className="text-3xl font-bold text-gray-900">{stats?.total || 0}</div>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+              <div className="bg-gradient-to-br from-gray-50 to-white rounded-2xl border border-gray-100 p-6 hover:shadow-lg transition-all">
+                <div className="text-sm font-medium text-gray-600 mb-2">Totale Negozi</div>
+                <div className="text-4xl font-bold text-gray-900">{stats?.total || 0}</div>
               </div>
-              <div className="bg-white rounded-lg border border-gray-200 p-6">
-                <div className="text-sm font-medium text-gray-600 mb-1">Attivi</div>
-                <div className="text-3xl font-bold text-green-600">{stats?.active || 0}</div>
+              <div className="bg-gradient-to-br from-green-50 to-white rounded-2xl border border-green-100 p-6 hover:shadow-lg transition-all">
+                <div className="text-sm font-medium text-green-700 mb-2">Attivi</div>
+                <div className="text-4xl font-bold text-green-600">{stats?.active || 0}</div>
               </div>
-              <div className="bg-white rounded-lg border border-gray-200 p-6">
-                <div className="text-sm font-medium text-gray-600 mb-1">In Attesa</div>
-                <div className="text-3xl font-bold text-amber-600">{stats?.pending || 0}</div>
+              <div className="bg-gradient-to-br from-amber-50 to-white rounded-2xl border border-amber-100 p-6 hover:shadow-lg transition-all">
+                <div className="text-sm font-medium text-amber-700 mb-2">In Attesa</div>
+                <div className="text-4xl font-bold text-amber-600">{stats?.pending || 0}</div>
               </div>
-              <div className="bg-white rounded-lg border border-gray-200 p-6">
-                <div className="text-sm font-medium text-gray-600 mb-1">Verificati</div>
-                <div className="text-3xl font-bold text-blue-600">{stats?.verified || 0}</div>
+              <div className="bg-gradient-to-br from-blue-50 to-white rounded-2xl border border-blue-100 p-6 hover:shadow-lg transition-all">
+                <div className="text-sm font-medium text-blue-700 mb-2">Verificati</div>
+                <div className="text-4xl font-bold text-blue-600">{stats?.verified || 0}</div>
               </div>
             </div>
 
             {/* Pending Shops */}
-            <div className="bg-white rounded-lg border border-gray-200">
-              <div className="px-6 py-4 border-b border-gray-200">
-                <h2 className="text-lg font-semibold text-gray-900">
-                  Negozi in Attesa di Approvazione ({pendingShops.length})
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+              <div className="px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
+                <h2 className="text-lg font-bold text-gray-900">
+                  Negozi in Attesa di Approvazione
                 </h2>
+                <p className="text-sm text-gray-600 mt-1">{pendingShops.length} richieste da gestire</p>
               </div>
 
               {pendingShops.length === 0 ? (
@@ -292,7 +294,7 @@ export default function AdminDashboard() {
                           <button
                             onClick={() => handleActivate(shop.id)}
                             disabled={processingId === shop.id}
-                            className="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                            className="px-6 py-3 bg-gradient-to-r from-green-600 to-green-500 text-white text-sm font-semibold rounded-xl hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap hover:scale-105"
                           >
                             {processingId === shop.id ? 'Attivazione...' : '✓ Attiva Negozio'}
                           </button>
@@ -307,37 +309,38 @@ export default function AdminDashboard() {
         ) : activeTab === 'waiting-list' ? (
           <>
             {/* Waiting List Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-              <div className="bg-white rounded-lg border border-gray-200 p-6">
-                <div className="text-sm font-medium text-gray-600 mb-1">Totale Iscritti</div>
-                <div className="text-3xl font-bold text-gray-900">{waitingList.length}</div>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+              <div className="bg-gradient-to-br from-gray-50 to-white rounded-2xl border border-gray-100 p-6 hover:shadow-lg transition-all">
+                <div className="text-sm font-medium text-gray-600 mb-2">Totale Iscritti</div>
+                <div className="text-4xl font-bold text-gray-900">{waitingList.length}</div>
               </div>
-              <div className="bg-white rounded-lg border border-gray-200 p-6">
-                <div className="text-sm font-medium text-gray-600 mb-1">Giocatori</div>
-                <div className="text-3xl font-bold text-blue-600">
+              <div className="bg-gradient-to-br from-blue-50 to-white rounded-2xl border border-blue-100 p-6 hover:shadow-lg transition-all">
+                <div className="text-sm font-medium text-blue-700 mb-2">Giocatori</div>
+                <div className="text-4xl font-bold text-blue-600">
                   {waitingList.filter(w => w.userType === 'PLAYER').length}
                 </div>
               </div>
-              <div className="bg-white rounded-lg border border-gray-200 p-6">
-                <div className="text-sm font-medium text-gray-600 mb-1">Negozianti</div>
-                <div className="text-3xl font-bold text-purple-600">
+              <div className="bg-gradient-to-br from-purple-50 to-white rounded-2xl border border-purple-100 p-6 hover:shadow-lg transition-all">
+                <div className="text-sm font-medium text-purple-700 mb-2">Negozianti</div>
+                <div className="text-4xl font-bold text-purple-600">
                   {waitingList.filter(w => w.userType === 'MERCHANT').length}
                 </div>
               </div>
-              <div className="bg-white rounded-lg border border-gray-200 p-6">
-                <div className="text-sm font-medium text-gray-600 mb-1">Contattati</div>
-                <div className="text-3xl font-bold text-green-600">
+              <div className="bg-gradient-to-br from-green-50 to-white rounded-2xl border border-green-100 p-6 hover:shadow-lg transition-all">
+                <div className="text-sm font-medium text-green-700 mb-2">Contattati</div>
+                <div className="text-4xl font-bold text-green-600">
                   {waitingList.filter(w => w.contacted).length}
                 </div>
               </div>
             </div>
 
             {/* Waiting List Table */}
-            <div className="bg-white rounded-lg border border-gray-200">
-              <div className="px-6 py-4 border-b border-gray-200">
-                <h2 className="text-lg font-semibold text-gray-900">
-                  Lista d'Attesa ({waitingList.length})
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+              <div className="px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
+                <h2 className="text-lg font-bold text-gray-900">
+                  Lista d'Attesa
                 </h2>
+                <p className="text-sm text-gray-600 mt-1">{waitingList.length} utenti in lista</p>
               </div>
 
               {waitingList.length === 0 ? (

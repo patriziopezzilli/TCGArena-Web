@@ -38,10 +38,11 @@ const ShopsManagement: React.FC = () => {
   const fetchShops = async () => {
     try {
       setLoading(true);
-      const response = await adminService.getAllShops();
-      setShops(response.data);
+      const data = await adminService.getAllShops();
+      setShops(data || []);
     } catch (error) {
       console.error('Error fetching shops:', error);
+      setShops([]);
     } finally {
       setLoading(false);
     }

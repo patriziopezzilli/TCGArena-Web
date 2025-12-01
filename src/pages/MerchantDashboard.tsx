@@ -85,27 +85,30 @@ export default function MerchantDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
       {/* Header */}
-      <header className="border-b border-gray-100">
+      <header className="bg-gradient-to-r from-gray-900 to-gray-700 border-b border-gray-800 shadow-lg">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-xl font-semibold text-gray-900">TCG Arena Backoffice</h1>
-              <p className="text-sm text-gray-600 mt-1">
+              <h1 className="text-xl font-bold text-white flex items-center gap-2">
+                <span className="text-2xl">🏪</span>
+                TCG Arena Backoffice
+              </h1>
+              <p className="text-sm text-gray-300 mt-1">
                 Benvenuto, {shopStatus?.user?.displayName || shopStatus?.user?.username}
               </p>
             </div>
             <div className="flex items-center gap-4">
               <button
                 onClick={() => navigate('/merchant/settings')}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                className="px-4 py-2 text-sm font-medium text-white bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg transition-colors"
               >
                 ⚙️ Impostazioni
               </button>
               <button
                 onClick={handleLogout}
-                className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                className="text-sm text-gray-300 hover:text-white transition-colors"
               >
                 Logout
               </button>
@@ -177,107 +180,111 @@ export default function MerchantDashboard() {
             </div>
 
             {/* Quick Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-              <div className="bg-white border border-gray-200 rounded-lg p-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+              <div className="bg-gradient-to-br from-green-50 to-white border border-green-100 rounded-2xl p-6 hover:shadow-lg transition-all">
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-sm font-medium text-gray-600">Inventario</h3>
-                  <span className="text-green-600">✓</span>
+                  <h3 className="text-sm font-medium text-green-700">Inventario</h3>
+                  <span className="text-2xl">📦</span>
                 </div>
-                <p className="text-2xl font-semibold text-gray-900">0</p>
-                <p className="text-xs text-gray-500 mt-1">Carte totali</p>
+                <p className="text-4xl font-bold text-green-600">0</p>
+                <p className="text-xs text-green-600 mt-1">Carte totali</p>
               </div>
 
-              <div className="bg-white border border-gray-200 rounded-lg p-6">
+              <div className="bg-gradient-to-br from-blue-50 to-white border border-blue-100 rounded-2xl p-6 hover:shadow-lg transition-all">
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-sm font-medium text-gray-600">Prenotazioni</h3>
-                  <span className="text-blue-600">●</span>
+                  <h3 className="text-sm font-medium text-blue-700">Prenotazioni</h3>
+                  <span className="text-2xl">🎫</span>
                 </div>
-                <p className="text-2xl font-semibold text-gray-900">0</p>
-                <p className="text-xs text-gray-500 mt-1">Attive</p>
+                <p className="text-4xl font-bold text-blue-600">0</p>
+                <p className="text-xs text-blue-600 mt-1">Attive</p>
               </div>
 
-              <div className="bg-white border border-gray-200 rounded-lg p-6">
+              <div className="bg-gradient-to-br from-purple-50 to-white border border-purple-100 rounded-2xl p-6 hover:shadow-lg transition-all">
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-sm font-medium text-gray-600">Tornei</h3>
-                  <span className="text-purple-600">◆</span>
+                  <h3 className="text-sm font-medium text-purple-700">Tornei</h3>
+                  <span className="text-2xl">🏆</span>
                 </div>
-                <p className="text-2xl font-semibold text-gray-900">0</p>
-                <p className="text-xs text-gray-500 mt-1">In programma</p>
+                <p className="text-4xl font-bold text-purple-600">0</p>
+                <p className="text-xs text-purple-600 mt-1">In programma</p>
               </div>
 
-              <div className="bg-white border border-gray-200 rounded-lg p-6">
+              <div className="bg-gradient-to-br from-amber-50 to-white border border-amber-100 rounded-2xl p-6 hover:shadow-lg transition-all">
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-sm font-medium text-gray-600">Richieste</h3>
-                  <span className="text-amber-600">!</span>
+                  <h3 className="text-sm font-medium text-amber-700">Richieste</h3>
+                  <span className="text-2xl">💬</span>
                 </div>
-                <p className="text-2xl font-semibold text-gray-900">0</p>
-                <p className="text-xs text-gray-500 mt-1">Da gestire</p>
+                <p className="text-4xl font-bold text-amber-600">0</p>
+                <p className="text-xs text-amber-600 mt-1">Da gestire</p>
               </div>
             </div>
 
             {/* Main Sections */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Inventory Section */}
-              <div className="bg-white border border-gray-200 rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              <div className="bg-white border border-gray-100 rounded-2xl p-8 hover:shadow-lg transition-all">
+                <div className="text-4xl mb-4">📦</div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">
                   Gestione Inventario
                 </h3>
-                <p className="text-gray-600 mb-4">
+                <p className="text-gray-600 mb-6">
                   Aggiungi, modifica ed elimina carte dal tuo inventario
                 </p>
                 <button
                   onClick={() => navigate('/merchant/inventory')}
-                  className="w-full bg-primary text-white py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                  className="w-full bg-gradient-to-r from-gray-900 to-gray-700 text-white py-3 rounded-xl font-semibold hover:shadow-xl transition-all hover:scale-105"
                 >
-                  Gestisci Inventario
+                  Gestisci Inventario →
                 </button>
               </div>
 
               {/* Reservations Section */}
-              <div className="bg-white border border-gray-200 rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              <div className="bg-white border border-gray-100 rounded-2xl p-8 hover:shadow-lg transition-all">
+                <div className="text-4xl mb-4">🎫</div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">
                   Prenotazioni
                 </h3>
-                <p className="text-gray-600 mb-4">
+                <p className="text-gray-600 mb-6">
                   Gestisci le prenotazioni e scansiona i QR per i ritiri
                 </p>
                 <button
                   onClick={() => navigate('/merchant/reservations')}
-                  className="w-full bg-primary text-white py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                  className="w-full bg-gradient-to-r from-gray-900 to-gray-700 text-white py-3 rounded-xl font-semibold hover:shadow-xl transition-all hover:scale-105"
                 >
-                  Vedi Prenotazioni
+                  Vedi Prenotazioni →
                 </button>
               </div>
 
               {/* Tournaments Section */}
-              <div className="bg-white border border-gray-200 rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              <div className="bg-white border border-gray-100 rounded-2xl p-8 hover:shadow-lg transition-all">
+                <div className="text-4xl mb-4">🏆</div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">
                   Tornei
                 </h3>
-                <p className="text-gray-600 mb-4">
+                <p className="text-gray-600 mb-6">
                   Crea e gestisci tornei per i tuoi clienti
                 </p>
                 <button
                   onClick={() => navigate('/merchant/tournaments')}
-                  className="w-full bg-primary text-white py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                  className="w-full bg-gradient-to-r from-gray-900 to-gray-700 text-white py-3 rounded-xl font-semibold hover:shadow-xl transition-all hover:scale-105"
                 >
-                  Gestisci Tornei
+                  Gestisci Tornei →
                 </button>
               </div>
 
               {/* Requests Section */}
-              <div className="bg-white border border-gray-200 rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              <div className="bg-white border border-gray-100 rounded-2xl p-8 hover:shadow-lg transition-all">
+                <div className="text-4xl mb-4">💬</div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">
                   Richieste Clienti
                 </h3>
-                <p className="text-gray-600 mb-4">
+                <p className="text-gray-600 mb-6">
                   Rispondi alle richieste di disponibilità, valutazioni e altro
                 </p>
                 <button
                   onClick={() => navigate('/merchant/requests')}
-                  className="w-full bg-primary text-white py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                  className="w-full bg-gradient-to-r from-gray-900 to-gray-700 text-white py-3 rounded-xl font-semibold hover:shadow-xl transition-all hover:scale-105"
                 >
-                  Vedi Richieste
+                  Vedi Richieste →
                 </button>
               </div>
             </div>

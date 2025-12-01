@@ -4,66 +4,105 @@ import { merchantService } from '../services/api'
 
 interface Tournament {
   id: string
-  name: string
+  title: string
   tcgType: string
-  format: string
+  type: 'CASUAL' | 'COMPETITIVE' | 'CHAMPIONSHIP'
   description: string
   maxParticipants: number
   currentParticipants: number
   entryFee: number
-  prizePool: string
+  prizePool: number
   startDate: string
   endDate: string
-  registrationDeadline: string
   status: 'UPCOMING' | 'REGISTRATION_OPEN' | 'REGISTRATION_CLOSED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED'
-  location: string
-  organizer: string
+  location: TournamentLocation
+  organizerId: number
+}
+
+interface TournamentLocation {
+  venueName: string
+  address: string
+  city: string
+  country: string
 }
 
 export default function MerchantTournaments() {
   const navigate = useNavigate()
   const [loading, setLoading] = useState(true)
   const [tournaments, setTournaments] = useState<Tournament[]>([])
+  const [currentUserId, setCurrentUserId] = useState<number | null>(null)
   const [showModal, setShowModal] = useState(false)
   const [editingTournament, setEditingTournament] = useState<Tournament | null>(null)
   
   const [formData, setFormData] = useState({
-    name: '',
+    title: '',
     tcgType: 'POKEMON',
-    format: 'STANDARD',
+    type: 'CASUAL' as Tournament['type'],
     description: '',
     maxParticipants: 32,
     entryFee: 0,
-    prizePool: '',
+    prizePool: 0,
     startDate: '',
     endDate: '',
-    registrationDeadline: '',
-    location: ''
+    status: 'REGISTRATION_OPEN' as Tournament['status'],
+    location: {
+      venueName: '',
+      address: '',
+      city: '',
+      country: 'Italia'
+    }
   })
 
   useEffect(() => {
-    loadTournaments()
+    loadUserAndTournaments()
   }, [])
 
-  const loadTournaments = async () => {
+  const loadUserAndTournaments = async () => {
     try {
       setLoading(true)
-      const data = await merchantService.getTournaments()
-      setTournaments(data || [])
+      // Get current user profile first
+      const userProfile = await merchantService.getProfile()
+      setCurrentUserId(userProfile.id)
+      
+      // Then load tournaments
+      await loadTournaments(userProfile.id)
     } catch (error) {
-      console.error('Error loading tournaments:', error)
+      console.error('Error loading user profile:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const loadTournaments = async (userId?: number) => {
+    try {
+      const data = await merchantService.getTournaments()
+      // Filter tournaments by current user's organizerId
+      const userIdToFilter = userId || currentUserId
+      if (userIdToFilter) {
+        const filteredTournaments = data.filter((t: Tournament) => t.organizerId === userIdToFilter)
+        setTournaments(filteredTournaments || [])
+      } else {
+        setTournaments(data || [])
+      }
+    } catch (error) {
+      console.error('Error loading tournaments:', error)
     }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
+      // Convert dates to ISO format
+      const tournamentData = {
+        ...formData,
+        startDate: formData.startDate ? new Date(formData.startDate).toISOString() : '',
+        endDate: formData.endDate ? new Date(formData.endDate).toISOString() : ''
+      }
+      
       if (editingTournament) {
-        await merchantService.updateTournament(editingTournament.id, formData)
+        await merchantService.updateTournament(editingTournament.id, tournamentData)
       } else {
-        await merchantService.createTournament(formData)
+        await merchantService.createTournament(tournamentData)
       }
       setShowModal(false)
       setEditingTournament(null)
@@ -89,33 +128,40 @@ export default function MerchantTournaments() {
 
   const resetForm = () => {
     setFormData({
-      name: '',
+      title: '',
       tcgType: 'POKEMON',
-      format: 'STANDARD',
+      type: 'CASUAL' as Tournament['type'],
       description: '',
       maxParticipants: 32,
       entryFee: 0,
-      prizePool: '',
+      prizePool: 0,
       startDate: '',
       endDate: '',
-      registrationDeadline: '',
-      location: ''
+      status: 'REGISTRATION_OPEN' as Tournament['status'],
+      location: {
+        venueName: '',
+        address: '',
+        city: '',
+        country: 'Italia'
+      }
     })
   }
 
   const openEditModal = (tournament: Tournament) => {
     setEditingTournament(tournament)
+    const startDateTime = tournament.startDate.substring(0, 16)
+    const endDateTime = tournament.endDate.substring(0, 16)
     setFormData({
-      name: tournament.name,
+      title: tournament.title,
       tcgType: tournament.tcgType,
-      format: tournament.format,
+      type: tournament.type,
       description: tournament.description,
       maxParticipants: tournament.maxParticipants,
       entryFee: tournament.entryFee,
       prizePool: tournament.prizePool,
-      startDate: tournament.startDate.split('T')[0],
-      endDate: tournament.endDate.split('T')[0],
-      registrationDeadline: tournament.registrationDeadline.split('T')[0],
+      startDate: startDateTime,
+      endDate: endDateTime,
+      status: tournament.status,
       location: tournament.location
     })
     setShowModal(true)
@@ -226,7 +272,7 @@ export default function MerchantTournaments() {
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-xl font-semibold text-gray-900">{tournament.name}</h3>
+                      <h3 className="text-xl font-semibold text-gray-900">{tournament.title}</h3>
                       {getStatusBadge(tournament.status)}
                     </div>
                     <p className="text-sm text-gray-600 mb-3">{tournament.description}</p>
@@ -236,8 +282,8 @@ export default function MerchantTournaments() {
                         <p className="text-gray-900 font-medium">{tournament.tcgType}</p>
                       </div>
                       <div>
-                        <p className="text-gray-500">Formato</p>
-                        <p className="text-gray-900 font-medium">{tournament.format}</p>
+                        <p className="text-gray-500">Tipo</p>
+                        <p className="text-gray-900 font-medium">{tournament.type}</p>
                       </div>
                       <div>
                         <p className="text-gray-500">Partecipanti</p>
@@ -251,15 +297,12 @@ export default function MerchantTournaments() {
                       </div>
                     </div>
                     <div className="mt-3 pt-3 border-t border-gray-100 text-sm text-gray-600">
-                      <p>📍 {tournament.location}</p>
+                      <p>📍 {tournament.location.venueName}, {tournament.location.city}</p>
                       <p className="mt-1">
                         📅 {new Date(tournament.startDate).toLocaleDateString('it-IT')} - {new Date(tournament.endDate).toLocaleDateString('it-IT')}
                       </p>
-                      <p className="mt-1">
-                        ⏰ Iscrizioni fino al {new Date(tournament.registrationDeadline).toLocaleDateString('it-IT')}
-                      </p>
-                      {tournament.prizePool && (
-                        <p className="mt-1">🏆 Montepremi: {tournament.prizePool}</p>
+                      {tournament.prizePool > 0 && (
+                        <p className="mt-1">🏆 Montepremi: €{tournament.prizePool.toFixed(2)}</p>
                       )}
                     </div>
                   </div>
@@ -301,8 +344,8 @@ export default function MerchantTournaments() {
                     type="text"
                     required
                     className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    value={formData.title}
+                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   />
                 </div>
                 <div>
@@ -323,19 +366,35 @@ export default function MerchantTournaments() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Formato
+                    Tipo Torneo
                   </label>
                   <select
                     required
                     className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                    value={formData.format}
-                    onChange={(e) => setFormData({ ...formData, format: e.target.value })}
+                    value={formData.type}
+                    onChange={(e) => setFormData({ ...formData, type: e.target.value as Tournament['type'] })}
                   >
-                    <option value="STANDARD">Standard</option>
-                    <option value="EXPANDED">Expanded</option>
-                    <option value="UNLIMITED">Unlimited</option>
-                    <option value="DRAFT">Draft</option>
-                    <option value="SEALED">Sealed</option>
+                    <option value="CASUAL">Casual</option>
+                    <option value="COMPETITIVE">Competitivo</option>
+                    <option value="CHAMPIONSHIP">Campionato</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Stato
+                  </label>
+                  <select
+                    required
+                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    value={formData.status}
+                    onChange={(e) => setFormData({ ...formData, status: e.target.value as Tournament['status'] })}
+                  >
+                    <option value="UPCOMING">In Arrivo</option>
+                    <option value="REGISTRATION_OPEN">Iscrizioni Aperte</option>
+                    <option value="REGISTRATION_CLOSED">Iscrizioni Chiuse</option>
+                    <option value="IN_PROGRESS">In Corso</option>
+                    <option value="COMPLETED">Completato</option>
+                    <option value="CANCELLED">Cancellato</option>
                   </select>
                 </div>
                 <div className="col-span-2">
@@ -377,24 +436,27 @@ export default function MerchantTournaments() {
                     onChange={(e) => setFormData({ ...formData, entryFee: Number(e.target.value) })}
                   />
                 </div>
-                <div className="col-span-2">
+                <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Montepremi
+                    Montepremi (€)
                   </label>
                   <input
-                    type="text"
-                    placeholder="es: 1° premio: 3 buste, 2° premio: 2 buste"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    required
+                    placeholder="es: 50.00"
                     className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                     value={formData.prizePool}
-                    onChange={(e) => setFormData({ ...formData, prizePool: e.target.value })}
+                    onChange={(e) => setFormData({ ...formData, prizePool: parseFloat(e.target.value) || 0 })}
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Data Inizio
+                    Data e Ora Inizio
                   </label>
                   <input
-                    type="date"
+                    type="datetime-local"
                     required
                     className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                     value={formData.startDate}
@@ -403,10 +465,10 @@ export default function MerchantTournaments() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Data Fine
+                    Data e Ora Fine
                   </label>
                   <input
-                    type="date"
+                    type="datetime-local"
                     required
                     className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                     value={formData.endDate}
@@ -415,27 +477,41 @@ export default function MerchantTournaments() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Scadenza Iscrizioni
-                  </label>
-                  <input
-                    type="date"
-                    required
-                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                    value={formData.registrationDeadline}
-                    onChange={(e) => setFormData({ ...formData, registrationDeadline: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Luogo
+                    Nome Luogo
                   </label>
                   <input
                     type="text"
                     required
-                    placeholder="Indirizzo del torneo"
+                    placeholder="es: Negozio TCG Arena"
                     className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                    value={formData.location}
-                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                    value={formData.location.venueName}
+                    onChange={(e) => setFormData({ ...formData, location: { ...formData.location, venueName: e.target.value } })}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Indirizzo
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Via, numero civico"
+                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    value={formData.location.address}
+                    onChange={(e) => setFormData({ ...formData, location: { ...formData.location, address: e.target.value } })}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Città
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="es: Milano"
+                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    value={formData.location.city}
+                    onChange={(e) => setFormData({ ...formData, location: { ...formData.location, city: e.target.value } })}
                   />
                 </div>
               </div>

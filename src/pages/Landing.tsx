@@ -18,7 +18,7 @@ export default function Landing() {
     setError('')
 
     try {
-      await axios.post('http://localhost:8080/api/waiting-list/join', formData)
+      await axios.post(`${import.meta.env.VITE_API_URL || 'http://80.211.236.249:8080/api'}/waiting-list/join`, formData)
       setSubmitSuccess(true)
       setTimeout(() => {
         setShowModal(false)
