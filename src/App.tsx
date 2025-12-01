@@ -4,6 +4,10 @@ import WaitingList from './pages/WaitingList'
 import MerchantLogin from './pages/MerchantLogin'
 import MerchantOnboarding from './pages/MerchantOnboarding'
 import MerchantDashboard from './pages/MerchantDashboard'
+import MerchantInventory from './pages/MerchantInventory'
+import MerchantReservations from './pages/MerchantReservations'
+import MerchantTournaments from './pages/MerchantTournaments'
+import MerchantRequests from './pages/MerchantRequests'
 
 function App() {
   return (
@@ -15,6 +19,10 @@ function App() {
         <Route path="/merchant/login" element={<MerchantLogin />} />
         <Route path="/merchant/register" element={<MerchantOnboarding />} />
         <Route path="/merchant/dashboard" element={<MerchantDashboard />} />
+        <Route path="/merchant/inventory" element={<MerchantInventory />} />
+        <Route path="/merchant/reservations" element={<MerchantReservations />} />
+        <Route path="/merchant/tournaments" element={<MerchantTournaments />} />
+        <Route path="/merchant/requests" element={<MerchantRequests />} />
       </Routes>
     </BrowserRouter>
   )

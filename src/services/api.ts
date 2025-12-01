@@ -39,6 +39,77 @@ export const merchantService = {
     const response = await apiClient.get('/merchant/profile')
     return response.data
   },
+
+  // Inventory endpoints
+  async getInventory(shopId: string, filters?: any): Promise<any> {
+    const params = new URLSearchParams({ shopId, ...filters })
+    const response = await apiClient.get(`/inventory?${params}`)
+    return response.data
+  },
+
+  async createInventoryCard(data: any): Promise<any> {
+    const response = await apiClient.post('/inventory', data)
+    return response.data
+  },
+
+  async updateInventoryCard(id: string, data: any): Promise<any> {
+    const response = await apiClient.put(`/inventory/${id}`, data)
+    return response.data
+  },
+
+  async deleteInventoryCard(id: string): Promise<void> {
+    await apiClient.delete(`/inventory/${id}`)
+  },
+
+  // Reservation endpoints
+  async getReservations(shopId: string, status?: string): Promise<any> {
+    const params = new URLSearchParams({ shopId })
+    if (status) params.append('status', status)
+    const response = await apiClient.get(`/reservations/merchant?${params}`)
+    return response.data
+  },
+
+  async validateReservation(shopId: string, qrCode: string): Promise<any> {
+    const response = await apiClient.post(`/reservations/validate?shopId=${shopId}`, { qrCode })
+    return response.data
+  },
+
+  // Tournament endpoints
+  async getTournaments(): Promise<any> {
+    const response = await apiClient.get('/tournaments')
+    return response.data
+  },
+
+  async createTournament(data: any): Promise<any> {
+    const response = await apiClient.post('/tournaments', data)
+    return response.data
+  },
+
+  async updateTournament(id: string, data: any): Promise<any> {
+    const response = await apiClient.put(`/tournaments/${id}`, data)
+    return response.data
+  },
+
+  async deleteTournament(id: string): Promise<void> {
+    await apiClient.delete(`/tournaments/${id}`)
+  },
+
+  // Customer Request endpoints
+  async getRequests(shopId: string, filters?: any): Promise<any> {
+    const params = new URLSearchParams({ shopId, ...filters })
+    const response = await apiClient.get(`/requests?${params}`)
+    return response.data
+  },
+
+  async updateRequestStatus(id: string, shopId: string, status: string, response?: string): Promise<any> {
+    const res = await apiClient.put(`/requests/${id}/status?shopId=${shopId}`, { status, response })
+    return res.data
+  },
+
+  async addRequestMessage(id: string, message: string, isFromMerchant: boolean): Promise<any> {
+    const response = await apiClient.post(`/requests/${id}/messages`, { message, isFromMerchant })
+    return response.data
+  },
 }
 
 export const adminService = {

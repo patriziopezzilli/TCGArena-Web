@@ -217,7 +217,10 @@ export default function MerchantDashboard() {
                 <p className="text-gray-600 mb-4">
                   Aggiungi, modifica ed elimina carte dal tuo inventario
                 </p>
-                <button className="w-full bg-primary text-white py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                <button
+                  onClick={() => navigate('/merchant/inventory')}
+                  className="w-full bg-primary text-white py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                >
                   Gestisci Inventario
                 </button>
               </div>
@@ -230,7 +233,10 @@ export default function MerchantDashboard() {
                 <p className="text-gray-600 mb-4">
                   Gestisci le prenotazioni e scansiona i QR per i ritiri
                 </p>
-                <button className="w-full bg-primary text-white py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                <button
+                  onClick={() => navigate('/merchant/reservations')}
+                  className="w-full bg-primary text-white py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                >
                   Vedi Prenotazioni
                 </button>
               </div>
@@ -243,7 +249,10 @@ export default function MerchantDashboard() {
                 <p className="text-gray-600 mb-4">
                   Crea e gestisci tornei per i tuoi clienti
                 </p>
-                <button className="w-full bg-primary text-white py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                <button
+                  onClick={() => navigate('/merchant/tournaments')}
+                  className="w-full bg-primary text-white py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                >
                   Gestisci Tornei
                 </button>
               </div>
@@ -256,7 +265,10 @@ export default function MerchantDashboard() {
                 <p className="text-gray-600 mb-4">
                   Rispondi alle richieste di disponibilità, valutazioni e altro
                 </p>
-                <button className="w-full bg-primary text-white py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                <button
+                  onClick={() => navigate('/merchant/requests')}
+                  className="w-full bg-primary text-white py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                >
                   Vedi Richieste
                 </button>
               </div>

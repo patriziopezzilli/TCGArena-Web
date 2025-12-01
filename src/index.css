@@ -146,13 +146,16 @@
 
   .animation-delay-200 {
     animation-delay: 0.2s;
-    opacity: 0;
     animation-fill-mode: forwards;
+  }
+
+  .animation-delay-300 {
+    animation-delay: 0.3s;
+    animation-fill-mode: both;
   }
 
   .animation-delay-400 {
     animation-delay: 0.4s;
-    opacity: 0;
     animation-fill-mode: forwards;
   }
 
