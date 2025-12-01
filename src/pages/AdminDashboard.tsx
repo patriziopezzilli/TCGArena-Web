@@ -5,6 +5,7 @@ import axios from 'axios'
 import RewardsManagement from './RewardsManagement'
 import AchievementsManagement from './AchievementsManagement'
 import BatchImport from './BatchImport'
+import ShopsManagement from './ShopsManagement'
 
 interface Shop {
   id: number
@@ -34,11 +35,11 @@ interface WaitingListEntry {
   contacted: boolean
 }
 
-type TabType = 'shops' | 'waiting-list' | 'rewards' | 'achievements' | 'batch-import'
+type TabType = 'all-shops' | 'pending-shops' | 'waiting-list' | 'rewards' | 'achievements' | 'batch-import'
 
 export default function AdminDashboard() {
   const navigate = useNavigate()
-  const [activeTab, setActiveTab] = useState<TabType>('shops')
+  const [activeTab, setActiveTab] = useState<TabType>('all-shops')
   const [loading, setLoading] = useState(true)
   const [pendingShops, setPendingShops] = useState<Shop[]>([])
   const [stats, setStats] = useState<Stats | null>(null)
@@ -149,14 +150,24 @@ export default function AdminDashboard() {
           {/* Tabs */}
           <div className="flex gap-4 mt-4 border-b border-gray-200 overflow-x-auto">
             <button
-              onClick={() => setActiveTab('shops')}
+              onClick={() => setActiveTab('all-shops')}
               className={`pb-3 px-1 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-                activeTab === 'shops'
+                activeTab === 'all-shops'
                   ? 'border-primary text-primary'
                   : 'border-transparent text-gray-600 hover:text-gray-900'
               }`}
             >
-              Negozi ({stats?.pending || 0})
+              Tutti i Negozi
+            </button>
+            <button
+              onClick={() => setActiveTab('pending-shops')}
+              className={`pb-3 px-1 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+                activeTab === 'pending-shops'
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              Negozi in Attesa ({stats?.pending || 0})
             </button>
             <button
               onClick={() => setActiveTab('waiting-list')}
@@ -204,7 +215,7 @@ export default function AdminDashboard() {
 
       {/* Content */}
       <div className="max-w-7xl mx-auto px-6 py-8">
-        {activeTab === 'shops' ? (
+        {activeTab === 'pending-shops' ? (
           <>
             {/* Shop Stats */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
@@ -406,6 +417,8 @@ export default function AdminDashboard() {
               )}
             </div>
           </>
+        ) : activeTab === 'all-shops' ? (
+          <ShopsManagement />
         ) : activeTab === 'rewards' ? (
           <RewardsManagement />
         ) : activeTab === 'achievements' ? (
