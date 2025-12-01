@@ -2,6 +2,9 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { adminService } from '../services/api'
 import axios from 'axios'
+import RewardsManagement from './RewardsManagement'
+import AchievementsManagement from './AchievementsManagement'
+import BatchImport from './BatchImport'
 
 interface Shop {
   id: number
@@ -31,7 +34,7 @@ interface WaitingListEntry {
   contacted: boolean
 }
 
-type TabType = 'shops' | 'waiting-list'
+type TabType = 'shops' | 'waiting-list' | 'rewards' | 'achievements' | 'batch-import'
 
 export default function AdminDashboard() {
   const navigate = useNavigate()
@@ -144,10 +147,10 @@ export default function AdminDashboard() {
           </div>
           
           {/* Tabs */}
-          <div className="flex gap-4 mt-4 border-b border-gray-200">
+          <div className="flex gap-4 mt-4 border-b border-gray-200 overflow-x-auto">
             <button
               onClick={() => setActiveTab('shops')}
-              className={`pb-3 px-1 text-sm font-medium border-b-2 transition-colors ${
+              className={`pb-3 px-1 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
                 activeTab === 'shops'
                   ? 'border-primary text-primary'
                   : 'border-transparent text-gray-600 hover:text-gray-900'
@@ -157,13 +160,43 @@ export default function AdminDashboard() {
             </button>
             <button
               onClick={() => setActiveTab('waiting-list')}
-              className={`pb-3 px-1 text-sm font-medium border-b-2 transition-colors ${
+              className={`pb-3 px-1 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
                 activeTab === 'waiting-list'
                   ? 'border-primary text-primary'
                   : 'border-transparent text-gray-600 hover:text-gray-900'
               }`}
             >
               Waiting List ({waitingList.length})
+            </button>
+            <button
+              onClick={() => setActiveTab('rewards')}
+              className={`pb-3 px-1 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+                activeTab === 'rewards'
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              Rewards
+            </button>
+            <button
+              onClick={() => setActiveTab('achievements')}
+              className={`pb-3 px-1 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+                activeTab === 'achievements'
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              Achievements
+            </button>
+            <button
+              onClick={() => setActiveTab('batch-import')}
+              className={`pb-3 px-1 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+                activeTab === 'batch-import'
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              Batch Import
             </button>
           </div>
         </div>
@@ -260,7 +293,7 @@ export default function AdminDashboard() {
               )}
             </div>
           </>
-        ) : (
+        ) : activeTab === 'waiting-list' ? (
           <>
             {/* Waiting List Stats */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
@@ -373,7 +406,13 @@ export default function AdminDashboard() {
               )}
             </div>
           </>
-        )}
+        ) : activeTab === 'rewards' ? (
+          <RewardsManagement />
+        ) : activeTab === 'achievements' ? (
+          <AchievementsManagement />
+        ) : activeTab === 'batch-import' ? (
+          <BatchImport />
+        ) : null}
       </div>
     </div>
   )
