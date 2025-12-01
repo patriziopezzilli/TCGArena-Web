@@ -41,4 +41,26 @@ export const merchantService = {
   },
 }
 
+export const adminService = {
+  async getPendingShops(): Promise<any[]> {
+    const response = await apiClient.get('/admin/shops/pending')
+    return response.data
+  },
+
+  async getShopStats(): Promise<{ total: number; active: number; pending: number; verified: number }> {
+    const response = await apiClient.get('/admin/shops/stats')
+    return response.data
+  },
+
+  async activateShop(shopId: number): Promise<any> {
+    const response = await apiClient.post(`/admin/shops/${shopId}/activate`)
+    return response.data
+  },
+
+  async deactivateShop(shopId: number): Promise<any> {
+    const response = await apiClient.post(`/admin/shops/${shopId}/deactivate`)
+    return response.data
+  },
+}
+
 export default apiClient

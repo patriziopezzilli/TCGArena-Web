@@ -1,17 +1,28 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { merchantService } from '../services/api'
+import AdminDashboard from './AdminDashboard'
 
 export default function MerchantDashboard() {
   const navigate = useNavigate()
   const [loading, setLoading] = useState(true)
   const [shopStatus, setShopStatus] = useState<any>(null)
   const [error, setError] = useState('')
+  const [isAdmin, setIsAdmin] = useState(false)
 
   useEffect(() => {
     const token = localStorage.getItem('merchant_token')
+    const adminFlag = localStorage.getItem('is_admin')
+    
     if (!token) {
       navigate('/merchant/login')
+      return
+    }
+
+    // Check if admin
+    if (adminFlag === 'true') {
+      setIsAdmin(true)
+      setLoading(false)
       return
     }
 
@@ -37,7 +48,13 @@ export default function MerchantDashboard() {
   const handleLogout = () => {
     localStorage.removeItem('merchant_token')
     localStorage.removeItem('merchant_user')
+    localStorage.removeItem('is_admin')
     navigate('/merchant/login')
+  }
+
+  // Render admin dashboard if admin
+  if (isAdmin) {
+    return <AdminDashboard />
   }
 
   if (loading) {
