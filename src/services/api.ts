@@ -110,9 +110,21 @@ export const merchantService = {
     const response = await apiClient.post(`/requests/${id}/messages`, { message, isFromMerchant })
     return response.data
   },
+
+  // Shop update endpoint
+  async updateShop(shopData: any): Promise<any> {
+    const response = await apiClient.put('/merchant/shop', shopData)
+    return response.data
+  },
 }
 
 export const adminService = {
+  // ========== SHOPS MANAGEMENT ==========
+  async getAllShops(): Promise<any[]> {
+    const response = await apiClient.get('/admin/shops')
+    return response.data
+  },
+
   async getPendingShops(): Promise<any[]> {
     const response = await apiClient.get('/admin/shops/pending')
     return response.data
@@ -130,6 +142,62 @@ export const adminService = {
 
   async deactivateShop(shopId: number): Promise<any> {
     const response = await apiClient.post(`/admin/shops/${shopId}/deactivate`)
+    return response.data
+  },
+
+  async updateShop(shopId: number, shopData: any): Promise<any> {
+    const response = await apiClient.put(`/admin/shops/${shopId}`, shopData)
+    return response.data
+  },
+
+  // ========== REWARDS MANAGEMENT ==========
+  async getAllRewards(): Promise<any[]> {
+    const response = await apiClient.get('/rewards')
+    return response.data
+  },
+
+  async createReward(rewardData: any): Promise<any> {
+    const response = await apiClient.post('/admin/rewards', rewardData)
+    return response.data
+  },
+
+  async updateReward(rewardId: number, rewardData: any): Promise<any> {
+    const response = await apiClient.put(`/admin/rewards/${rewardId}`, rewardData)
+    return response.data
+  },
+
+  async deleteReward(rewardId: number): Promise<any> {
+    const response = await apiClient.delete(`/admin/rewards/${rewardId}`)
+    return response.data
+  },
+
+  // ========== ACHIEVEMENTS MANAGEMENT ==========
+  async getAllAchievements(): Promise<any[]> {
+    const response = await apiClient.get('/achievements')
+    return response.data
+  },
+
+  async createAchievement(achievementData: any): Promise<any> {
+    const response = await apiClient.post('/admin/achievements', achievementData)
+    return response.data
+  },
+
+  async updateAchievement(achievementId: number, achievementData: any): Promise<any> {
+    const response = await apiClient.put(`/admin/achievements/${achievementId}`, achievementData)
+    return response.data
+  },
+
+  async deleteAchievement(achievementId: number): Promise<any> {
+    const response = await apiClient.delete(`/admin/achievements/${achievementId}`)
+    return response.data
+  },
+
+  // ========== BATCH IMPORT ==========
+  async triggerBatchImport(tcgType: string, startIndex: number = -99, endIndex: number = -99): Promise<any> {
+    const params = new URLSearchParams()
+    if (startIndex !== -99) params.append('startIndex', startIndex.toString())
+    if (endIndex !== -99) params.append('endIndex', endIndex.toString())
+    const response = await apiClient.post(`/admin/import/${tcgType}?${params}`)
     return response.data
   },
 }
