@@ -111,9 +111,19 @@ export const merchantService = {
     return response.data
   },
 
-  // Shop update endpoint
-  async updateShop(shopData: any): Promise<any> {
-    const response = await apiClient.put('/merchant/shop', shopData)
+  // Shop subscription endpoints
+  async getShopSubscribers(shopId: string): Promise<any[]> {
+    const response = await apiClient.get(`/shops/${shopId}/subscribers`)
+    return response.data
+  },
+
+  async getSubscriberCount(shopId: string): Promise<{ count: number }> {
+    const response = await apiClient.get(`/shops/${shopId}/subscriber-count`)
+    return response.data
+  },
+
+  async sendShopNotification(shopId: string, title: string, message: string): Promise<any> {
+    const response = await apiClient.post(`/notifications/shop/${shopId}/broadcast`, { title, message })
     return response.data
   },
 }

@@ -9,6 +9,7 @@ import MerchantReservations from './pages/MerchantReservations'
 import MerchantTournaments from './pages/MerchantTournaments'
 import MerchantRequests from './pages/MerchantRequests'
 import MerchantSettings from './pages/MerchantSettings'
+import MerchantSubscribers from './pages/MerchantSubscribers'
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
         <Route path="/merchant/tournaments" element={<MerchantTournaments />} />
         <Route path="/merchant/requests" element={<MerchantRequests />} />
         <Route path="/merchant/settings" element={<MerchantSettings />} />
+        <Route path="/merchant/subscribers" element={<MerchantSubscribers />} />
       </Routes>
     </BrowserRouter>
   )

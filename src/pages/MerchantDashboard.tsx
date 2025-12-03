@@ -180,7 +180,7 @@ export default function MerchantDashboard() {
             </div>
 
             {/* Quick Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
               <div className="bg-gradient-to-br from-green-50 to-white border border-green-100 rounded-2xl p-6 hover:shadow-lg transition-all">
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="text-sm font-medium text-green-700">Inventario</h3>
@@ -216,10 +216,19 @@ export default function MerchantDashboard() {
                 <p className="text-4xl font-bold text-amber-600">0</p>
                 <p className="text-xs text-amber-600 mt-1">Da gestire</p>
               </div>
+
+              <div className="bg-gradient-to-br from-indigo-50 to-white border border-indigo-100 rounded-2xl p-6 hover:shadow-lg transition-all">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-sm font-medium text-indigo-700">Iscritti</h3>
+                  <span className="text-2xl">🔔</span>
+                </div>
+                <p className="text-4xl font-bold text-indigo-600">0</p>
+                <p className="text-xs text-indigo-600 mt-1">Abbonati alle notifiche</p>
+              </div>
             </div>
 
             {/* Main Sections */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* Inventory Section */}
               <div className="bg-white border border-gray-100 rounded-2xl p-8 hover:shadow-lg transition-all">
                 <div className="text-4xl mb-4">📦</div>
@@ -285,6 +294,23 @@ export default function MerchantDashboard() {
                   className="w-full bg-gradient-to-r from-gray-900 to-gray-700 text-white py-3 rounded-xl font-semibold hover:shadow-xl transition-all hover:scale-105"
                 >
                   Vedi Richieste →
+                </button>
+              </div>
+
+              {/* Subscribers Section */}
+              <div className="bg-white border border-gray-100 rounded-2xl p-8 hover:shadow-lg transition-all">
+                <div className="text-4xl mb-4">🔔</div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">
+                  Iscritti alle Notifiche
+                </h3>
+                <p className="text-gray-600 mb-6">
+                  Gestisci gli iscritti alle notifiche e invia aggiornamenti
+                </p>
+                <button
+                  onClick={() => navigate('/merchant/subscribers')}
+                  className="w-full bg-gradient-to-r from-gray-900 to-gray-700 text-white py-3 rounded-xl font-semibold hover:shadow-xl transition-all hover:scale-105"
+                >
+                  Gestisci Iscritti →
                 </button>
               </div>
             </div>

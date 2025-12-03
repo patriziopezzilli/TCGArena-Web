@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { merchantService } from '../services/api'
+import { merchantService, adminService } from '../services/api'
 
 const TCG_TYPES = [
   { value: 'POKEMON', label: 'Pokémon', icon: '⚡', color: 'bg-yellow-100 text-yellow-800 border-yellow-300' },
@@ -101,7 +101,7 @@ export default function MerchantSettings() {
         tcgTypes: formData.tcgTypes.join(','),
         services: formData.services.join(','),
       }
-      await merchantService.updateShop(payload)
+      await adminService.updateShop(shop.id, payload)
       alert('✅ Negozio aggiornato con successo!')
       loadShopData()
     } catch (err: any) {
