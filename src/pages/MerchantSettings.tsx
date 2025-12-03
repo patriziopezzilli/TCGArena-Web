@@ -2,6 +2,28 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { merchantService } from '../services/api'
 
+const TCG_TYPES = [
+  { value: 'POKEMON', label: 'Pokémon', icon: '⚡', color: 'bg-yellow-100 text-yellow-800 border-yellow-300' },
+  { value: 'MAGIC', label: 'Magic: The Gathering', icon: '🔮', color: 'bg-purple-100 text-purple-800 border-purple-300' },
+  { value: 'YUGIOH', label: 'Yu-Gi-Oh!', icon: '🎴', color: 'bg-blue-100 text-blue-800 border-blue-300' },
+  { value: 'ONE_PIECE', label: 'One Piece', icon: '🏴‍☠️', color: 'bg-red-100 text-red-800 border-red-300' },
+  { value: 'DIGIMON', label: 'Digimon', icon: '🦖', color: 'bg-orange-100 text-orange-800 border-orange-300' },
+  { value: 'DRAGON_BALL', label: 'Dragon Ball', icon: '🐉', color: 'bg-amber-100 text-amber-800 border-amber-300' },
+]
+
+const SERVICES = [
+  { value: 'CARD_SALES', label: 'Vendita Carte', icon: '🛒', description: 'Vendita di singole e sealed product' },
+  { value: 'BUY_CARDS', label: 'Acquisto Carte', icon: '💰', description: 'Acquisto carte dai clienti' },
+  { value: 'TOURNAMENTS', label: 'Tornei', icon: '🏆', description: 'Organizzazione tornei ufficiali e amatoriali' },
+  { value: 'PLAY_AREA', label: 'Area Gioco', icon: '🎮', description: 'Tavoli disponibili per giocare' },
+  { value: 'GRADING', label: 'Grading', icon: '⭐', description: 'Servizio di valutazione e grading' },
+  { value: 'ACCESSORIES', label: 'Accessori', icon: '🎒', description: 'Bustine, deck box, playmat, ecc.' },
+  { value: 'PREORDERS', label: 'Preordini', icon: '📅', description: 'Preordini nuovi set' },
+  { value: 'ONLINE_STORE', label: 'Store Online', icon: '🌐', description: 'Vendita online con spedizione' },
+  { value: 'CARD_EVALUATION', label: 'Valutazione Carte', icon: '🔍', description: 'Valutazione gratuita collezioni' },
+  { value: 'TRADE_IN', label: 'Permuta', icon: '🔄', description: 'Permuta carte con store credit' },
+]
+
 export default function MerchantSettings() {
   const navigate = useNavigate()
   const [loading, setLoading] = useState(true)
@@ -22,6 +44,8 @@ export default function MerchantSettings() {
     openingHours: '',
     openingDays: '',
     type: 'PHYSICAL_STORE',
+    tcgTypes: [] as string[],
+    services: [] as string[],
   })
 
   useEffect(() => {
@@ -32,6 +56,15 @@ export default function MerchantSettings() {
     try {
       const status = await merchantService.getShopStatus()
       setShop(status.shop)
+      
+      // Parse tcgTypes and services from comma-separated strings
+      const tcgTypesArray = status.shop.tcgTypes 
+        ? status.shop.tcgTypes.split(',').filter((t: string) => t.trim()) 
+        : []
+      const servicesArray = status.shop.services 
+        ? status.shop.services.split(',').filter((s: string) => s.trim()) 
+        : []
+      
       setFormData({
         name: status.shop.name || '',
         description: status.shop.description || '',
@@ -47,6 +80,8 @@ export default function MerchantSettings() {
         openingHours: status.shop.openingHours || '',
         openingDays: status.shop.openingDays || '',
         type: status.shop.type || 'PHYSICAL_STORE',
+        tcgTypes: tcgTypesArray,
+        services: servicesArray,
       })
     } catch (err) {
       alert('Errore nel caricamento dei dati')
@@ -60,7 +95,13 @@ export default function MerchantSettings() {
     e.preventDefault()
     setSaving(true)
     try {
-      await merchantService.updateShop(formData)
+      // Convert arrays to comma-separated strings for backend
+      const payload = {
+        ...formData,
+        tcgTypes: formData.tcgTypes.join(','),
+        services: formData.services.join(','),
+      }
+      await merchantService.updateShop(payload)
       alert('✅ Negozio aggiornato con successo!')
       loadShopData()
     } catch (err: any) {
@@ -147,6 +188,89 @@ export default function MerchantSettings() {
                   <option value="HYBRID">Ibrido (Fisico + Online)</option>
                 </select>
               </div>
+            </div>
+          </div>
+
+          {/* TCG Types */}
+          <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-2">Giochi Supportati</h2>
+            <p className="text-sm text-gray-500 mb-4">Seleziona i TCG che vendi o supporti nel tuo negozio</p>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {TCG_TYPES.map((tcg) => {
+                const isSelected = formData.tcgTypes.includes(tcg.value)
+                return (
+                  <button
+                    key={tcg.value}
+                    type="button"
+                    onClick={() => {
+                      const newTypes = isSelected
+                        ? formData.tcgTypes.filter(t => t !== tcg.value)
+                        : [...formData.tcgTypes, tcg.value]
+                      setFormData({ ...formData, tcgTypes: newTypes })
+                    }}
+                    className={`flex items-center gap-3 p-4 rounded-lg border-2 transition-all ${
+                      isSelected
+                        ? `${tcg.color} border-current`
+                        : 'bg-gray-50 border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <span className="text-2xl">{tcg.icon}</span>
+                    <span className={`font-medium ${isSelected ? '' : 'text-gray-700'}`}>{tcg.label}</span>
+                    {isSelected && (
+                      <span className="ml-auto">
+                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        </svg>
+                      </span>
+                    )}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* Services */}
+          <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-2">Servizi Offerti</h2>
+            <p className="text-sm text-gray-500 mb-4">Indica quali servizi offri ai tuoi clienti</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {SERVICES.map((service) => {
+                const isSelected = formData.services.includes(service.value)
+                return (
+                  <button
+                    key={service.value}
+                    type="button"
+                    onClick={() => {
+                      const newServices = isSelected
+                        ? formData.services.filter(s => s !== service.value)
+                        : [...formData.services, service.value]
+                      setFormData({ ...formData, services: newServices })
+                    }}
+                    className={`flex items-start gap-3 p-4 rounded-lg border-2 text-left transition-all ${
+                      isSelected
+                        ? 'bg-blue-50 border-blue-500 text-blue-900'
+                        : 'bg-gray-50 border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <span className="text-2xl">{service.icon}</span>
+                    <div className="flex-1 min-w-0">
+                      <span className={`font-medium block ${isSelected ? 'text-blue-900' : 'text-gray-700'}`}>
+                        {service.label}
+                      </span>
+                      <span className={`text-xs ${isSelected ? 'text-blue-700' : 'text-gray-500'}`}>
+                        {service.description}
+                      </span>
+                    </div>
+                    {isSelected && (
+                      <span className="text-blue-500">
+                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        </svg>
+                      </span>
+                    )}
+                  </button>
+                )
+              })}
             </div>
           </div>
 
