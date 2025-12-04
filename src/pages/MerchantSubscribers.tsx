@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { merchantService } from '../services/api'
+import { useToast } from '../contexts/ToastContext'
 
 interface Subscriber {
   id: number
@@ -14,6 +15,7 @@ interface Subscriber {
 
 export default function MerchantSubscribers() {
   const navigate = useNavigate()
+  const { showToast } = useToast()
   const [loading, setLoading] = useState(true)
   const [subscribers, setSubscribers] = useState<Subscriber[]>([])
   const [subscriberCount, setSubscriberCount] = useState(0)
@@ -64,7 +66,7 @@ export default function MerchantSubscribers() {
 
   const handleSendNotification = async () => {
     if (!notificationTitle.trim() || !notificationMessage.trim()) {
-      alert('Inserisci titolo e messaggio per la notifica')
+      showToast('Inserisci titolo e messaggio per la notifica', 'warning')
       return
     }
 
@@ -74,9 +76,9 @@ export default function MerchantSubscribers() {
       setShowNotificationModal(false)
       setNotificationTitle('')
       setNotificationMessage('')
-      alert('Notifica inviata con successo a tutti gli iscritti!')
+      showToast('Notifica inviata con successo a tutti gli iscritti!', 'success')
     } catch (err: any) {
-      alert('Errore nell\'invio della notifica: ' + (err.response?.data?.message || err.message))
+      showToast('Errore nell\'invio della notifica: ' + (err.response?.data?.message || err.message), 'error')
     } finally {
       setSendingNotification(false)
     }
@@ -107,7 +109,7 @@ export default function MerchantSubscribers() {
         <div className="text-center max-w-md">
           <p className="text-red-600 mb-4">{error}</p>
           <button
-            onClick={() => navigate('/merchant')}
+            onClick={() => navigate('/merchant/dashboard')}
             className="text-primary hover:underline"
           >
             Torna alla dashboard
@@ -118,14 +120,14 @@ export default function MerchantSubscribers() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-gradient-to-r from-gray-900 to-gray-700 border-b border-gray-800 shadow-lg">
+      <header className="bg-gray-900 border-b border-gray-800 shadow-lg">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div>
               <button
-                onClick={() => navigate('/merchant')}
+                onClick={() => navigate('/merchant/dashboard')}
                 className="text-gray-300 hover:text-white flex items-center gap-2 mb-2"
               >
                 ← Torna alla Dashboard
@@ -159,7 +161,7 @@ export default function MerchantSubscribers() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-6 py-8">
         {/* Stats Card */}
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-2xl p-6 mb-8">
+        <div className="bg-blue-50 border border-blue-100 rounded-2xl p-6 mb-8">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-bold text-gray-900 mb-1">
@@ -184,8 +186,8 @@ export default function MerchantSubscribers() {
               Quando gli utenti si iscriveranno alle tue notifiche, appariranno qui
             </p>
             <button
-              onClick={() => navigate('/merchant')}
-              className="bg-gradient-to-r from-gray-900 to-gray-700 text-white px-6 py-3 rounded-xl font-semibold hover:shadow-xl transition-all"
+              onClick={() => navigate('/merchant/dashboard')}
+              className="bg-gray-900 text-white px-6 py-3 rounded-xl font-semibold hover:shadow-xl transition-all"
             >
               Torna alla Dashboard
             </button>
@@ -203,7 +205,7 @@ export default function MerchantSubscribers() {
                 <div key={subscriber.id} className="px-6 py-4 hover:bg-gray-50 transition-colors">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full flex items-center justify-center">
+                      <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
                         <span className="text-lg font-semibold text-blue-600">
                           {subscriber.displayName.charAt(0).toUpperCase()}
                         </span>

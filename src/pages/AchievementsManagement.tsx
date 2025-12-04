@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { adminService } from '../services/api'
+import { useToast } from '../contexts/ToastContext'
 
 interface Achievement {
   id: number
@@ -13,6 +14,7 @@ interface Achievement {
 }
 
 export default function AchievementsManagement() {
+  const { showToast } = useToast()
   const [achievements, setAchievements] = useState<Achievement[]>([])
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
@@ -35,7 +37,7 @@ export default function AchievementsManagement() {
       const data = await adminService.getAllAchievements()
       setAchievements(data)
     } catch (err) {
-      alert('Errore nel caricamento degli achievements')
+      showToast('Errore nel caricamento degli achievements', 'error')
     } finally {
       setLoading(false)
     }
@@ -72,13 +74,15 @@ export default function AchievementsManagement() {
     try {
       if (editingAchievement) {
         await adminService.updateAchievement(editingAchievement.id, formData)
+        showToast('Achievement aggiornato con successo', 'success')
       } else {
         await adminService.createAchievement(formData)
+        showToast('Achievement creato con successo', 'success')
       }
       setShowModal(false)
       loadAchievements()
     } catch (err: any) {
-      alert('Errore: ' + (err.response?.data?.message || err.message))
+      showToast('Errore: ' + (err.response?.data?.message || err.message), 'error')
     }
   }
 
@@ -86,9 +90,10 @@ export default function AchievementsManagement() {
     if (!confirm(`Sei sicuro di voler eliminare "${achievement.name}"?`)) return
     try {
       await adminService.deleteAchievement(achievement.id)
+      showToast('Achievement eliminato con successo', 'success')
       loadAchievements()
     } catch (err: any) {
-      alert('Errore: ' + (err.response?.data?.message || err.message))
+      showToast('Errore: ' + (err.response?.data?.message || err.message), 'error')
     }
   }
 

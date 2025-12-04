@@ -45,7 +45,7 @@ export default function MerchantLogin() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 flex items-center justify-center px-6 py-12">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-6 py-12">
       <div className="absolute inset-0 bg-grid-pattern opacity-5 pointer-events-none"></div>
       
       <div className="max-w-md w-full relative animate-fade-in-up">
@@ -55,7 +55,7 @@ export default function MerchantLogin() {
             <h1 className="text-4xl font-bold text-gray-900 transition-all duration-300 group-hover:scale-105">
               TCG Arena
             </h1>
-            <div className="h-1 bg-gradient-to-r from-primary to-secondary rounded-full mt-2 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
+            <div className="h-1 bg-gray-900 rounded-full mt-2 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
           </Link>
         </div>
 
@@ -99,7 +99,7 @@ export default function MerchantLogin() {
                   placeholder="Il tuo username"
                   required
                 />
-                <div className={`absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-primary to-secondary rounded-full transition-all duration-300 ${
+                <div className={`absolute bottom-0 left-0 h-0.5 bg-gray-900 rounded-full transition-all duration-300 ${
                   focusedField === 'username' ? 'w-full' : 'w-0'
                 }`}></div>
               </div>
@@ -126,7 +126,7 @@ export default function MerchantLogin() {
                   placeholder="••••••••••"
                   required
                 />
-                <div className={`absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-primary to-secondary rounded-full transition-all duration-300 ${
+                <div className={`absolute bottom-0 left-0 h-0.5 bg-gray-900 rounded-full transition-all duration-300 ${
                   focusedField === 'password' ? 'w-full' : 'w-0'
                 }`}></div>
               </div>
@@ -150,7 +150,7 @@ export default function MerchantLogin() {
                   </>
                 )}
               </span>
-              <div className="absolute inset-0 bg-gradient-to-r from-gray-800 to-gray-900 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
+              <div className="absolute inset-0 bg-gray-800 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
             </button>
           </form>
 

@@ -7,6 +7,13 @@ export default function MerchantDashboard() {
   const navigate = useNavigate()
   const [loading, setLoading] = useState(true)
   const [shopStatus, setShopStatus] = useState<any>(null)
+  const [dashboardStats, setDashboardStats] = useState<{
+    inventoryCount: number;
+    activeReservations: number;
+    upcomingTournaments: number;
+    pendingRequests: number;
+    subscriberCount: number;
+  } | null>(null)
   const [error, setError] = useState('')
   const [isAdmin, setIsAdmin] = useState(false)
 
@@ -33,6 +40,11 @@ export default function MerchantDashboard() {
     try {
       const status = await merchantService.getShopStatus()
       setShopStatus(status)
+      
+      // Load dashboard stats if shop is active
+      if (status.active) {
+        await loadDashboardStats()
+      }
     } catch (err: any) {
       if (err.response?.status === 401) {
         localStorage.removeItem('merchant_token')
@@ -42,6 +54,17 @@ export default function MerchantDashboard() {
       }
     } finally {
       setLoading(false)
+    }
+  }
+
+  const loadDashboardStats = async () => {
+    try {
+      const stats = await merchantService.getDashboardStats()
+      setDashboardStats(stats)
+    } catch (err: any) {
+      console.error('Error loading dashboard stats:', err)
+      // Don't set error state for stats, just log it
+      // Stats are not critical for the dashboard to function
     }
   }
 
@@ -85,9 +108,9 @@ export default function MerchantDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-gradient-to-r from-gray-900 to-gray-700 border-b border-gray-800 shadow-lg">
+      <header className="bg-gray-800 border-b border-gray-700 shadow-lg">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div>
@@ -100,12 +123,6 @@ export default function MerchantDashboard() {
               </p>
             </div>
             <div className="flex items-center gap-4">
-              <button
-                onClick={() => navigate('/merchant/settings')}
-                className="px-4 py-2 text-sm font-medium text-white bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg transition-colors"
-              >
-                ⚙️ Impostazioni
-              </button>
               <button
                 onClick={handleLogout}
                 className="text-sm text-gray-300 hover:text-white transition-colors"
@@ -179,56 +196,58 @@ export default function MerchantDashboard() {
               </p>
             </div>
 
-            {/* Quick Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
-              <div className="bg-gradient-to-br from-green-50 to-white border border-green-100 rounded-2xl p-6 hover:shadow-lg transition-all">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-sm font-medium text-green-700">Inventario</h3>
-                  <span className="text-2xl">📦</span>
+            {/* Quick Stats - Scrollable Horizontal */}
+            <div className="relative">
+              <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+                <div className="flex-shrink-0 w-48 bg-green-50 border border-green-200 rounded-2xl p-6 hover:shadow-lg transition-all">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-sm font-medium text-green-800">Inventario</h3>
+                    <span className="text-2xl">📦</span>
+                  </div>
+                  <p className="text-4xl font-bold text-green-700">{dashboardStats?.inventoryCount ?? 0}</p>
+                  <p className="text-xs text-green-600 mt-1">Carte totali</p>
                 </div>
-                <p className="text-4xl font-bold text-green-600">0</p>
-                <p className="text-xs text-green-600 mt-1">Carte totali</p>
-              </div>
 
-              <div className="bg-gradient-to-br from-blue-50 to-white border border-blue-100 rounded-2xl p-6 hover:shadow-lg transition-all">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-sm font-medium text-blue-700">Prenotazioni</h3>
-                  <span className="text-2xl">🎫</span>
+                <div className="flex-shrink-0 w-48 bg-blue-50 border border-blue-200 rounded-2xl p-6 hover:shadow-lg transition-all">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-sm font-medium text-blue-800">Prenotazioni</h3>
+                    <span className="text-2xl">🎫</span>
+                  </div>
+                  <p className="text-4xl font-bold text-blue-700">{dashboardStats?.activeReservations ?? 0}</p>
+                  <p className="text-xs text-blue-600 mt-1">Attive</p>
                 </div>
-                <p className="text-4xl font-bold text-blue-600">0</p>
-                <p className="text-xs text-blue-600 mt-1">Attive</p>
-              </div>
 
-              <div className="bg-gradient-to-br from-purple-50 to-white border border-purple-100 rounded-2xl p-6 hover:shadow-lg transition-all">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-sm font-medium text-purple-700">Tornei</h3>
-                  <span className="text-2xl">🏆</span>
+                <div className="flex-shrink-0 w-48 bg-purple-50 border border-purple-200 rounded-2xl p-6 hover:shadow-lg transition-all">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-sm font-medium text-purple-800">Tornei</h3>
+                    <span className="text-2xl">🏆</span>
+                  </div>
+                  <p className="text-4xl font-bold text-purple-700">{dashboardStats?.upcomingTournaments ?? 0}</p>
+                  <p className="text-xs text-purple-600 mt-1">In programma</p>
                 </div>
-                <p className="text-4xl font-bold text-purple-600">0</p>
-                <p className="text-xs text-purple-600 mt-1">In programma</p>
-              </div>
 
-              <div className="bg-gradient-to-br from-amber-50 to-white border border-amber-100 rounded-2xl p-6 hover:shadow-lg transition-all">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-sm font-medium text-amber-700">Richieste</h3>
-                  <span className="text-2xl">💬</span>
+                <div className="flex-shrink-0 w-48 bg-amber-50 border border-amber-200 rounded-2xl p-6 hover:shadow-lg transition-all">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-sm font-medium text-amber-800">Richieste</h3>
+                    <span className="text-2xl">💬</span>
+                  </div>
+                  <p className="text-4xl font-bold text-amber-700">{dashboardStats?.pendingRequests ?? 0}</p>
+                  <p className="text-xs text-amber-600 mt-1">Da gestire</p>
                 </div>
-                <p className="text-4xl font-bold text-amber-600">0</p>
-                <p className="text-xs text-amber-600 mt-1">Da gestire</p>
-              </div>
 
-              <div className="bg-gradient-to-br from-indigo-50 to-white border border-indigo-100 rounded-2xl p-6 hover:shadow-lg transition-all">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-sm font-medium text-indigo-700">Iscritti</h3>
-                  <span className="text-2xl">🔔</span>
+                <div className="flex-shrink-0 w-48 bg-indigo-50 border border-indigo-200 rounded-2xl p-6 hover:shadow-lg transition-all">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-sm font-medium text-indigo-800">Iscritti</h3>
+                    <span className="text-2xl">🔔</span>
+                  </div>
+                  <p className="text-4xl font-bold text-indigo-700">{dashboardStats?.subscriberCount ?? 0}</p>
+                  <p className="text-xs text-indigo-600 mt-1">Abbonati alle notifiche</p>
                 </div>
-                <p className="text-4xl font-bold text-indigo-600">0</p>
-                <p className="text-xs text-indigo-600 mt-1">Abbonati alle notifiche</p>
               </div>
             </div>
 
             {/* Main Sections */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {/* Inventory Section */}
               <div className="bg-white border border-gray-100 rounded-2xl p-8 hover:shadow-lg transition-all">
                 <div className="text-4xl mb-4">📦</div>
@@ -240,7 +259,7 @@ export default function MerchantDashboard() {
                 </p>
                 <button
                   onClick={() => navigate('/merchant/inventory')}
-                  className="w-full bg-gradient-to-r from-gray-900 to-gray-700 text-white py-3 rounded-xl font-semibold hover:shadow-xl transition-all hover:scale-105"
+                  className="w-full bg-gray-800 text-white py-3 rounded-xl font-semibold hover:bg-gray-700 transition-all hover:scale-105"
                 >
                   Gestisci Inventario →
                 </button>
@@ -257,7 +276,7 @@ export default function MerchantDashboard() {
                 </p>
                 <button
                   onClick={() => navigate('/merchant/reservations')}
-                  className="w-full bg-gradient-to-r from-gray-900 to-gray-700 text-white py-3 rounded-xl font-semibold hover:shadow-xl transition-all hover:scale-105"
+                  className="w-full bg-gray-800 text-white py-3 rounded-xl font-semibold hover:bg-gray-700 transition-all hover:scale-105"
                 >
                   Vedi Prenotazioni →
                 </button>
@@ -274,7 +293,7 @@ export default function MerchantDashboard() {
                 </p>
                 <button
                   onClick={() => navigate('/merchant/tournaments')}
-                  className="w-full bg-gradient-to-r from-gray-900 to-gray-700 text-white py-3 rounded-xl font-semibold hover:shadow-xl transition-all hover:scale-105"
+                  className="w-full bg-gray-800 text-white py-3 rounded-xl font-semibold hover:bg-gray-700 transition-all hover:scale-105"
                 >
                   Gestisci Tornei →
                 </button>
@@ -291,7 +310,7 @@ export default function MerchantDashboard() {
                 </p>
                 <button
                   onClick={() => navigate('/merchant/requests')}
-                  className="w-full bg-gradient-to-r from-gray-900 to-gray-700 text-white py-3 rounded-xl font-semibold hover:shadow-xl transition-all hover:scale-105"
+                  className="w-full bg-gray-800 text-white py-3 rounded-xl font-semibold hover:bg-gray-700 transition-all hover:scale-105"
                 >
                   Vedi Richieste →
                 </button>
@@ -308,9 +327,26 @@ export default function MerchantDashboard() {
                 </p>
                 <button
                   onClick={() => navigate('/merchant/subscribers')}
-                  className="w-full bg-gradient-to-r from-gray-900 to-gray-700 text-white py-3 rounded-xl font-semibold hover:shadow-xl transition-all hover:scale-105"
+                  className="w-full bg-gray-800 text-white py-3 rounded-xl font-semibold hover:bg-gray-700 transition-all hover:scale-105"
                 >
                   Gestisci Iscritti →
+                </button>
+              </div>
+
+              {/* Shop Management Section */}
+              <div className="bg-white border border-gray-100 rounded-2xl p-8 hover:shadow-lg transition-all">
+                <div className="text-4xl mb-4">🏪</div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">
+                  Gestione Negozio
+                </h3>
+                <p className="text-gray-600 mb-6">
+                  Modifica informazioni, foto, contatti e impostazioni del negozio
+                </p>
+                <button
+                  onClick={() => navigate('/merchant/settings')}
+                  className="w-full bg-gray-800 text-white py-3 rounded-xl font-semibold hover:bg-gray-700 transition-all hover:scale-105"
+                >
+                  Configura Negozio →
                 </button>
               </div>
             </div>

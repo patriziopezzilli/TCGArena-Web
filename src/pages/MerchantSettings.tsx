@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { merchantService, adminService } from '../services/api'
+import { merchantService } from '../services/api'
+import { useToast } from '../contexts/ToastContext'
 
 const TCG_TYPES = [
   { value: 'POKEMON', label: 'Pokémon', icon: '⚡', color: 'bg-yellow-100 text-yellow-800 border-yellow-300' },
@@ -26,9 +27,12 @@ const SERVICES = [
 
 export default function MerchantSettings() {
   const navigate = useNavigate()
+  const { showToast } = useToast()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const [shop, setShop] = useState<any>(null)
+  const [uploadingPhoto, setUploadingPhoto] = useState(false)
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null)
+  const geocodingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -52,10 +56,19 @@ export default function MerchantSettings() {
     loadShopData()
   }, [])
 
+  // Cleanup geocoding timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (geocodingTimeoutRef.current) {
+        clearTimeout(geocodingTimeoutRef.current)
+      }
+    }
+  }, [])
+
   const loadShopData = async () => {
     try {
       const status = await merchantService.getShopStatus()
-      setShop(status.shop)
+      setPhotoPreview(status.shop.photoBase64 || null)
       
       // Parse tcgTypes and services from comma-separated strings
       const tcgTypesArray = status.shop.tcgTypes 
@@ -84,10 +97,99 @@ export default function MerchantSettings() {
         services: servicesArray,
       })
     } catch (err) {
-      alert('Errore nel caricamento dei dati')
+      showToast('Errore nel caricamento dei dati', 'error')
       navigate('/merchant/dashboard')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handlePhotoUpload = async (file: File) => {
+    setUploadingPhoto(true)
+    try {
+      // Convert file to base64
+      const base64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload = () => resolve(reader.result as string)
+        reader.onerror = reject
+        reader.readAsDataURL(file)
+      })
+
+      await merchantService.uploadShopPhoto(base64)
+      setPhotoPreview(base64)
+      showToast('Foto caricata con successo!', 'success')
+    } catch (error: any) {
+      showToast('Errore nel caricamento della foto: ' + (error.response?.data?.message || error.message), 'error')
+    } finally {
+      setUploadingPhoto(false)
+    }
+  }
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        showToast('Seleziona un file immagine valido', 'warning')
+        return
+      }
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        showToast('La foto deve essere inferiore a 5MB', 'warning')
+        return
+      }
+      handlePhotoUpload(file)
+    }
+  }
+
+  const geocodeAddress = useCallback(async (address: string) => {
+    if (!address || address.trim() === '') {
+      return
+    }
+
+    try {
+      // Usa Nominatim (OpenStreetMap) per il geocoding - gratuito e senza API key
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1&countrycodes=IT`
+      )
+
+      if (!response.ok) {
+        throw new Error('Errore nella richiesta di geocoding')
+      }
+
+      const data = await response.json()
+
+      if (data && data.length > 0) {
+        const { lat, lon } = data[0]
+        setFormData(prev => ({
+          ...prev,
+          latitude: parseFloat(lat),
+          longitude: parseFloat(lon)
+        }))
+      }
+    } catch (error) {
+      console.error('Geocoding error:', error)
+      // Silent error handling - no toast for automatic geocoding
+    }
+  }, [])
+
+  const handleInputChange = (field: keyof typeof formData, value: any) => {
+    setFormData(prev => ({ ...prev, [field]: value }))
+
+    // Trigger geocoding with debounce when address changes and seems complete
+    if (field === 'address' && value && value.trim().length > 8) {
+      // Check if address seems complete (has comma or number)
+      const hasComma = value.includes(',')
+      const hasNumber = /\d+/.test(value)
+      
+      if (hasComma || hasNumber) {
+        if (geocodingTimeoutRef.current) {
+          clearTimeout(geocodingTimeoutRef.current)
+        }
+        geocodingTimeoutRef.current = setTimeout(() => {
+          geocodeAddress(value)
+        }, 1000) // Wait 1 second after user stops typing
+      }
     }
   }
 
@@ -95,17 +197,15 @@ export default function MerchantSettings() {
     e.preventDefault()
     setSaving(true)
     try {
-      // Convert arrays to comma-separated strings for backend
-      const payload = {
+      await merchantService.updateShop({
         ...formData,
         tcgTypes: formData.tcgTypes.join(','),
         services: formData.services.join(','),
-      }
-      await adminService.updateShop(shop.id, payload)
-      alert('✅ Negozio aggiornato con successo!')
-      loadShopData()
-    } catch (err: any) {
-      alert('Errore: ' + (err.response?.data?.message || err.message))
+      })
+      showToast('Impostazioni salvate con successo!', 'success')
+      navigate('/merchant/dashboard')
+    } catch (error: any) {
+      showToast('Errore nel salvataggio: ' + (error.response?.data?.message || error.message), 'error')
     } finally {
       setSaving(false)
     }
@@ -157,7 +257,7 @@ export default function MerchantSettings() {
                   type="text"
                   required
                   value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  onChange={(e) => handleInputChange('name', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
                 />
               </div>
@@ -168,7 +268,7 @@ export default function MerchantSettings() {
                 <textarea
                   rows={4}
                   value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  onChange={(e) => handleInputChange('description', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
                   placeholder="Descrivi il tuo negozio..."
                 />
@@ -180,13 +280,72 @@ export default function MerchantSettings() {
                 <select
                   required
                   value={formData.type}
-                  onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                  onChange={(e) => handleInputChange('type', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
                 >
                   <option value="PHYSICAL_STORE">Negozio Fisico</option>
                   <option value="ONLINE_STORE">Negozio Online</option>
                   <option value="HYBRID">Ibrido (Fisico + Online)</option>
                 </select>
+              </div>
+            </div>
+          </div>
+
+          {/* Shop Photo */}
+          <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Foto del Negozio</h2>
+            <div className="space-y-4">
+              <div className="flex items-center gap-6">
+                <div className="flex-shrink-0">
+                  {photoPreview ? (
+                    <img
+                      src={photoPreview}
+                      alt="Foto negozio"
+                      className="w-32 h-32 object-cover rounded-lg border border-gray-200"
+                    />
+                  ) : (
+                    <div className="w-32 h-32 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center">
+                      <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                  )}
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm text-gray-600 mb-3">
+                    Carica una foto del tuo negozio. La foto verrà mostrata agli utenti nell'app mobile.
+                  </p>
+                  <div className="flex gap-3">
+                    <label className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 cursor-pointer">
+                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                      </svg>
+                      {uploadingPhoto ? 'Caricamento...' : 'Carica Foto'}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileChange}
+                        className="hidden"
+                        disabled={uploadingPhoto}
+                      />
+                    </label>
+                    {photoPreview && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setPhotoPreview(null)
+                          // TODO: Add endpoint to delete photo
+                        }}
+                        className="inline-flex items-center px-4 py-2 border border-red-300 rounded-lg text-sm font-medium text-red-700 bg-white hover:bg-red-50"
+                      >
+                        Rimuovi
+                      </button>
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-500 mt-2">
+                    Formati supportati: JPG, PNG, GIF. Dimensione massima: 5MB.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -286,9 +445,9 @@ export default function MerchantSettings() {
                   type="text"
                   required
                   value={formData.address}
-                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                  onChange={(e) => handleInputChange('address', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
-                  placeholder="Via, Città, CAP"
+                  placeholder="Via Roma 123, Milano"
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -300,9 +459,8 @@ export default function MerchantSettings() {
                     type="number"
                     step="any"
                     value={formData.latitude || ''}
-                    onChange={(e) => setFormData({ ...formData, latitude: e.target.value ? parseFloat(e.target.value) : null })}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
-                    placeholder="es. 45.4642"
+                    readOnly
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed"
                   />
                 </div>
                 <div>
@@ -313,10 +471,18 @@ export default function MerchantSettings() {
                     type="number"
                     step="any"
                     value={formData.longitude || ''}
-                    onChange={(e) => setFormData({ ...formData, longitude: e.target.value ? parseFloat(e.target.value) : null })}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
-                    placeholder="es. 9.1900"
+                    readOnly
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed"
                   />
+                </div>
+              </div>
+
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                <div className="flex items-start gap-2">
+                  <span className="text-blue-600 text-sm">ℹ️</span>
+                  <div className="text-sm text-blue-800">
+                    <strong>Coordinate automatiche:</strong> I campi latitudine e longitudine vengono popolati automaticamente quando inserisci un indirizzo completo. Non è necessario modificarli manualmente.
+                  </div>
                 </div>
               </div>
             </div>
@@ -333,7 +499,7 @@ export default function MerchantSettings() {
                 <input
                   type="tel"
                   value={formData.phoneNumber}
-                  onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
+                  onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
                   placeholder="+39 ..."
                 />
@@ -345,7 +511,7 @@ export default function MerchantSettings() {
                 <input
                   type="email"
                   value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  onChange={(e) => handleInputChange('email', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
                   placeholder="negozio@example.com"
                 />
@@ -357,7 +523,7 @@ export default function MerchantSettings() {
                 <input
                   type="url"
                   value={formData.websiteUrl}
-                  onChange={(e) => setFormData({ ...formData, websiteUrl: e.target.value })}
+                  onChange={(e) => handleInputChange('websiteUrl', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
                   placeholder="https://..."
                 />
@@ -376,7 +542,7 @@ export default function MerchantSettings() {
                 <input
                   type="url"
                   value={formData.instagramUrl}
-                  onChange={(e) => setFormData({ ...formData, instagramUrl: e.target.value })}
+                  onChange={(e) => handleInputChange('instagramUrl', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
                   placeholder="https://instagram.com/..."
                 />
@@ -388,7 +554,7 @@ export default function MerchantSettings() {
                 <input
                   type="url"
                   value={formData.facebookUrl}
-                  onChange={(e) => setFormData({ ...formData, facebookUrl: e.target.value })}
+                  onChange={(e) => handleInputChange('facebookUrl', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
                   placeholder="https://facebook.com/..."
                 />
@@ -400,7 +566,7 @@ export default function MerchantSettings() {
                 <input
                   type="url"
                   value={formData.twitterUrl}
-                  onChange={(e) => setFormData({ ...formData, twitterUrl: e.target.value })}
+                  onChange={(e) => handleInputChange('twitterUrl', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
                   placeholder="https://x.com/..."
                 />
@@ -420,7 +586,7 @@ export default function MerchantSettings() {
                 <input
                   type="text"
                   value={formData.openingHours}
-                  onChange={(e) => setFormData({ ...formData, openingHours: e.target.value })}
+                  onChange={(e) => handleInputChange('openingHours', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
                   placeholder="9:00-13:00, 15:00-19:00"
                 />
@@ -433,7 +599,7 @@ export default function MerchantSettings() {
                 <input
                   type="text"
                   value={formData.openingDays}
-                  onChange={(e) => setFormData({ ...formData, openingDays: e.target.value })}
+                  onChange={(e) => handleInputChange('openingDays', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
                   placeholder="Lun-Ven, Sab"
                 />

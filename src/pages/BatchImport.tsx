@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { adminService } from '../services/api'
+import { useToast } from '../contexts/ToastContext'
 
 type TCGType = 'POKEMON' | 'MAGIC' | 'YUGIOH' | 'ONE_PIECE' | 'LORCANA'
 
@@ -19,6 +20,7 @@ interface ImportHistory {
 }
 
 export default function BatchImport() {
+  const { showToast } = useToast()
   const [selectedTCG, setSelectedTCG] = useState<TCGType>('POKEMON')
   const [startIndex, setStartIndex] = useState<string>('-99')
   const [endIndex, setEndIndex] = useState<string>('-99')
@@ -43,7 +45,7 @@ export default function BatchImport() {
       }
       
       setHistory([newEntry, ...history])
-      alert('Import avviato con successo!')
+      showToast('Import avviato con successo!', 'success')
     } catch (err: any) {
       const errorEntry: ImportHistory = {
         tcgType: selectedTCG,
@@ -53,7 +55,7 @@ export default function BatchImport() {
       }
       
       setHistory([errorEntry, ...history])
-      alert('Errore: ' + errorEntry.message)
+      showToast('Errore: ' + errorEntry.message, 'error')
     } finally {
       setImporting(false)
     }

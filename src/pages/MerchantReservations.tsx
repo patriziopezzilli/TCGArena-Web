@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { merchantService } from '../services/api'
+import { useToast } from '../contexts/ToastContext'
 
 interface Reservation {
   id: string
@@ -20,6 +21,7 @@ interface Reservation {
 
 export default function MerchantReservations() {
   const navigate = useNavigate()
+  const { showToast } = useToast()
   const [loading, setLoading] = useState(true)
   const [reservations, setReservations] = useState<Reservation[]>([])
   const [statusFilter, setStatusFilter] = useState<string>('')
@@ -54,12 +56,12 @@ export default function MerchantReservations() {
     e.preventDefault()
     try {
       const result = await merchantService.validateReservation(shopId, qrCode)
-      alert(`Prenotazione validata con successo!\nCliente: ${result.userName}\nCarta: ${result.cardName}`)
+      showToast(`Prenotazione validata con successo!\nCliente: ${result.userName}\nCarta: ${result.cardName}`, 'success')
       setShowQRModal(false)
       setQrCode('')
       loadReservations(shopId, statusFilter)
     } catch (error: any) {
-      alert(error.response?.data?.message || 'Errore durante la validazione del QR code')
+      showToast(error.response?.data?.message || 'Errore durante la validazione del QR code', 'error')
     }
   }
 

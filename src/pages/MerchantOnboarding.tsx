@@ -43,7 +43,7 @@ export default function MerchantOnboarding() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 flex items-center justify-center px-6">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-6">
         <div className="absolute inset-0 bg-grid-pattern opacity-5 pointer-events-none"></div>
         <div className="max-w-md w-full text-center animate-fade-in-up">
           <div className="mb-6 text-7xl animate-bounce">✓</div>

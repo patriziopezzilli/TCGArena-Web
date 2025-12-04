@@ -1,4 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { ToastProvider } from './contexts/ToastContext'
+import ToastContainer from './components/ToastContainer'
 import Landing from './pages/Landing'
 import WaitingList from './pages/WaitingList'
 import MerchantLogin from './pages/MerchantLogin'
@@ -13,22 +15,25 @@ import MerchantSubscribers from './pages/MerchantSubscribers'
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Landing />} />
-        <Route path="/waiting-list" element={<WaitingList />} />
-        {/* Hidden routes - accessible only via direct URL */}
-        <Route path="/merchant/login" element={<MerchantLogin />} />
-        <Route path="/merchant/register" element={<MerchantOnboarding />} />
-        <Route path="/merchant/dashboard" element={<MerchantDashboard />} />
-        <Route path="/merchant/inventory" element={<MerchantInventory />} />
-        <Route path="/merchant/reservations" element={<MerchantReservations />} />
-        <Route path="/merchant/tournaments" element={<MerchantTournaments />} />
-        <Route path="/merchant/requests" element={<MerchantRequests />} />
-        <Route path="/merchant/settings" element={<MerchantSettings />} />
-        <Route path="/merchant/subscribers" element={<MerchantSubscribers />} />
-      </Routes>
-    </BrowserRouter>
+    <ToastProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Landing />} />
+          <Route path="/waiting-list" element={<WaitingList />} />
+          {/* Hidden routes - accessible only via direct URL */}
+          <Route path="/merchant/login" element={<MerchantLogin />} />
+          <Route path="/merchant/register" element={<MerchantOnboarding />} />
+          <Route path="/merchant/dashboard" element={<MerchantDashboard />} />
+          <Route path="/merchant/inventory" element={<MerchantInventory />} />
+          <Route path="/merchant/reservations" element={<MerchantReservations />} />
+          <Route path="/merchant/tournaments" element={<MerchantTournaments />} />
+          <Route path="/merchant/requests" element={<MerchantRequests />} />
+          <Route path="/merchant/settings" element={<MerchantSettings />} />
+          <Route path="/merchant/subscribers" element={<MerchantSubscribers />} />
+        </Routes>
+        <ToastContainer />
+      </BrowserRouter>
+    </ToastProvider>
   )
 }
 

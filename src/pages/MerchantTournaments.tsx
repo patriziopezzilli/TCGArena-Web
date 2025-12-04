@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { merchantService } from '../services/api'
+import { useToast } from '../contexts/ToastContext'
 
 interface Tournament {
   id: string
@@ -11,7 +12,7 @@ interface Tournament {
   maxParticipants: number
   currentParticipants: number
   entryFee: number
-  prizePool: number
+  prizePool: string
   startDate: string
   endDate: string
   status: 'UPCOMING' | 'REGISTRATION_OPEN' | 'REGISTRATION_CLOSED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED'
@@ -28,6 +29,7 @@ interface TournamentLocation {
 
 export default function MerchantTournaments() {
   const navigate = useNavigate()
+  const { showToast } = useToast()
   const [loading, setLoading] = useState(true)
   const [tournaments, setTournaments] = useState<Tournament[]>([])
   const [currentUserId, setCurrentUserId] = useState<number | null>(null)
@@ -41,7 +43,7 @@ export default function MerchantTournaments() {
     description: '',
     maxParticipants: 32,
     entryFee: 0,
-    prizePool: 0,
+    prizePool: '',
     startDate: '',
     endDate: '',
     status: 'REGISTRATION_OPEN' as Tournament['status'],
@@ -101,8 +103,10 @@ export default function MerchantTournaments() {
       
       if (editingTournament) {
         await merchantService.updateTournament(editingTournament.id, tournamentData)
+        showToast('Torneo aggiornato con successo', 'success')
       } else {
         await merchantService.createTournament(tournamentData)
+        showToast('Torneo creato con successo', 'success')
       }
       setShowModal(false)
       setEditingTournament(null)
@@ -110,7 +114,7 @@ export default function MerchantTournaments() {
       loadTournaments()
     } catch (error) {
       console.error('Error saving tournament:', error)
-      alert('Errore durante il salvataggio del torneo')
+      showToast('Errore durante il salvataggio del torneo', 'error')
     }
   }
 
@@ -119,10 +123,11 @@ export default function MerchantTournaments() {
     
     try {
       await merchantService.deleteTournament(id)
+      showToast('Torneo eliminato con successo', 'success')
       loadTournaments()
     } catch (error) {
       console.error('Error deleting tournament:', error)
-      alert('Errore durante l\'eliminazione del torneo')
+      showToast('Errore durante l\'eliminazione del torneo', 'error')
     }
   }
 
@@ -134,7 +139,7 @@ export default function MerchantTournaments() {
       description: '',
       maxParticipants: 32,
       entryFee: 0,
-      prizePool: 0,
+      prizePool: '',
       startDate: '',
       endDate: '',
       status: 'REGISTRATION_OPEN' as Tournament['status'],
@@ -301,8 +306,8 @@ export default function MerchantTournaments() {
                       <p className="mt-1">
                         📅 {new Date(tournament.startDate).toLocaleDateString('it-IT')} - {new Date(tournament.endDate).toLocaleDateString('it-IT')}
                       </p>
-                      {tournament.prizePool > 0 && (
-                        <p className="mt-1">🏆 Montepremi: €{tournament.prizePool.toFixed(2)}</p>
+                      {tournament.prizePool && (
+                        <p className="mt-1">🏆 {tournament.prizePool}</p>
                       )}
                     </div>
                   </div>
@@ -438,17 +443,15 @@ export default function MerchantTournaments() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Montepremi (€)
+                    Montepremi
                   </label>
                   <input
-                    type="number"
-                    step="0.01"
-                    min="0"
+                    type="text"
                     required
-                    placeholder="es: 50.00"
+                    placeholder="es: Booster Box, 50€ in buoni, etc."
                     className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                     value={formData.prizePool}
-                    onChange={(e) => setFormData({ ...formData, prizePool: parseFloat(e.target.value) || 0 })}
+                    onChange={(e) => setFormData({ ...formData, prizePool: e.target.value })}
                   />
                 </div>
                 <div>

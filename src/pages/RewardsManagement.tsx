@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { adminService } from '../services/api'
+import { useToast } from '../contexts/ToastContext'
 
 interface Reward {
   id: number
@@ -24,6 +25,8 @@ export default function RewardsManagement() {
     isActive: true,
   })
 
+  const { showToast } = useToast()
+
   useEffect(() => {
     loadRewards()
   }, [])
@@ -33,7 +36,7 @@ export default function RewardsManagement() {
       const data = await adminService.getAllRewards()
       setRewards(data)
     } catch (err) {
-      alert('Errore nel caricamento dei rewards')
+      showToast('Errore nel caricamento dei rewards', 'error')
     } finally {
       setLoading(false)
     }
@@ -68,13 +71,15 @@ export default function RewardsManagement() {
     try {
       if (editingReward) {
         await adminService.updateReward(editingReward.id, formData)
+        showToast('Reward aggiornato con successo', 'success')
       } else {
         await adminService.createReward(formData)
+        showToast('Reward creato con successo', 'success')
       }
       setShowModal(false)
       loadRewards()
     } catch (err: any) {
-      alert('Errore: ' + (err.response?.data?.message || err.message))
+      showToast('Errore: ' + (err.response?.data?.message || err.message), 'error')
     }
   }
 
@@ -82,9 +87,10 @@ export default function RewardsManagement() {
     if (!confirm(`Sei sicuro di voler eliminare "${reward.name}"?`)) return
     try {
       await adminService.deleteReward(reward.id)
+      showToast('Reward eliminato con successo', 'success')
       loadRewards()
     } catch (err: any) {
-      alert('Errore: ' + (err.response?.data?.message || err.message))
+      showToast('Errore: ' + (err.response?.data?.message || err.message), 'error')
     }
   }
 

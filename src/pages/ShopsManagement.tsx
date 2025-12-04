@@ -1,35 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { adminService } from '../services/api';
-
-interface Shop {
-  id: number;
-  name: string;
-  description: string;
-  address: string;
-  city: string;
-  province: string;
-  postalCode: string;
-  country: string;
-  latitude?: number;
-  longitude?: number;
-  phoneNumber: string;
-  email?: string;
-  websiteUrl?: string;
-  instagramUrl?: string;
-  facebookUrl?: string;
-  twitterUrl?: string;
-  shopType: string;
-  openingHours?: string;
-  openingDays?: string;
-  approved: boolean;
-}
+import { useToast } from '../contexts/ToastContext';
+import type { Shop } from '../types/api';
 
 const ShopsManagement: React.FC = () => {
+  const { showToast } = useToast();
   const [shops, setShops] = useState<Shop[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingShop, setEditingShop] = useState<Shop | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [formData, setFormData] = useState<Partial<Shop>>({});
+  const geocodingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     fetchShops();
@@ -54,10 +35,6 @@ const ShopsManagement: React.FC = () => {
       name: shop.name,
       description: shop.description,
       address: shop.address,
-      city: shop.city,
-      province: shop.province,
-      postalCode: shop.postalCode,
-      country: shop.country,
       latitude: shop.latitude,
       longitude: shop.longitude,
       phoneNumber: shop.phoneNumber,
@@ -66,10 +43,11 @@ const ShopsManagement: React.FC = () => {
       instagramUrl: shop.instagramUrl,
       facebookUrl: shop.facebookUrl,
       twitterUrl: shop.twitterUrl,
-      shopType: shop.shopType,
+      type: shop.type || 'PHYSICAL_STORE',
       openingHours: shop.openingHours,
       openingDays: shop.openingDays,
-      approved: shop.approved,
+      active: shop.active,
+      isVerified: shop.isVerified,
     });
     setShowEditModal(true);
   };
@@ -78,6 +56,11 @@ const ShopsManagement: React.FC = () => {
     setShowEditModal(false);
     setEditingShop(null);
     setFormData({});
+    // Clear any pending geocoding timeout
+    if (geocodingTimeoutRef.current) {
+      clearTimeout(geocodingTimeoutRef.current);
+      geocodingTimeoutRef.current = null;
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -90,13 +73,60 @@ const ShopsManagement: React.FC = () => {
       handleCloseModal();
     } catch (error) {
       console.error('Error updating shop:', error);
-      alert('Errore durante l\'aggiornamento del negozio');
+      showToast('Errore durante l\'aggiornamento del negozio', 'error');
     }
   };
 
   const handleInputChange = (field: keyof Shop, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+
+    // Trigger geocoding with debounce when address changes and seems complete
+    if (field === 'address' && value && value.trim().length > 8) {
+      // Check if address seems complete (has comma or number)
+      const hasComma = value.includes(',');
+      const hasNumber = /\d+/.test(value);
+      
+      if (hasComma || hasNumber) {
+        if (geocodingTimeoutRef.current) {
+          clearTimeout(geocodingTimeoutRef.current);
+        }
+        geocodingTimeoutRef.current = setTimeout(() => {
+          geocodeAddress(value); // Silent geocoding
+        }, 1000); // Wait 1 second after user stops typing
+      }
+    }
   };
+
+  const geocodeAddress = useCallback(async (address: string) => {
+    if (!address || address.trim() === '') {
+      return;
+    }
+
+    try {
+      // Usa Nominatim (OpenStreetMap) per il geocoding - gratuito e senza API key
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1&countrycodes=IT`
+      );
+
+      if (!response.ok) {
+        throw new Error('Errore nella richiesta di geocoding');
+      }
+
+      const data = await response.json();
+
+      if (data && data.length > 0) {
+        const { lat, lon } = data[0];
+        setFormData(prev => ({
+          ...prev,
+          latitude: parseFloat(lat),
+          longitude: parseFloat(lon)
+        }));
+      }
+    } catch (error) {
+      console.error('Geocoding error:', error);
+      // Silent error handling - no toast for automatic geocoding
+    }
+  }, []);
 
   if (loading) {
     return (
@@ -115,75 +145,117 @@ const ShopsManagement: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {shops.map((shop) => (
           <div
             key={shop.id}
-            className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+            className="group bg-white border border-gray-200 rounded-2xl overflow-hidden hover:shadow-2xl hover:shadow-gray-200/50 transition-all duration-300 hover:-translate-y-1"
           >
-            <div className="flex items-start justify-between mb-3">
-              <div className="flex-1">
-                <h3 className="font-semibold text-gray-900 mb-1">{shop.name}</h3>
-                <div className="flex items-center gap-2">
-                  <span className={`px-2 py-0.5 text-xs rounded-full ${
-                    shop.approved 
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-yellow-100 text-yellow-800'
-                  }`}>
-                    {shop.approved ? 'Approvato' : 'In attesa'}
-                  </span>
-                  <span className="px-2 py-0.5 text-xs rounded-full bg-gray-100 text-gray-800">
-                    {shop.shopType}
-                  </span>
-                </div>
+            {/* Shop Header with Photo */}
+            <div className="relative h-32 bg-gray-100 flex items-center justify-center">
+              <h3 className="text-2xl font-bold text-gray-900 text-center px-4">{shop.name}</h3>
+              <div className="absolute top-4 right-4 flex gap-2">
+                <span className={`px-3 py-1 text-xs font-semibold rounded-full ${
+                  shop.active 
+                    ? 'bg-green-500 text-white' 
+                    : 'bg-amber-500 text-white'
+                }`}>
+                  {shop.active ? '✓ Attivo' : '⏳ In Attesa'}
+                </span>
               </div>
             </div>
 
-            <div className="space-y-2 text-sm text-gray-600 mb-4">
-              <div className="flex items-start gap-2">
-                <span className="text-gray-400">📍</span>
-                <div className="flex-1">
-                  <div>{shop.address}</div>
-                  <div>{shop.postalCode} {shop.city} ({shop.province})</div>
+            {/* Shop Details */}
+            <div className="p-6">
+              <div className="space-y-4">
+                {/* Location */}
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0 w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
+                    <span className="text-red-600">📍</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900">{shop.address}</p>
+                  </div>
+                </div>
+
+                {/* Contact */}
+                {shop.phoneNumber && (
+                  <div className="flex items-center gap-3">
+                    <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                      <span className="text-blue-600">📞</span>
+                    </div>
+                    <p className="text-sm text-gray-900">{shop.phoneNumber}</p>
+                  </div>
+                )}
+
+                {/* Hours */}
+                {shop.openingHours && (
+                  <div className="flex items-center gap-3">
+                    <div className="flex-shrink-0 w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                      <span className="text-green-600">🕒</span>
+                    </div>
+                    <p className="text-sm text-gray-900">{shop.openingHours}</p>
+                  </div>
+                )}
+
+                {/* Social Links */}
+                <div className="flex gap-2 pt-2">
+                  {shop.websiteUrl && (
+                    <a
+                      href={shop.websiteUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                      title="Sito web"
+                    >
+                      <span className="text-sm">🌐</span>
+                    </a>
+                  )}
+                  {shop.instagramUrl && (
+                    <a
+                      href={shop.instagramUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center w-8 h-8 bg-pink-100 hover:bg-pink-200 rounded-lg transition-colors"
+                      title="Instagram"
+                    >
+                      <span className="text-sm">📷</span>
+                    </a>
+                  )}
+                  {shop.facebookUrl && (
+                    <a
+                      href={shop.facebookUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center w-8 h-8 bg-blue-100 hover:bg-blue-200 rounded-lg transition-colors"
+                      title="Facebook"
+                    >
+                      <span className="text-sm">📘</span>
+                    </a>
+                  )}
+                  {shop.twitterUrl && (
+                    <a
+                      href={shop.twitterUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center w-8 h-8 bg-sky-100 hover:bg-sky-200 rounded-lg transition-colors"
+                      title="Twitter"
+                    >
+                      <span className="text-sm">🐦</span>
+                    </a>
+                  )}
                 </div>
               </div>
-              
-              {shop.phoneNumber && (
-                <div className="flex items-center gap-2">
-                  <span className="text-gray-400">📞</span>
-                  <span>{shop.phoneNumber}</span>
-                </div>
-              )}
 
-              {shop.email && (
-                <div className="flex items-center gap-2">
-                  <span className="text-gray-400">✉️</span>
-                  <span className="truncate">{shop.email}</span>
-                </div>
-              )}
-
-              {shop.openingHours && (
-                <div className="flex items-center gap-2">
-                  <span className="text-gray-400">🕒</span>
-                  <span>{shop.openingHours}</span>
-                </div>
-              )}
-
-              {shop.openingDays && (
-                <div className="flex items-center gap-2">
-                  <span className="text-gray-400">📅</span>
-                  <span>{shop.openingDays}</span>
-                </div>
-              )}
-            </div>
-
-            <div className="flex gap-2">
-              <button
-                onClick={() => handleEdit(shop)}
-                className="flex-1 px-3 py-1.5 bg-gray-900 text-white text-sm rounded hover:bg-gray-800 transition-colors"
-              >
-                Modifica
-              </button>
+              {/* Action Button */}
+              <div className="mt-6 pt-4 border-t border-gray-100">
+                <button
+                  onClick={() => handleEdit(shop)}
+                  className="w-full bg-gray-900 text-white py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-300 hover:scale-105"
+                >
+                  Modifica Negozio
+                </button>
+              </div>
             </div>
           </div>
         ))}
@@ -248,16 +320,15 @@ const ShopsManagement: React.FC = () => {
                       Tipo Negozio *
                     </label>
                     <select
-                      value={formData.shopType || ''}
-                      onChange={(e) => handleInputChange('shopType', e.target.value)}
+                      value={formData.type || ''}
+                      onChange={(e) => handleInputChange('type', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
                       required
                     >
-                      <option value="GAME_STORE">Game Store</option>
-                      <option value="COMIC_SHOP">Fumetteria</option>
-                      <option value="TOY_STORE">Negozio di Giocattoli</option>
-                      <option value="HOBBY_SHOP">Negozio Hobby</option>
+                      <option value="PHYSICAL_STORE">Negozio Fisico</option>
                       <option value="ONLINE_STORE">Negozio Online</option>
+                      <option value="HYBRID">Ibrido</option>
+                      <option value="LOCAL_STORE">Locale</option>
                     </select>
                   </div>
 
@@ -265,11 +336,11 @@ const ShopsManagement: React.FC = () => {
                     <label className="flex items-center gap-2">
                       <input
                         type="checkbox"
-                        checked={formData.approved || false}
-                        onChange={(e) => handleInputChange('approved', e.target.checked)}
+                        checked={formData.active || false}
+                        onChange={(e) => handleInputChange('active', e.target.checked)}
                         className="rounded border-gray-300 text-gray-900 focus:ring-gray-900"
                       />
-                      <span className="text-sm font-medium text-gray-700">Negozio Approvato</span>
+                      <span className="text-sm font-medium text-gray-700">Negozio Attivo</span>
                     </label>
                   </div>
                 </div>
@@ -278,10 +349,10 @@ const ShopsManagement: React.FC = () => {
               {/* Location */}
               <div>
                 <h4 className="text-sm font-semibold text-gray-900 mb-3">Indirizzo</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="md:col-span-2">
+                <div className="space-y-4">
+                  <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Via/Piazza *
+                      Indirizzo *
                     </label>
                     <input
                       type="text"
@@ -289,85 +360,45 @@ const ShopsManagement: React.FC = () => {
                       onChange={(e) => handleInputChange('address', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
                       required
+                      placeholder="Via Roma 123, Milano"
                     />
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Città *
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.city || ''}
-                      onChange={(e) => handleInputChange('city', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-                      required
-                    />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Latitudine
+                      </label>
+                      <input
+                        type="number"
+                        step="any"
+                        value={formData.latitude || ''}
+                        readOnly
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Longitudine
+                      </label>
+                      <input
+                        type="number"
+                        step="any"
+                        value={formData.longitude || ''}
+                        readOnly
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed"
+                      />
+                    </div>
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Provincia *
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.province || ''}
-                      onChange={(e) => handleInputChange('province', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      CAP *
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.postalCode || ''}
-                      onChange={(e) => handleInputChange('postalCode', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Paese *
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.country || ''}
-                      onChange={(e) => handleInputChange('country', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Latitudine
-                    </label>
-                    <input
-                      type="number"
-                      step="any"
-                      value={formData.latitude || ''}
-                      onChange={(e) => handleInputChange('latitude', e.target.value ? parseFloat(e.target.value) : undefined)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Longitudine
-                    </label>
-                    <input
-                      type="number"
-                      step="any"
-                      value={formData.longitude || ''}
-                      onChange={(e) => handleInputChange('longitude', e.target.value ? parseFloat(e.target.value) : undefined)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-                    />
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                    <div className="flex items-start gap-2">
+                      <span className="text-blue-600 text-sm">ℹ️</span>
+                      <div className="text-sm text-blue-800">
+                        <strong>Coordinate automatiche:</strong> I campi latitudine e longitudine vengono popolati automaticamente quando inserisci un indirizzo completo. Non è necessario modificarli manualmente.
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

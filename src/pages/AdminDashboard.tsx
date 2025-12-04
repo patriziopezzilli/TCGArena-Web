@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { adminService } from '../services/api'
-import axios from 'axios'
+import { useToast } from '../contexts/ToastContext'
+import apiClient from '../services/api'
 import RewardsManagement from './RewardsManagement'
 import AchievementsManagement from './AchievementsManagement'
 import BatchImport from './BatchImport'
 import ShopsManagement from './ShopsManagement'
+import ExpansionsAndSetsManagement from './ExpansionsAndSetsManagement'
 
 interface Shop {
   id: number
@@ -35,10 +37,11 @@ interface WaitingListEntry {
   contacted: boolean
 }
 
-type TabType = 'all-shops' | 'pending-shops' | 'waiting-list' | 'rewards' | 'achievements' | 'batch-import'
+type TabType = 'all-shops' | 'pending-shops' | 'waiting-list' | 'rewards' | 'achievements' | 'batch-import' | 'expansions-sets'
 
 export default function AdminDashboard() {
   const navigate = useNavigate()
+  const { showToast } = useToast()
   const [activeTab, setActiveTab] = useState<TabType>('all-shops')
   const [loading, setLoading] = useState(true)
   const [pendingShops, setPendingShops] = useState<Shop[]>([])
@@ -62,7 +65,7 @@ export default function AdminDashboard() {
       const [shops, statistics, waiting] = await Promise.all([
         adminService.getPendingShops(),
         adminService.getShopStats(),
-        axios.get(`${import.meta.env.VITE_API_URL || 'http://80.211.236.249:8080/api'}/waiting-list/all`).then(res => res.data),
+        apiClient.get('/waiting-list/all').then(res => res.data),
       ])
       setPendingShops(shops)
       setStats(statistics)
@@ -80,9 +83,10 @@ export default function AdminDashboard() {
     setProcessingId(shopId)
     try {
       await adminService.activateShop(shopId)
+      showToast('Negozio attivato con successo', 'success')
       await loadData()
     } catch (err: any) {
-      alert('Errore durante l\'attivazione: ' + (err.response?.data?.message || err.message))
+      showToast('Errore durante l\'attivazione: ' + (err.response?.data?.message || err.message), 'error')
     } finally {
       setProcessingId(null)
     }
@@ -90,10 +94,11 @@ export default function AdminDashboard() {
 
   const handleMarkContacted = async (entryId: number) => {
     try {
-      await axios.put(`${import.meta.env.VITE_API_URL || 'http://80.211.236.249:8080/api'}/waiting-list/${entryId}/contacted`)
+      await apiClient.put(`/waiting-list/${entryId}/contacted`)
+      showToast('Stato aggiornato con successo', 'success')
       await loadData()
     } catch (err: any) {
-      alert('Errore durante l\'aggiornamento: ' + (err.response?.data?.message || err.message))
+      showToast('Errore durante l\'aggiornamento: ' + (err.response?.data?.message || err.message), 'error')
     }
   }
 
@@ -128,9 +133,9 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-gradient-to-r from-gray-900 to-gray-700 border-b border-gray-800 sticky top-0 z-10 shadow-lg">
+      <header className="bg-gray-900 border-b border-gray-800 sticky top-0 z-10 shadow-lg">
         <div className="max-w-7xl mx-auto px-6 py-6">
           <div className="flex items-center justify-between mb-6">
             <div>
@@ -210,6 +215,16 @@ export default function AdminDashboard() {
             >
               Batch Import
             </button>
+            <button
+              onClick={() => setActiveTab('expansions-sets')}
+              className={`px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap ${
+                activeTab === 'expansions-sets'
+                  ? 'bg-white text-gray-900 shadow-lg'
+                  : 'bg-white/10 text-white hover:bg-white/20 border border-white/20'
+              }`}
+            >
+              Espansioni & Sets
+            </button>
           </div>
         </div>
       </header>
@@ -220,19 +235,19 @@ export default function AdminDashboard() {
           <>
             {/* Shop Stats */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-              <div className="bg-gradient-to-br from-gray-50 to-white rounded-2xl border border-gray-100 p-6 hover:shadow-lg transition-all">
+              <div className="bg-gray-50 rounded-2xl border border-gray-100 p-6 hover:shadow-lg transition-all">
                 <div className="text-sm font-medium text-gray-600 mb-2">Totale Negozi</div>
                 <div className="text-4xl font-bold text-gray-900">{stats?.total || 0}</div>
               </div>
-              <div className="bg-gradient-to-br from-green-50 to-white rounded-2xl border border-green-100 p-6 hover:shadow-lg transition-all">
+              <div className="bg-green-50 rounded-2xl border border-green-100 p-6 hover:shadow-lg transition-all">
                 <div className="text-sm font-medium text-green-700 mb-2">Attivi</div>
                 <div className="text-4xl font-bold text-green-600">{stats?.active || 0}</div>
               </div>
-              <div className="bg-gradient-to-br from-amber-50 to-white rounded-2xl border border-amber-100 p-6 hover:shadow-lg transition-all">
+              <div className="bg-amber-50 rounded-2xl border border-amber-100 p-6 hover:shadow-lg transition-all">
                 <div className="text-sm font-medium text-amber-700 mb-2">In Attesa</div>
                 <div className="text-4xl font-bold text-amber-600">{stats?.pending || 0}</div>
               </div>
-              <div className="bg-gradient-to-br from-blue-50 to-white rounded-2xl border border-blue-100 p-6 hover:shadow-lg transition-all">
+              <div className="bg-blue-50 rounded-2xl border border-blue-100 p-6 hover:shadow-lg transition-all">
                 <div className="text-sm font-medium text-blue-700 mb-2">Verificati</div>
                 <div className="text-4xl font-bold text-blue-600">{stats?.verified || 0}</div>
               </div>
@@ -240,7 +255,7 @@ export default function AdminDashboard() {
 
             {/* Pending Shops */}
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-              <div className="px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
+              <div className="px-6 py-5 border-b border-gray-100 bg-gray-50">
                 <h2 className="text-lg font-bold text-gray-900">
                   Negozi in Attesa di Approvazione
                 </h2>
@@ -294,7 +309,7 @@ export default function AdminDashboard() {
                           <button
                             onClick={() => handleActivate(shop.id)}
                             disabled={processingId === shop.id}
-                            className="px-6 py-3 bg-gradient-to-r from-green-600 to-green-500 text-white text-sm font-semibold rounded-xl hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap hover:scale-105"
+                            className="px-6 py-3 bg-green-600 text-white text-sm font-semibold rounded-xl hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap hover:scale-105"
                           >
                             {processingId === shop.id ? 'Attivazione...' : '✓ Attiva Negozio'}
                           </button>
@@ -310,23 +325,23 @@ export default function AdminDashboard() {
           <>
             {/* Waiting List Stats */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-              <div className="bg-gradient-to-br from-gray-50 to-white rounded-2xl border border-gray-100 p-6 hover:shadow-lg transition-all">
+              <div className="bg-gray-50 rounded-2xl border border-gray-100 p-6 hover:shadow-lg transition-all">
                 <div className="text-sm font-medium text-gray-600 mb-2">Totale Iscritti</div>
                 <div className="text-4xl font-bold text-gray-900">{waitingList.length}</div>
               </div>
-              <div className="bg-gradient-to-br from-blue-50 to-white rounded-2xl border border-blue-100 p-6 hover:shadow-lg transition-all">
+              <div className="bg-blue-50 rounded-2xl border border-blue-100 p-6 hover:shadow-lg transition-all">
                 <div className="text-sm font-medium text-blue-700 mb-2">Giocatori</div>
                 <div className="text-4xl font-bold text-blue-600">
                   {waitingList.filter(w => w.userType === 'PLAYER').length}
                 </div>
               </div>
-              <div className="bg-gradient-to-br from-purple-50 to-white rounded-2xl border border-purple-100 p-6 hover:shadow-lg transition-all">
+              <div className="bg-purple-50 rounded-2xl border border-purple-100 p-6 hover:shadow-lg transition-all">
                 <div className="text-sm font-medium text-purple-700 mb-2">Negozianti</div>
                 <div className="text-4xl font-bold text-purple-600">
                   {waitingList.filter(w => w.userType === 'MERCHANT').length}
                 </div>
               </div>
-              <div className="bg-gradient-to-br from-green-50 to-white rounded-2xl border border-green-100 p-6 hover:shadow-lg transition-all">
+              <div className="bg-green-50 rounded-2xl border border-green-100 p-6 hover:shadow-lg transition-all">
                 <div className="text-sm font-medium text-green-700 mb-2">Contattati</div>
                 <div className="text-4xl font-bold text-green-600">
                   {waitingList.filter(w => w.contacted).length}
@@ -336,7 +351,7 @@ export default function AdminDashboard() {
 
             {/* Waiting List Table */}
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-              <div className="px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
+              <div className="px-6 py-5 border-b border-gray-100 bg-gray-50">
                 <h2 className="text-lg font-bold text-gray-900">
                   Lista d'Attesa
                 </h2>
@@ -428,6 +443,8 @@ export default function AdminDashboard() {
           <AchievementsManagement />
         ) : activeTab === 'batch-import' ? (
           <BatchImport />
+        ) : activeTab === 'expansions-sets' ? (
+          <ExpansionsAndSetsManagement />
         ) : null}
       </div>
     </div>
