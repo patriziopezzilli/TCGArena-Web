@@ -18,22 +18,19 @@ export default function MerchantLogin() {
     setLoading(true)
 
     try {
-      // Check for admin credentials
-      if (formData.username === 'admin' && formData.password === 'start123') {
-        // Admin login - set special flag
-        localStorage.setItem('is_admin', 'true')
-        localStorage.setItem('merchant_token', 'admin-session')
-        navigate('/merchant/dashboard')
-        return
-      }
-
-      // Regular merchant login
+      // Login
       const response = await merchantService.login(formData.username, formData.password)
       
       // Save token
       localStorage.setItem('merchant_token', response.token)
       localStorage.setItem('merchant_user', JSON.stringify(response.user))
-      localStorage.removeItem('is_admin')
+      
+      // Check if user is admin
+      if (response.user.isAdmin) {
+        localStorage.setItem('is_admin', 'true')
+      } else {
+        localStorage.removeItem('is_admin')
+      }
       
       // Redirect to dashboard
       navigate('/merchant/dashboard')

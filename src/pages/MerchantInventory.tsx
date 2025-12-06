@@ -151,7 +151,7 @@ export default function MerchantInventory() {
         size: 20
       })
       
-      console.log('Loaded card templates:', data.content?.map(t => ({ id: t.id, name: t.name })))
+      console.log('Loaded card templates:', data.content?.map((t: any) => ({ id: t.id, name: t.name })))
       
       if (append) {
         setCardTemplates(prev => [...prev, ...data.content])
@@ -596,9 +596,37 @@ export default function MerchantInventory() {
                           <p className="text-sm text-gray-600">
                             {card.card_template.tcgType} • {card.card_template.expansion.title} • {card.card_template.rarity}
                           </p>
-                          <p className="text-sm text-gray-500 mt-1">
-                            Condizione: {card.condition} • Quantità: {card.quantity} • Nazionalità: {card.nationality || 'EN'}
-                          </p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                              card.condition === 'MINT' ? 'bg-green-100 text-green-800' :
+                              card.condition === 'NEAR_MINT' ? 'bg-blue-100 text-blue-800' :
+                              card.condition === 'EXCELLENT' ? 'bg-yellow-100 text-yellow-800' :
+                              card.condition === 'GOOD' ? 'bg-orange-100 text-orange-800' :
+                              card.condition === 'LIGHT_PLAYED' ? 'bg-purple-100 text-purple-800' :
+                              card.condition === 'PLAYED' ? 'bg-pink-100 text-pink-800' :
+                              'bg-gray-100 text-gray-800'
+                            }`}>
+                              {card.condition.replace('_', ' ')}
+                            </span>
+                            <span className="px-2 py-1 text-xs font-medium bg-indigo-100 text-indigo-800 rounded-full">
+                              QTY: {card.quantity}
+                            </span>
+                            <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                              card.nationality === 'JPN' ? 'bg-red-100 text-red-800' :
+                              card.nationality === 'ITA' ? 'bg-green-100 text-green-800' :
+                              card.nationality === 'EN' ? 'bg-blue-100 text-blue-800' :
+                              card.nationality === 'COR' ? 'bg-yellow-100 text-yellow-800' :
+                              card.nationality === 'FRA' ? 'bg-purple-100 text-purple-800' :
+                              card.nationality === 'GER' ? 'bg-pink-100 text-pink-800' :
+                              card.nationality === 'SPA' ? 'bg-orange-100 text-orange-800' :
+                              card.nationality === 'POR' ? 'bg-teal-100 text-teal-800' :
+                              card.nationality === 'CHI' ? 'bg-indigo-100 text-indigo-800' :
+                              card.nationality === 'RUS' ? 'bg-gray-100 text-gray-800' :
+                              'bg-gray-100 text-gray-800'
+                            }`}>
+                              {card.nationality || 'EN'}
+                            </span>
+                          </div>
                           {card.notes && (
                             <p className="text-sm text-gray-500 mt-1">Note: {card.notes}</p>
                           )}

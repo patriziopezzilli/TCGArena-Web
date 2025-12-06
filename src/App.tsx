@@ -9,9 +9,11 @@ import MerchantDashboard from './pages/MerchantDashboard'
 import MerchantInventory from './pages/MerchantInventory'
 import MerchantReservations from './pages/MerchantReservations'
 import MerchantTournaments from './pages/MerchantTournaments'
+import TournamentParticipants from './pages/TournamentParticipants'
 import MerchantRequests from './pages/MerchantRequests'
 import MerchantSettings from './pages/MerchantSettings'
 import MerchantSubscribers from './pages/MerchantSubscribers'
+import ShopNews from './pages/ShopNews'
 
 function App() {
   return (
@@ -27,9 +29,11 @@ function App() {
           <Route path="/merchant/inventory" element={<MerchantInventory />} />
           <Route path="/merchant/reservations" element={<MerchantReservations />} />
           <Route path="/merchant/tournaments" element={<MerchantTournaments />} />
+          <Route path="/merchant/tournaments/:tournamentId/participants" element={<TournamentParticipants />} />
           <Route path="/merchant/requests" element={<MerchantRequests />} />
           <Route path="/merchant/settings" element={<MerchantSettings />} />
           <Route path="/merchant/subscribers" element={<MerchantSubscribers />} />
+          <Route path="/merchant/news" element={<ShopNews />} />
         </Routes>
         <ToastContainer />
       </BrowserRouter>

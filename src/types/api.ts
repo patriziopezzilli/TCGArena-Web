@@ -92,7 +92,41 @@ export interface APIError {
 
 export type CardNationality = 'JPN' | 'ITA' | 'EN' | 'COR' | 'FRA' | 'GER' | 'SPA' | 'POR' | 'CHI' | 'RUS'
 
-export interface CardNationalityInfo {
-  code: CardNationality
+export interface TournamentParticipant {
+  id: number
+  tournamentId: number
+  userId: number
+  username: string
   displayName: string
+  email: string
+  registrationDate: string
+  hasPaid: boolean
+  status: 'REGISTERED' | 'WAITING_LIST' | 'CHECKED_IN'
+  placement: any
+  checkedInAt?: string
+  checkInCode: string
+}
+
+export interface Tournament {
+  id: string
+  title: string
+  tcgType: string
+  type: 'CASUAL' | 'COMPETITIVE' | 'CHAMPIONSHIP'
+  description: string
+  maxParticipants: number
+  currentParticipants: number
+  entryFee: number
+  prizePool: string
+  startDate: string
+  endDate: string
+  status: 'UPCOMING' | 'REGISTRATION_OPEN' | 'REGISTRATION_CLOSED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED'
+  location: TournamentLocation
+  organizerId: number
+}
+
+export interface TournamentLocation {
+  venueName: string
+  address: string
+  city: string
+  country: string
 }

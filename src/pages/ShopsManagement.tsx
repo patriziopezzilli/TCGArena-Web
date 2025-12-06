@@ -10,7 +10,7 @@ const ShopsManagement: React.FC = () => {
   const [editingShop, setEditingShop] = useState<Shop | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [formData, setFormData] = useState<Partial<Shop>>({});
-  const geocodingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const geocodingTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
     fetchShops();

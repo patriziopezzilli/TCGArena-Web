@@ -32,7 +32,11 @@ export default function MerchantSettings() {
   const [saving, setSaving] = useState(false)
   const [uploadingPhoto, setUploadingPhoto] = useState(false)
   const [photoPreview, setPhotoPreview] = useState<string | null>(null)
-  const geocodingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const geocodingTimeoutRef = useRef<number | null>(null)
+  const [reservationSettings, setReservationSettings] = useState({
+    reservationDurationMinutes: 30,
+    defaultDurationMinutes: 30,
+  })
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -96,6 +100,15 @@ export default function MerchantSettings() {
         tcgTypes: tcgTypesArray,
         services: servicesArray,
       })
+
+      // Load reservation settings
+      try {
+        const reservationSettingsData = await merchantService.getReservationSettings(status.shop.id)
+        setReservationSettings(reservationSettingsData)
+      } catch (error) {
+        console.warn('Could not load reservation settings, using defaults:', error)
+        // Keep default values
+      }
     } catch (err) {
       showToast('Errore nel caricamento dei dati', 'error')
       navigate('/merchant/dashboard')
@@ -204,6 +217,22 @@ export default function MerchantSettings() {
       })
       showToast('Impostazioni salvate con successo!', 'success')
       navigate('/merchant/dashboard')
+    } catch (error: any) {
+      showToast('Errore nel salvataggio: ' + (error.response?.data?.message || error.message), 'error')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleReservationSettingsSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setSaving(true)
+    try {
+      const status = await merchantService.getShopStatus()
+      await merchantService.updateReservationSettings(status.shop.id, {
+        reservationDurationMinutes: reservationSettings.reservationDurationMinutes
+      })
+      showToast('Impostazioni prenotazioni salvate con successo!', 'success')
     } catch (error: any) {
       showToast('Errore nel salvataggio: ' + (error.response?.data?.message || error.message), 'error')
     } finally {
@@ -605,6 +634,56 @@ export default function MerchantSettings() {
                 />
               </div>
             </div>
+          </div>
+
+          {/* Reservation Settings */}
+          <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-2">Impostazioni Prenotazioni</h2>
+            <p className="text-sm text-gray-500 mb-4">Configura la durata delle prenotazioni per il tuo negozio</p>
+            
+            <form onSubmit={handleReservationSettingsSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Durata Prenotazione (minuti) *
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  max="1440"
+                  required
+                  value={reservationSettings.reservationDurationMinutes}
+                  onChange={(e) => setReservationSettings(prev => ({
+                    ...prev,
+                    reservationDurationMinutes: parseInt(e.target.value) || 30
+                  }))}
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Durata massima: 24 ore (1440 minuti). Default: {reservationSettings.defaultDurationMinutes} minuti.
+                </p>
+              </div>
+
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                <div className="flex items-start gap-2">
+                  <span className="text-blue-600 text-sm">ℹ️</span>
+                  <div className="text-sm text-blue-800">
+                    <strong>Come funziona:</strong> Quando un cliente prenota una carta, avrà questo tempo per completare il ritiro prima che la prenotazione scada automaticamente.
+                  </div>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={saving}
+                className={`w-full px-4 py-2 rounded-lg font-medium transition-colors ${
+                  saving
+                    ? 'bg-blue-300 text-blue-500 cursor-not-allowed'
+                    : 'bg-blue-600 text-white hover:bg-blue-700'
+                }`}
+              >
+                {saving ? 'Salvataggio...' : 'Salva Impostazioni Prenotazioni'}
+              </button>
+            </form>
           </div>
 
           {/* Submit Button */}

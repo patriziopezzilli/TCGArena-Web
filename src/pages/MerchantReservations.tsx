@@ -5,18 +5,22 @@ import { useToast } from '../contexts/ToastContext'
 
 interface Reservation {
   id: string
-  userId: string
-  userName: string
-  cardId: string
-  cardName: string
-  shopId: string
-  shopName: string
-  quantity: number
-  totalPrice: number
-  status: 'PENDING' | 'CONFIRMED' | 'READY_FOR_PICKUP' | 'COMPLETED' | 'CANCELLED'
-  qrCode: string
-  expiresAt: string
-  createdAt: string
+  card_id: string
+  user_id: string
+  merchant_id: string
+  status: 'PENDING' | 'VALIDATED' | 'PICKED_UP' | 'EXPIRED' | 'CANCELLED'
+  qr_code: string
+  expires_at: string
+  created_at: string
+  validated_at?: string
+  picked_up_at?: string
+  updated_at?: string
+  card_name?: string
+  card_rarity?: string
+  card_set?: string
+  shop_name?: string
+  shop_location?: string
+  user_name?: string
 }
 
 export default function MerchantReservations() {
@@ -56,7 +60,7 @@ export default function MerchantReservations() {
     e.preventDefault()
     try {
       const result = await merchantService.validateReservation(shopId, qrCode)
-      showToast(`Prenotazione validata con successo!\nCliente: ${result.userName}\nCarta: ${result.cardName}`, 'success')
+      showToast(`Prenotazione validata con successo!\nCliente: ${result.user_name}\nCarta: ${result.card_name}`, 'success')
       setShowQRModal(false)
       setQrCode('')
       loadReservations(shopId, statusFilter)
@@ -65,19 +69,29 @@ export default function MerchantReservations() {
     }
   }
 
+  const handleManualConfirm = async (reservationId: string) => {
+    try {
+      const result = await merchantService.validateReservationById(shopId, reservationId)
+      showToast(`Prenotazione confermata manualmente!\nCliente: ${result.user_name}\nCarta: ${result.card_name}`, 'success')
+      loadReservations(shopId, statusFilter)
+    } catch (error: any) {
+      showToast(error.response?.data?.message || 'Errore durante la conferma manuale', 'error')
+    }
+  }
+
   const getStatusBadge = (status: string) => {
     const styles: Record<string, string> = {
       PENDING: 'bg-yellow-100 text-yellow-800',
-      CONFIRMED: 'bg-blue-100 text-blue-800',
-      READY_FOR_PICKUP: 'bg-green-100 text-green-800',
-      COMPLETED: 'bg-gray-100 text-gray-800',
-      CANCELLED: 'bg-red-100 text-red-800',
+      VALIDATED: 'bg-blue-100 text-blue-800',
+      PICKED_UP: 'bg-green-100 text-green-800',
+      EXPIRED: 'bg-red-100 text-red-800',
+      CANCELLED: 'bg-gray-100 text-gray-800',
     }
     const labels: Record<string, string> = {
       PENDING: 'In Attesa',
-      CONFIRMED: 'Confermata',
-      READY_FOR_PICKUP: 'Pronta per il Ritiro',
-      COMPLETED: 'Completata',
+      VALIDATED: 'Validata',
+      PICKED_UP: 'Ritirata',
+      EXPIRED: 'Scaduta',
       CANCELLED: 'Cancellata',
     }
     return (
@@ -89,10 +103,42 @@ export default function MerchantReservations() {
 
   const getStats = () => {
     const pending = reservations.filter(r => r.status === 'PENDING').length
-    const confirmed = reservations.filter(r => r.status === 'CONFIRMED').length
-    const ready = reservations.filter(r => r.status === 'READY_FOR_PICKUP').length
-    const completed = reservations.filter(r => r.status === 'COMPLETED').length
-    return { pending, confirmed, ready, completed }
+    const validated = reservations.filter(r => r.status === 'VALIDATED').length
+    const pickedUp = reservations.filter(r => r.status === 'PICKED_UP').length
+    const expired = reservations.filter(r => r.status === 'EXPIRED').length
+    return { pending, validated, pickedUp, expired }
+  }
+
+  const getTimeRemaining = (expiresAt: string) => {
+    const now = new Date()
+    const expiry = new Date(expiresAt)
+    const diffMs = expiry.getTime() - now.getTime()
+    
+    if (diffMs <= 0) return 'text-red-600'
+    if (diffMs <= 3600000) return 'text-orange-600' // meno di 1 ora
+    return 'text-amber-600'
+  }
+
+  const getExpiryText = (expiresAt: string) => {
+    const now = new Date()
+    const expiry = new Date(expiresAt)
+    const diffMs = expiry.getTime() - now.getTime()
+    
+    if (diffMs <= 0) {
+      return 'Scaduta!'
+    }
+    
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
+    const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60))
+    
+    if (diffHours > 24) {
+      const diffDays = Math.floor(diffHours / 24)
+      return `Scade tra ${diffDays} giorno${diffDays > 1 ? 'i' : ''}`
+    } else if (diffHours > 0) {
+      return `Scade tra ${diffHours}h ${diffMinutes}m`
+    } else {
+      return `Scade tra ${diffMinutes} minuti`
+    }
   }
 
   const stats = getStats()
@@ -130,16 +176,16 @@ export default function MerchantReservations() {
             <p className="text-3xl font-bold text-yellow-900">{stats.pending}</p>
           </div>
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-            <p className="text-sm text-blue-600 font-medium mb-1">Confermate</p>
-            <p className="text-3xl font-bold text-blue-900">{stats.confirmed}</p>
+            <p className="text-sm text-blue-600 font-medium mb-1">Validate</p>
+            <p className="text-3xl font-bold text-blue-900">{stats.validated}</p>
           </div>
           <div className="bg-green-50 border border-green-200 rounded-lg p-6">
-            <p className="text-sm text-green-600 font-medium mb-1">Pronte</p>
-            <p className="text-3xl font-bold text-green-900">{stats.ready}</p>
+            <p className="text-sm text-green-600 font-medium mb-1">Ritirate</p>
+            <p className="text-3xl font-bold text-green-900">{stats.pickedUp}</p>
           </div>
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
-            <p className="text-sm text-gray-600 font-medium mb-1">Completate</p>
-            <p className="text-3xl font-bold text-gray-900">{stats.completed}</p>
+          <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+            <p className="text-sm text-red-600 font-medium mb-1">Scadute</p>
+            <p className="text-3xl font-bold text-red-900">{stats.expired}</p>
           </div>
         </div>
 
@@ -157,9 +203,9 @@ export default function MerchantReservations() {
             >
               <option value="">Tutti gli stati</option>
               <option value="PENDING">In Attesa</option>
-              <option value="CONFIRMED">Confermate</option>
-              <option value="READY_FOR_PICKUP">Pronte per il Ritiro</option>
-              <option value="COMPLETED">Completate</option>
+              <option value="VALIDATED">Validate</option>
+              <option value="PICKED_UP">Ritirate</option>
+              <option value="EXPIRED">Scadute</option>
               <option value="CANCELLED">Cancellate</option>
             </select>
           </div>
@@ -184,23 +230,36 @@ export default function MerchantReservations() {
                 <div className="flex items-start justify-between mb-4">
                   <div>
                     <div className="flex items-center gap-3 mb-2">
-                      <h3 className="font-semibold text-gray-900">{reservation.cardName}</h3>
+                      <h3 className="font-semibold text-gray-900">{reservation.card_name || 'Carta sconosciuta'}</h3>
+                      {reservation.card_rarity && (
+                        <span className="px-2 py-1 text-xs bg-purple-100 text-purple-800 rounded-full">
+                          {reservation.card_rarity}
+                        </span>
+                      )}
+                      {reservation.card_set && (
+                        <span className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">
+                          {reservation.card_set}
+                        </span>
+                      )}
                       {getStatusBadge(reservation.status)}
                     </div>
                     <p className="text-sm text-gray-600">
-                      Cliente: {reservation.userName} • Quantità: {reservation.quantity}
+                      Cliente: {reservation.user_name || `ID: ${reservation.user_id}`}
                     </p>
                     <p className="text-sm text-gray-500 mt-1">
-                      Prenotata il {new Date(reservation.createdAt).toLocaleDateString('it-IT')}
+                      Prenotata il {new Date(reservation.created_at).toLocaleDateString('it-IT')} alle {new Date(reservation.created_at).toLocaleTimeString('it-IT')}
                     </p>
-                    {reservation.expiresAt && (
-                      <p className="text-sm text-amber-600 mt-1">
-                        ⏱ Scade il {new Date(reservation.expiresAt).toLocaleDateString('it-IT')}
+                    {reservation.expires_at && (
+                      <p className={`text-sm mt-1 ${getTimeRemaining(reservation.expires_at)}`}>
+                        ⏱ {getExpiryText(reservation.expires_at)}
                       </p>
                     )}
+                    <p className="text-sm text-blue-600 mt-1">
+                      💳 Carta ID: {reservation.card_id}
+                    </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-2xl font-bold text-gray-900">€{reservation.totalPrice.toFixed(2)}</p>
+                    <div className="text-sm text-gray-500">ID: {reservation.id.slice(-8)}</div>
                   </div>
                 </div>
 
@@ -208,6 +267,12 @@ export default function MerchantReservations() {
                   <div className="flex-1 bg-gray-50 rounded-lg p-3 font-mono text-sm text-gray-700">
                     QR Code: {reservation.qrCode}
                   </div>
+                  <button
+                    onClick={() => handleManualConfirm(reservation.id)}
+                    className="px-4 py-2 text-sm text-green-600 border border-green-600 rounded-lg hover:bg-green-50 transition-colors"
+                  >
+                    Conferma Manuale
+                  </button>
                   <button
                     onClick={() => {
                       setQrCode(reservation.qrCode)

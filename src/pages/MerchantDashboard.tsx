@@ -20,7 +20,7 @@ export default function MerchantDashboard() {
   useEffect(() => {
     const token = localStorage.getItem('merchant_token')
     const adminFlag = localStorage.getItem('is_admin')
-    
+
     if (!token) {
       navigate('/merchant/login')
       return
@@ -40,7 +40,7 @@ export default function MerchantDashboard() {
     try {
       const status = await merchantService.getShopStatus()
       setShopStatus(status)
-      
+
       // Load dashboard stats if shop is active
       if (status.active) {
         await loadDashboardStats()
@@ -152,7 +152,7 @@ export default function MerchantDashboard() {
                 Il tuo negozio è stato registrato con successo ma non è ancora attivo.
                 Il nostro team sta verificando le informazioni fornite.
               </p>
-              
+
               <div className="bg-white rounded-lg p-6 text-left space-y-3">
                 <h3 className="font-medium text-gray-900 mb-3">Informazioni Negozio:</h3>
                 <div className="grid grid-cols-2 gap-3 text-sm">
@@ -289,7 +289,7 @@ export default function MerchantDashboard() {
                   Tornei
                 </h3>
                 <p className="text-gray-600 mb-6">
-                  Crea e gestisci tornei per i tuoi clienti
+                  Crea e gestisci tornei per i tuoi clienti, gestendo anche i partecipanti
                 </p>
                 <button
                   onClick={() => navigate('/merchant/tournaments')}
@@ -330,6 +330,23 @@ export default function MerchantDashboard() {
                   className="w-full bg-gray-800 text-white py-3 rounded-xl font-semibold hover:bg-gray-700 transition-all hover:scale-105"
                 >
                   Gestisci Iscritti →
+                </button>
+              </div>
+
+              {/* News Section */}
+              <div className="bg-white border border-gray-100 rounded-2xl p-8 hover:shadow-lg transition-all">
+                <div className="text-4xl mb-4">📰</div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">
+                  Notizie
+                </h3>
+                <p className="text-gray-600 mb-6">
+                  Pubblica notizie, offerte e aggiornamenti per i tuoi clienti
+                </p>
+                <button
+                  onClick={() => navigate('/merchant/news')}
+                  className="w-full bg-gray-800 text-white py-3 rounded-xl font-semibold hover:bg-gray-700 transition-all hover:scale-105"
+                >
+                  Gestisci Notizie →
                 </button>
               </div>
 

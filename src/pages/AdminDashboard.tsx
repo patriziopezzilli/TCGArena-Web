@@ -8,6 +8,7 @@ import AchievementsManagement from './AchievementsManagement'
 import BatchImport from './BatchImport'
 import ShopsManagement from './ShopsManagement'
 import ExpansionsAndSetsManagement from './ExpansionsAndSetsManagement'
+import PartnersManagement from './PartnersManagement'
 
 interface Shop {
   id: number
@@ -37,7 +38,7 @@ interface WaitingListEntry {
   contacted: boolean
 }
 
-type TabType = 'all-shops' | 'pending-shops' | 'waiting-list' | 'rewards' | 'achievements' | 'batch-import' | 'expansions-sets'
+type TabType = 'all-shops' | 'pending-shops' | 'waiting-list' | 'partners' | 'rewards' | 'achievements' | 'batch-import' | 'expansions-sets'
 
 export default function AdminDashboard() {
   const navigate = useNavigate()
@@ -184,6 +185,16 @@ export default function AdminDashboard() {
               }`}
             >
               Waiting List {waitingList.length > 0 ? <span className="ml-1 px-2 py-0.5 bg-blue-500 rounded-full text-xs text-white">{waitingList.length}</span> : null}
+            </button>
+            <button
+              onClick={() => setActiveTab('partners')}
+              className={`px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap ${
+                activeTab === 'partners'
+                  ? 'bg-white text-gray-900 shadow-lg'
+                  : 'bg-white/10 text-white hover:bg-white/20 border border-white/20'
+              }`}
+            >
+              Partners
             </button>
             <button
               onClick={() => setActiveTab('rewards')}
@@ -437,6 +448,8 @@ export default function AdminDashboard() {
           </>
         ) : activeTab === 'all-shops' ? (
           <ShopsManagement />
+        ) : activeTab === 'partners' ? (
+          <PartnersManagement />
         ) : activeTab === 'rewards' ? (
           <RewardsManagement />
         ) : activeTab === 'achievements' ? (

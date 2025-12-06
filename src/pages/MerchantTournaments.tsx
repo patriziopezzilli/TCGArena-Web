@@ -35,13 +35,13 @@ export default function MerchantTournaments() {
   const [currentUserId, setCurrentUserId] = useState<number | null>(null)
   const [showModal, setShowModal] = useState(false)
   const [editingTournament, setEditingTournament] = useState<Tournament | null>(null)
-  
+
   const [formData, setFormData] = useState({
     title: '',
     tcgType: 'POKEMON',
     type: 'CASUAL' as Tournament['type'],
     description: '',
-    maxParticipants: 32,
+    maxParticipants: 8,
     entryFee: 0,
     prizePool: '',
     startDate: '',
@@ -65,7 +65,7 @@ export default function MerchantTournaments() {
       // Get current user profile first
       const userProfile = await merchantService.getProfile()
       setCurrentUserId(userProfile.id)
-      
+
       // Then load tournaments
       await loadTournaments(userProfile.id)
     } catch (error) {
@@ -94,13 +94,13 @@ export default function MerchantTournaments() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
-      // Convert dates to ISO format
+      // Send dates directly without UTC conversion to preserve local timezone
       const tournamentData = {
         ...formData,
-        startDate: formData.startDate ? new Date(formData.startDate).toISOString() : '',
-        endDate: formData.endDate ? new Date(formData.endDate).toISOString() : ''
+        startDate: formData.startDate || '',
+        endDate: formData.endDate || ''
       }
-      
+
       if (editingTournament) {
         await merchantService.updateTournament(editingTournament.id, tournamentData)
         showToast('Torneo aggiornato con successo', 'success')
@@ -120,7 +120,7 @@ export default function MerchantTournaments() {
 
   const handleDelete = async (id: string) => {
     if (!confirm('Sei sicuro di voler eliminare questo torneo?')) return
-    
+
     try {
       await merchantService.deleteTournament(id)
       showToast('Torneo eliminato con successo', 'success')
@@ -137,7 +137,7 @@ export default function MerchantTournaments() {
       tcgType: 'POKEMON',
       type: 'CASUAL' as Tournament['type'],
       description: '',
-      maxParticipants: 32,
+      maxParticipants: 8,
       entryFee: 0,
       prizePool: '',
       startDate: '',
@@ -313,6 +313,12 @@ export default function MerchantTournaments() {
                   </div>
                   <div className="flex flex-col gap-2 ml-4">
                     <button
+                      onClick={() => navigate(`/merchant/tournaments/${tournament.id}/participants`)}
+                      className="px-4 py-2 text-sm text-blue-600 hover:text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-50 transition-colors whitespace-nowrap"
+                    >
+                      Gestisci Partecipanti
+                    </button>
+                    <button
                       onClick={() => openEditModal(tournament)}
                       className="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors whitespace-nowrap"
                     >
@@ -421,7 +427,7 @@ export default function MerchantTournaments() {
                   <input
                     type="number"
                     required
-                    min="4"
+                    min="2"
                     className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                     value={formData.maxParticipants}
                     onChange={(e) => setFormData({ ...formData, maxParticipants: Number(e.target.value) })}

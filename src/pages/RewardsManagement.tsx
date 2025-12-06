@@ -2,6 +2,11 @@ import { useEffect, useState } from 'react'
 import { adminService } from '../services/api'
 import { useToast } from '../contexts/ToastContext'
 
+interface Partner {
+  id: number
+  name: string
+}
+
 interface Reward {
   id: number
   name: string
@@ -10,10 +15,13 @@ interface Reward {
   imageUrl: string
   isActive: boolean
   createdAt: string
+  partner?: Partner
+  type: 'PHYSICAL' | 'DIGITAL'
 }
 
 export default function RewardsManagement() {
   const [rewards, setRewards] = useState<Reward[]>([])
+  const [partners, setPartners] = useState<Partner[]>([])
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
   const [editingReward, setEditingReward] = useState<Reward | null>(null)
@@ -23,13 +31,30 @@ export default function RewardsManagement() {
     costPoints: 0,
     imageUrl: '',
     isActive: true,
+    partner: null as Partner | null,
+    type: 'PHYSICAL' as 'PHYSICAL' | 'DIGITAL',
   })
 
   const { showToast } = useToast()
 
   useEffect(() => {
-    loadRewards()
+    loadData()
   }, [])
+
+  const loadData = async () => {
+    try {
+      const [rewardsData, partnersData] = await Promise.all([
+        adminService.getAllRewards(),
+        adminService.getAllPartners()
+      ])
+      setRewards(rewardsData)
+      setPartners(partnersData)
+    } catch (err) {
+      showToast('Errore nel caricamento dei dati', 'error')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const loadRewards = async () => {
     try {
@@ -37,8 +62,6 @@ export default function RewardsManagement() {
       setRewards(data)
     } catch (err) {
       showToast('Errore nel caricamento dei rewards', 'error')
-    } finally {
-      setLoading(false)
     }
   }
 
@@ -50,6 +73,8 @@ export default function RewardsManagement() {
       costPoints: 0,
       imageUrl: '',
       isActive: true,
+      partner: null,
+      type: 'PHYSICAL',
     })
     setShowModal(true)
   }
@@ -62,6 +87,8 @@ export default function RewardsManagement() {
       costPoints: reward.costPoints,
       imageUrl: reward.imageUrl || '',
       isActive: reward.isActive,
+      partner: reward.partner || null,
+      type: reward.type || 'PHYSICAL',
     })
     setShowModal(true)
   }
@@ -123,9 +150,8 @@ export default function RewardsManagement() {
         {rewards.map((reward) => (
           <div
             key={reward.id}
-            className={`border rounded-lg p-6 ${
-              reward.isActive ? 'border-gray-200 bg-white' : 'border-gray-100 bg-gray-50 opacity-60'
-            }`}
+            className={`border rounded-lg p-6 ${reward.isActive ? 'border-gray-200 bg-white' : 'border-gray-100 bg-gray-50 opacity-60'
+              }`}
           >
             {reward.imageUrl && (
               <img
@@ -135,7 +161,20 @@ export default function RewardsManagement() {
               />
             )}
             <div className="flex items-start justify-between mb-2">
-              <h3 className="font-semibold text-gray-900">{reward.name}</h3>
+              <div>
+                <h3 className="font-semibold text-gray-900">{reward.name}</h3>
+                <div className="flex gap-2 mt-1">
+                  {reward.partner && (
+                    <span className="text-xs text-blue-600 font-medium bg-blue-50 px-2 py-0.5 rounded">
+                      {reward.partner.name}
+                    </span>
+                  )}
+                  <span className={`text-xs font-medium px-2 py-0.5 rounded ${reward.type === 'DIGITAL' ? 'bg-purple-100 text-purple-800' : 'bg-orange-100 text-orange-800'
+                    }`}>
+                    {reward.type === 'DIGITAL' ? 'Digitale' : 'Fisico'}
+                  </span>
+                </div>
+              </div>
               {!reward.isActive && (
                 <span className="px-2 py-1 text-xs bg-red-100 text-red-800 rounded">Inattivo</span>
               )}
@@ -199,16 +238,48 @@ export default function RewardsManagement() {
                   className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
                 />
               </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Costo (punti)</label>
+                  <input
+                    type="number"
+                    required
+                    min="0"
+                    value={formData.costPoints}
+                    onChange={(e) => setFormData({ ...formData, costPoints: parseInt(e.target.value) })}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
+                  <select
+                    value={formData.type}
+                    onChange={(e) => setFormData({ ...formData, type: e.target.value as 'PHYSICAL' | 'DIGITAL' })}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
+                  >
+                    <option value="PHYSICAL">Fisico</option>
+                    <option value="DIGITAL">Digitale</option>
+                  </select>
+                </div>
+              </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Costo (punti)</label>
-                <input
-                  type="number"
-                  required
-                  min="0"
-                  value={formData.costPoints}
-                  onChange={(e) => setFormData({ ...formData, costPoints: parseInt(e.target.value) })}
+                <label className="block text-sm font-medium text-gray-700 mb-1">Partner (Opzionale)</label>
+                <select
+                  value={formData.partner?.id || ''}
+                  onChange={(e) => {
+                    const partnerId = parseInt(e.target.value)
+                    const partner = partners.find(p => p.id === partnerId) || null
+                    setFormData({ ...formData, partner })
+                  }}
                   className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
-                />
+                >
+                  <option value="">Nessun Partner</option>
+                  {partners.map(partner => (
+                    <option key={partner.id} value={partner.id}>
+                      {partner.name}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">URL Immagine</label>

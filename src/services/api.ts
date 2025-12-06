@@ -1,5 +1,5 @@
 import axios from 'axios'
-import type { MerchantRegistrationRequest, MerchantRegistrationResponse, Expansion, TCGSet, TCGStats } from '../types/api'
+import type { MerchantRegistrationRequest, MerchantRegistrationResponse, Expansion, TCGSet, TCGStats, TournamentParticipant } from '../types/api'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api'
 
@@ -103,6 +103,11 @@ export const merchantService = {
     return response.data
   },
 
+  async validateReservationById(shopId: string, reservationId: string): Promise<any> {
+    const response = await apiClient.put(`/reservations/${reservationId}/validate?shopId=${shopId}`)
+    return response.data
+  },
+
   // Tournament endpoints
   async getTournaments(): Promise<any> {
     const response = await apiClient.get('/tournaments')
@@ -144,12 +149,12 @@ export const merchantService = {
     // Get shopId from localStorage
     const user = localStorage.getItem('merchant_user')
     if (!user) throw new Error('Merchant user not found')
-    
+
     const userData = JSON.parse(user)
     const shopId = userData.shopId
-    
+
     if (!shopId) throw new Error('Shop ID not found')
-    
+
     const response = await apiClient.post(`/requests/${id}/messages/merchant?shopId=${shopId}`, { message })
     return response.data
   },
@@ -185,6 +190,17 @@ export const merchantService = {
     return response.data
   },
 
+  // Reservation settings endpoints
+  async getReservationSettings(shopId: string): Promise<{ reservationDurationMinutes: number; defaultDurationMinutes: number }> {
+    const response = await apiClient.get(`/shops/${shopId}/reservation-settings`)
+    return response.data
+  },
+
+  async updateReservationSettings(shopId: string, settings: { reservationDurationMinutes: number }): Promise<any> {
+    const response = await apiClient.put(`/shops/${shopId}/reservation-settings`, settings)
+    return response.data
+  },
+
   // Card Templates endpoints
   async searchCardTemplates(filters?: {
     tcgType?: string;
@@ -203,7 +219,7 @@ export const merchantService = {
     if (filters?.q) params.append('q', filters.q)
     if (filters?.page !== undefined) params.append('page', filters.page.toString())
     if (filters?.size !== undefined) params.append('size', filters.size.toString())
-    
+
     const response = await publicApiClient.get(`/cards/templates/search/advanced?${params}`)
     return response.data
   },
@@ -226,6 +242,87 @@ export const merchantService = {
   async getExpansions(): Promise<any[]> {
     const response = await publicApiClient.get('/expansions')
     return response.data
+  },
+
+  // Tournament participants endpoints
+  async getTournamentParticipants(tournamentId: string): Promise<TournamentParticipant[]> {
+    const response = await apiClient.get(`/tournaments/${tournamentId}/participants/detailed`)
+    return response.data
+  },
+
+  async addTournamentParticipant(tournamentId: string, userIdentifier: string): Promise<any> {
+    const response = await apiClient.post(`/tournaments/${tournamentId}/participants`, { userIdentifier })
+    return response.data
+  },
+
+  async registerManualParticipant(tournamentId: string, data: { firstName: string, lastName: string, email?: string }): Promise<any> {
+    const response = await apiClient.post(`/tournaments/${tournamentId}/participants/manual`, data)
+    return response.data
+  },
+
+  async startTournament(tournamentId: string): Promise<any> {
+    const response = await apiClient.post(`/tournaments/${tournamentId}/start`)
+    return response.data
+  },
+
+  async removeParticipant(tournamentId: string, participantId: string): Promise<void> {
+    await apiClient.delete(`/tournaments/${tournamentId}/participants/${participantId}`)
+  },
+
+  async completeTournament(tournamentId: string, placements: { participantId: number, placement: number }[]): Promise<any> {
+    const response = await apiClient.post(`/tournaments/${tournamentId}/complete`, { placements })
+    return response.data
+  },
+
+  // ========== NEWS MANAGEMENT ==========
+  async getShopNews(shopId: string): Promise<any[]> {
+    const response = await apiClient.get(`/merchant/shops/${shopId}/news`)
+    return response.data
+  },
+
+  async getActiveNews(shopId: string): Promise<any[]> {
+    const response = await apiClient.get(`/merchant/shops/${shopId}/news/active`)
+    return response.data
+  },
+
+  async getFutureNews(shopId: string): Promise<any[]> {
+    const response = await apiClient.get(`/merchant/shops/${shopId}/news/future`)
+    return response.data
+  },
+
+  async getExpiredNews(shopId: string): Promise<any[]> {
+    const response = await apiClient.get(`/merchant/shops/${shopId}/news/expired`)
+    return response.data
+  },
+
+  async createNews(shopId: string, data: {
+    title: string
+    content: string
+    newsType: string
+    startDate?: string
+    expiryDate?: string
+    imageUrl?: string
+    isPinned?: boolean
+  }): Promise<any> {
+    const response = await apiClient.post(`/merchant/shops/${shopId}/news`, data)
+    return response.data
+  },
+
+  async updateNews(shopId: string, newsId: string, data: {
+    title?: string
+    content?: string
+    newsType?: string
+    startDate?: string
+    expiryDate?: string
+    imageUrl?: string
+    isPinned?: boolean
+  }): Promise<any> {
+    const response = await apiClient.put(`/merchant/shops/${shopId}/news/${newsId}`, data)
+    return response.data
+  },
+
+  async deleteNews(shopId: string, newsId: string): Promise<void> {
+    await apiClient.delete(`/merchant/shops/${shopId}/news/${newsId}`)
   },
 }
 
@@ -258,6 +355,27 @@ export const adminService = {
 
   async updateShop(shopId: number, shopData: any): Promise<any> {
     const response = await apiClient.put(`/admin/shops/${shopId}`, shopData)
+    return response.data
+  },
+
+  // ========== PARTNERS MANAGEMENT ==========
+  async getAllPartners(): Promise<any[]> {
+    const response = await apiClient.get('/partners/all')
+    return response.data
+  },
+
+  async createPartner(partnerData: any): Promise<any> {
+    const response = await apiClient.post('/partners', partnerData)
+    return response.data
+  },
+
+  async updatePartner(partnerData: any): Promise<any> {
+    const response = await apiClient.post('/partners', partnerData)
+    return response.data
+  },
+
+  async deletePartner(partnerId: number): Promise<any> {
+    const response = await apiClient.delete(`/partners/${partnerId}`)
     return response.data
   },
 
