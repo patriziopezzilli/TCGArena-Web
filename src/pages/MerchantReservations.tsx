@@ -113,7 +113,7 @@ export default function MerchantReservations() {
     const now = new Date()
     const expiry = new Date(expiresAt)
     const diffMs = expiry.getTime() - now.getTime()
-    
+
     if (diffMs <= 0) return 'text-red-600'
     if (diffMs <= 3600000) return 'text-orange-600' // meno di 1 ora
     return 'text-amber-600'
@@ -123,14 +123,14 @@ export default function MerchantReservations() {
     const now = new Date()
     const expiry = new Date(expiresAt)
     const diffMs = expiry.getTime() - now.getTime()
-    
+
     if (diffMs <= 0) {
       return 'Scaduta!'
     }
-    
+
     const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
     const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60))
-    
+
     if (diffHours > 24) {
       const diffDays = Math.floor(diffHours / 24)
       return `Scade tra ${diffDays} giorno${diffDays > 1 ? 'i' : ''}`
@@ -265,7 +265,7 @@ export default function MerchantReservations() {
 
                 <div className="flex items-center gap-3 pt-4 border-t border-gray-100">
                   <div className="flex-1 bg-gray-50 rounded-lg p-3 font-mono text-sm text-gray-700">
-                    QR Code: {reservation.qrCode}
+                    QR Code: {reservation.qr_code}
                   </div>
                   <button
                     onClick={() => handleManualConfirm(reservation.id)}
@@ -275,7 +275,7 @@ export default function MerchantReservations() {
                   </button>
                   <button
                     onClick={() => {
-                      setQrCode(reservation.qrCode)
+                      setQrCode(reservation.qr_code)
                       setShowQRModal(true)
                     }}
                     className="px-4 py-2 text-sm text-primary border border-primary rounded-lg hover:bg-blue-50 transition-colors"
