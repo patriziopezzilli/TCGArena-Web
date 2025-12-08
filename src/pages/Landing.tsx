@@ -18,7 +18,7 @@ export default function Landing() {
     setError('')
 
     try {
-      await axios.post(`${import.meta.env.VITE_API_URL || 'http://80.211.236.249:8080/api'}/waiting-list/join`, formData)
+      await axios.post(`${import.meta.env.VITE_API_URL || 'https://api.tcgarena.it/api'}/waiting-list/join`, formData)
       setSubmitSuccess(true)
       setTimeout(() => {
         setShowModal(false)
@@ -80,7 +80,7 @@ export default function Landing() {
             </span>
           </h1>
           <p className="text-base md:text-xl text-gray-600 mb-10 max-w-2xl mx-auto animate-fade-in-up animation-delay-200">
-            L'unica piattaforma che unisce giocatori, collezionisti e negozi TCG. 
+            L'unica piattaforma che unisce giocatori, collezionisti e negozi TCG.
             Trova carte, prenota, partecipa a tornei.
           </p>
           <div className="flex flex-col items-center gap-4 animate-fade-in-up animation-delay-400">
@@ -111,7 +111,7 @@ export default function Landing() {
               Supporto completo per i giochi di carte collezionabili più popolari
             </p>
           </div>
-          
+
           <div className="grid grid-cols-2 md:grid-cols-5 gap-6 max-w-5xl mx-auto">
             <TCGCard name="Pokémon TCG" icon="⚡" color="from-yellow-400 to-red-500" />
             <TCGCard name="One Piece TCG" icon="🏴‍☠️" color="from-orange-400 to-red-600" />
@@ -180,11 +180,11 @@ export default function Landing() {
               Sei un negoziante?
             </h2>
             <p className="text-xl text-gray-600">
-              Gestisci il tuo negozio, raggiungi più clienti, organizza tornei. 
+              Gestisci il tuo negozio, raggiungi più clienti, organizza tornei.
               Tutto da un'unica piattaforma.
             </p>
           </div>
-          
+
           <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto mb-12">
             <div className="p-6 bg-white rounded-xl border border-gray-100">
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
@@ -251,21 +251,21 @@ export default function Landing() {
             La Nostra Mission
           </h2>
           <p className="text-xl text-gray-300 mb-8 leading-relaxed">
-            Vogliamo <span className="text-white font-semibold">rivoluzionare</span> il mondo dei Trading Card Games in Italia, 
+            Vogliamo <span className="text-white font-semibold">rivoluzionare</span> il mondo dei Trading Card Games in Italia,
             creando un <span className="text-white font-semibold">ecosistema digitale</span> che unisca giocatori, collezionisti e negozi.
           </p>
           <div className="grid md:grid-cols-3 gap-8 mt-12">
-            <MissionCard 
+            <MissionCard
               icon="🎯"
               title="Accessibilità"
               description="Rendere il TCG accessibile a tutti, ovunque tu sia"
             />
-            <MissionCard 
+            <MissionCard
               icon="🤝"
               title="Comunità"
               description="Connettere giocatori e negozi locali per far crescere la community"
             />
-            <MissionCard 
+            <MissionCard
               icon="🚀"
               title="Innovazione"
               description="Portare tecnologia all'avanguardia nel mondo delle carte collezionabili"
@@ -398,11 +398,10 @@ export default function Landing() {
                       <button
                         type="button"
                         onClick={() => setFormData({ ...formData, userType: 'PLAYER' })}
-                        className={`p-4 rounded-xl border-2 transition-all ${
-                          formData.userType === 'PLAYER'
+                        className={`p-4 rounded-xl border-2 transition-all ${formData.userType === 'PLAYER'
                             ? 'border-gray-900 bg-gray-50 shadow-lg'
                             : 'border-gray-200 hover:border-gray-300'
-                        }`}
+                          }`}
                       >
                         <div className="text-3xl mb-2">🎮</div>
                         <div className="font-semibold text-gray-900">Giocatore</div>
@@ -410,11 +409,10 @@ export default function Landing() {
                       <button
                         type="button"
                         onClick={() => setFormData({ ...formData, userType: 'MERCHANT' })}
-                        className={`p-4 rounded-xl border-2 transition-all ${
-                          formData.userType === 'MERCHANT'
+                        className={`p-4 rounded-xl border-2 transition-all ${formData.userType === 'MERCHANT'
                             ? 'border-gray-900 bg-gray-50 shadow-lg'
                             : 'border-gray-200 hover:border-gray-300'
-                        }`}
+                          }`}
                       >
                         <div className="text-3xl mb-2">🏪</div>
                         <div className="font-semibold text-gray-900">Negozio</div>

@@ -17,13 +17,13 @@ export default function WaitingList() {
     setMessage(null)
 
     try {
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}/waiting-list/join`, formData)
+      const response = await axios.post(`${import.meta.env.VITE_API_URL || 'https://api.tcgarena.it/api'}/waiting-list/join`, formData)
       setMessage({ text: response.data.message, type: 'success' })
       setFormData({ email: '', city: '', userType: 'PLAYER' })
     } catch (error: any) {
-      setMessage({ 
-        text: error.response?.data?.message || 'Errore durante la registrazione. Riprova.', 
-        type: 'error' 
+      setMessage({
+        text: error.response?.data?.message || 'Errore durante la registrazione. Riprova.',
+        type: 'error'
       })
     } finally {
       setIsSubmitting(false)
@@ -50,7 +50,7 @@ export default function WaitingList() {
               Stiamo arrivando! 🚀
             </h2>
             <p className="text-lg text-gray-600 max-w-xl mx-auto">
-              Unisciti alla lista d'attesa e sii tra i primi a scoprire la piattaforma che 
+              Unisciti alla lista d'attesa e sii tra i primi a scoprire la piattaforma che
               rivoluzionerà il mondo dei TCG in Italia.
             </p>
           </div>
@@ -67,23 +67,20 @@ export default function WaitingList() {
                   <button
                     type="button"
                     onClick={() => setFormData({ ...formData, userType: 'PLAYER' })}
-                    className={`group relative p-6 rounded-2xl border-2 transition-all duration-300 transform hover:scale-105 ${
-                      formData.userType === 'PLAYER'
+                    className={`group relative p-6 rounded-2xl border-2 transition-all duration-300 transform hover:scale-105 ${formData.userType === 'PLAYER'
                         ? 'border-gray-900 bg-gray-900 shadow-xl'
                         : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-lg'
-                    }`}
+                      }`}
                   >
                     <div className="text-4xl mb-3 transform group-hover:scale-110 transition-transform">
                       {formData.userType === 'PLAYER' ? '🎮' : '👤'}
                     </div>
-                    <div className={`font-semibold transition-colors ${
-                      formData.userType === 'PLAYER' ? 'text-white' : 'text-gray-900'
-                    }`}>
+                    <div className={`font-semibold transition-colors ${formData.userType === 'PLAYER' ? 'text-white' : 'text-gray-900'
+                      }`}>
                       Giocatore
                     </div>
-                    <div className={`text-sm mt-1 transition-colors ${
-                      formData.userType === 'PLAYER' ? 'text-gray-300' : 'text-gray-500'
-                    }`}>
+                    <div className={`text-sm mt-1 transition-colors ${formData.userType === 'PLAYER' ? 'text-gray-300' : 'text-gray-500'
+                      }`}>
                       Collezionista
                     </div>
                     {formData.userType === 'PLAYER' && (
@@ -96,23 +93,20 @@ export default function WaitingList() {
                   <button
                     type="button"
                     onClick={() => setFormData({ ...formData, userType: 'MERCHANT' })}
-                    className={`group relative p-6 rounded-2xl border-2 transition-all duration-300 transform hover:scale-105 ${
-                      formData.userType === 'MERCHANT'
+                    className={`group relative p-6 rounded-2xl border-2 transition-all duration-300 transform hover:scale-105 ${formData.userType === 'MERCHANT'
                         ? 'border-gray-900 bg-gray-900 shadow-xl'
                         : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-lg'
-                    }`}
+                      }`}
                   >
                     <div className="text-4xl mb-3 transform group-hover:scale-110 transition-transform">
                       {formData.userType === 'MERCHANT' ? '🏪' : '🏬'}
                     </div>
-                    <div className={`font-semibold transition-colors ${
-                      formData.userType === 'MERCHANT' ? 'text-white' : 'text-gray-900'
-                    }`}>
+                    <div className={`font-semibold transition-colors ${formData.userType === 'MERCHANT' ? 'text-white' : 'text-gray-900'
+                      }`}>
                       Negoziante
                     </div>
-                    <div className={`text-sm mt-1 transition-colors ${
-                      formData.userType === 'MERCHANT' ? 'text-gray-300' : 'text-gray-500'
-                    }`}>
+                    <div className={`text-sm mt-1 transition-colors ${formData.userType === 'MERCHANT' ? 'text-gray-300' : 'text-gray-500'
+                      }`}>
                       Proprietario
                     </div>
                     {formData.userType === 'MERCHANT' && (
@@ -138,16 +132,14 @@ export default function WaitingList() {
                     onFocus={() => setFocusedField('email')}
                     onBlur={() => setFocusedField(null)}
                     required
-                    className={`w-full px-4 py-4 bg-gray-50 border-2 rounded-xl text-gray-900 placeholder-gray-400 transition-all duration-300 focus:outline-none focus:bg-white ${
-                      focusedField === 'email'
+                    className={`w-full px-4 py-4 bg-gray-50 border-2 rounded-xl text-gray-900 placeholder-gray-400 transition-all duration-300 focus:outline-none focus:bg-white ${focusedField === 'email'
                         ? 'border-gray-900 shadow-lg scale-[1.02]'
                         : 'border-gray-200 hover:border-gray-300'
-                    }`}
+                      }`}
                     placeholder="mario.rossi@email.com"
                   />
-                  <div className={`absolute right-4 top-1/2 -translate-y-1/2 transition-all duration-300 ${
-                    focusedField === 'email' ? 'opacity-100 scale-100' : 'opacity-0 scale-75'
-                  }`}>
+                  <div className={`absolute right-4 top-1/2 -translate-y-1/2 transition-all duration-300 ${focusedField === 'email' ? 'opacity-100 scale-100' : 'opacity-0 scale-75'
+                    }`}>
                     <span className="text-2xl">📧</span>
                   </div>
                 </div>
@@ -167,16 +159,14 @@ export default function WaitingList() {
                     onFocus={() => setFocusedField('city')}
                     onBlur={() => setFocusedField(null)}
                     required
-                    className={`w-full px-4 py-4 bg-gray-50 border-2 rounded-xl text-gray-900 placeholder-gray-400 transition-all duration-300 focus:outline-none focus:bg-white ${
-                      focusedField === 'city'
+                    className={`w-full px-4 py-4 bg-gray-50 border-2 rounded-xl text-gray-900 placeholder-gray-400 transition-all duration-300 focus:outline-none focus:bg-white ${focusedField === 'city'
                         ? 'border-gray-900 shadow-lg scale-[1.02]'
                         : 'border-gray-200 hover:border-gray-300'
-                    }`}
+                      }`}
                     placeholder="Roma, Milano, Napoli..."
                   />
-                  <div className={`absolute right-4 top-1/2 -translate-y-1/2 transition-all duration-300 ${
-                    focusedField === 'city' ? 'opacity-100 scale-100' : 'opacity-0 scale-75'
-                  }`}>
+                  <div className={`absolute right-4 top-1/2 -translate-y-1/2 transition-all duration-300 ${focusedField === 'city' ? 'opacity-100 scale-100' : 'opacity-0 scale-75'
+                    }`}>
                     <span className="text-2xl">📍</span>
                   </div>
                 </div>
@@ -206,11 +196,10 @@ export default function WaitingList() {
 
               {/* Message */}
               {message && (
-                <div className={`p-4 rounded-xl animate-slide-up ${
-                  message.type === 'success'
+                <div className={`p-4 rounded-xl animate-slide-up ${message.type === 'success'
                     ? 'bg-green-50 border-2 border-green-200 text-green-800'
                     : 'bg-red-50 border-2 border-red-200 text-red-800'
-                }`}>
+                  }`}>
                   <div className="flex items-start gap-3">
                     <span className="text-2xl flex-shrink-0">
                       {message.type === 'success' ? '✅' : '❌'}
