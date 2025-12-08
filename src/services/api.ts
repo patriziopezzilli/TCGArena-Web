@@ -426,7 +426,17 @@ export const adminService = {
     const params = new URLSearchParams()
     if (startIndex !== -99) params.append('startIndex', startIndex.toString())
     if (endIndex !== -99) params.append('endIndex', endIndex.toString())
-    const response = await apiClient.post(`/admin/import/${tcgType}?${params}`)
+    const response = await apiClient.post(`/batch/import/${tcgType}?${params}`)
+    return response.data
+  },
+
+  async triggerJustTCGImport(tcgType: string): Promise<any> {
+    const response = await apiClient.post(`/batch/justtcg/${tcgType}`)
+    return response.data
+  },
+
+  async getJustTCGSupportedTypes(): Promise<{ supportedTypes: string[], count: number }> {
+    const response = await apiClient.get('/batch/justtcg/supported')
     return response.data
   },
 

@@ -4,7 +4,7 @@ export interface MerchantRegistrationRequest {
   email: string
   password: string
   displayName: string
-  
+
   // Shop data
   shopName: string
   address: string
@@ -39,6 +39,7 @@ export interface Expansion {
   title: string
   tcgType: string
   imageUrl?: string
+  productType?: ProductType
   sets: TCGSet[]
   createdAt?: string
   updatedAt?: string
@@ -52,9 +53,28 @@ export interface TCGSet {
   releaseDate?: string
   cardCount?: number
   description?: string
+  productType?: ProductType
+  parentSetId?: number
   createdAt?: string
   updatedAt?: string
 }
+
+// Product type classification for cross-TCG filtering
+export type ProductType =
+  | 'BOOSTER_SET'
+  | 'STARTER_DECK'
+  | 'STRUCTURE_DECK'
+  | 'SPECIAL_SET'
+  | 'PREMIUM_PACK'
+  | 'PROMO'
+  | 'TIN'
+  | 'BOX_SET'
+  | 'THEME_BOOSTER'
+  | 'MASTERS_SET'
+  | 'COMMANDER_SET'
+  | 'SUPPLEMENTAL'
+  | 'STANDALONE_SET'
+  | 'OTHER'
 
 export interface TCGStats {
   tcgType: string
