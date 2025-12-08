@@ -142,6 +142,8 @@ export interface Tournament {
   status: 'UPCOMING' | 'REGISTRATION_OPEN' | 'REGISTRATION_CLOSED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED'
   location: TournamentLocation
   organizerId: number
+  isRanked?: boolean
+  externalRegistrationUrl?: string
 }
 
 export interface TournamentLocation {

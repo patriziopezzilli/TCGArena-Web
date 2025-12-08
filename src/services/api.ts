@@ -90,6 +90,42 @@ export const merchantService = {
     await apiClient.delete(`/inventory/${id}`)
   },
 
+  // Bulk Import endpoints
+  async downloadInventoryTemplate(): Promise<Blob> {
+    const response = await apiClient.get('/inventory/template', { responseType: 'blob' })
+    return response.data
+  },
+
+  async bulkImportInventory(shopId: string, file: File): Promise<{
+    totalRows: number
+    successCount: number
+    errorCount: number
+    errors: string[]
+    message: string
+  }> {
+    const formData = new FormData()
+    formData.append('file', file)
+    const response = await apiClient.post(`/inventory/bulk-import?shopId=${shopId}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    })
+    return response.data
+  },
+
+  async submitCustomImportRequest(shopId: string, file: File, notes?: string): Promise<{
+    requestId: number
+    message: string
+    estimatedProcessingTime: string
+  }> {
+    const formData = new FormData()
+    formData.append('file', file)
+    if (notes) formData.append('notes', notes)
+    const response = await apiClient.post(`/inventory/import-request?shopId=${shopId}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    })
+    return response.data
+  },
+
+
   // Reservation endpoints
   async getReservations(shopId: string, status?: string): Promise<any> {
     const params = new URLSearchParams({ shopId })

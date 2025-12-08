@@ -18,6 +18,8 @@ interface Tournament {
   status: 'UPCOMING' | 'REGISTRATION_OPEN' | 'REGISTRATION_CLOSED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED'
   location: TournamentLocation
   organizerId: number
+  isRanked?: boolean
+  externalRegistrationUrl?: string
 }
 
 interface TournamentLocation {
@@ -35,6 +37,7 @@ export default function MerchantTournaments() {
   const [currentUserId, setCurrentUserId] = useState<number | null>(null)
   const [showModal, setShowModal] = useState(false)
   const [editingTournament, setEditingTournament] = useState<Tournament | null>(null)
+  const [shopData, setShopData] = useState<{ name: string; address: string; city: string } | null>(null)
 
   const [formData, setFormData] = useState({
     title: '',
@@ -52,7 +55,9 @@ export default function MerchantTournaments() {
       address: '',
       city: '',
       country: 'Italia'
-    }
+    },
+    isRanked: false,
+    externalRegistrationUrl: ''
   })
 
   useEffect(() => {
@@ -65,6 +70,21 @@ export default function MerchantTournaments() {
       // Get current user profile first
       const userProfile = await merchantService.getProfile()
       setCurrentUserId(userProfile.id)
+
+      // Load shop data for pre-filling location
+      try {
+        const shopStatus = await merchantService.getShopStatus()
+        if (shopStatus.shop) {
+          const shop = shopStatus.shop
+          setShopData({
+            name: shop.name || '',
+            address: shop.address || '',
+            city: shop.city || ''
+          })
+        }
+      } catch (error) {
+        console.error('Error loading shop data:', error)
+      }
 
       // Then load tournaments
       await loadTournaments(userProfile.id)
@@ -144,11 +164,13 @@ export default function MerchantTournaments() {
       endDate: '',
       status: 'REGISTRATION_OPEN' as Tournament['status'],
       location: {
-        venueName: '',
-        address: '',
-        city: '',
+        venueName: shopData?.name || '',
+        address: shopData?.address || '',
+        city: shopData?.city || '',
         country: 'Italia'
-      }
+      },
+      isRanked: false,
+      externalRegistrationUrl: ''
     })
   }
 
@@ -167,7 +189,9 @@ export default function MerchantTournaments() {
       startDate: startDateTime,
       endDate: endDateTime,
       status: tournament.status,
-      location: tournament.location
+      location: tournament.location,
+      isRanked: tournament.isRanked || false,
+      externalRegistrationUrl: tournament.externalRegistrationUrl || ''
     })
     setShowModal(true)
   }
@@ -222,7 +246,7 @@ export default function MerchantTournaments() {
               <h1 className="text-2xl font-semibold text-gray-900">Gestione Tornei</h1>
             </div>
             <button
-              onClick={() => setShowModal(true)}
+              onClick={() => { resetForm(); setShowModal(true) }}
               className="px-6 py-2 bg-primary text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
             >
               + Crea Torneo
@@ -261,7 +285,7 @@ export default function MerchantTournaments() {
           <div className="text-center py-12 bg-gray-50 rounded-lg">
             <p className="text-gray-600">Nessun torneo creato</p>
             <button
-              onClick={() => setShowModal(true)}
+              onClick={() => { resetForm(); setShowModal(true) }}
               className="mt-4 text-primary hover:underline"
             >
               Crea il primo torneo
@@ -278,6 +302,11 @@ export default function MerchantTournaments() {
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
                       <h3 className="text-xl font-semibold text-gray-900">{tournament.title}</h3>
+                      {tournament.isRanked && (
+                        <span className="px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-yellow-400 to-orange-400 text-black">
+                          🏆 Ufficiale
+                        </span>
+                      )}
                       {getStatusBadge(tournament.status)}
                     </div>
                     <p className="text-sm text-gray-600 mb-3">{tournament.description}</p>
@@ -346,6 +375,61 @@ export default function MerchantTournaments() {
               {editingTournament ? 'Modifica Torneo' : 'Crea Nuovo Torneo'}
             </h2>
             <form onSubmit={handleSubmit}>
+              {/* Tournament Type Toggle */}
+              <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  Tipo di Torneo
+                </label>
+                <div className="flex gap-4">
+                  <label className={`flex-1 flex items-center justify-center gap-2 p-4 rounded-lg border-2 cursor-pointer transition-all ${!formData.isRanked ? 'border-primary bg-blue-50 text-primary' : 'border-gray-200 hover:border-gray-300'
+                    }`}>
+                    <input
+                      type="radio"
+                      name="tournamentCategory"
+                      checked={!formData.isRanked}
+                      onChange={() => setFormData({ ...formData, isRanked: false, externalRegistrationUrl: '' })}
+                      className="sr-only"
+                    />
+                    <span className="text-lg">🏠</span>
+                    <span className="font-medium">Torneo Locale</span>
+                  </label>
+                  <label className={`flex-1 flex items-center justify-center gap-2 p-4 rounded-lg border-2 cursor-pointer transition-all ${formData.isRanked ? 'border-yellow-500 bg-yellow-50 text-yellow-700' : 'border-gray-200 hover:border-gray-300'
+                    }`}>
+                    <input
+                      type="radio"
+                      name="tournamentCategory"
+                      checked={formData.isRanked}
+                      onChange={() => setFormData({ ...formData, isRanked: true })}
+                      className="sr-only"
+                    />
+                    <span className="text-lg">🏆</span>
+                    <span className="font-medium">Torneo Ufficiale</span>
+                  </label>
+                </div>
+                {formData.isRanked && (
+                  <p className="mt-2 text-sm text-gray-500">
+                    I tornei ufficiali richiedono l'iscrizione tramite app esterna (es. Pokemon TCG Live)
+                  </p>
+                )}
+              </div>
+
+              {/* External URL for Ranked Tournaments */}
+              {formData.isRanked && (
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    URL Iscrizione Esterna *
+                  </label>
+                  <input
+                    type="url"
+                    required
+                    placeholder="https://..."
+                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                    value={formData.externalRegistrationUrl}
+                    onChange={(e) => setFormData({ ...formData, externalRegistrationUrl: e.target.value })}
+                  />
+                </div>
+              )}
+
               <div className="grid grid-cols-2 gap-4">
                 <div className="col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -377,91 +461,6 @@ export default function MerchantTournaments() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Tipo Torneo
-                  </label>
-                  <select
-                    required
-                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                    value={formData.type}
-                    onChange={(e) => setFormData({ ...formData, type: e.target.value as Tournament['type'] })}
-                  >
-                    <option value="CASUAL">Casual</option>
-                    <option value="COMPETITIVE">Competitivo</option>
-                    <option value="CHAMPIONSHIP">Campionato</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Stato
-                  </label>
-                  <select
-                    required
-                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                    value={formData.status}
-                    onChange={(e) => setFormData({ ...formData, status: e.target.value as Tournament['status'] })}
-                  >
-                    <option value="UPCOMING">In Arrivo</option>
-                    <option value="REGISTRATION_OPEN">Iscrizioni Aperte</option>
-                    <option value="REGISTRATION_CLOSED">Iscrizioni Chiuse</option>
-                    <option value="IN_PROGRESS">In Corso</option>
-                    <option value="COMPLETED">Completato</option>
-                    <option value="CANCELLED">Cancellato</option>
-                  </select>
-                </div>
-                <div className="col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Descrizione
-                  </label>
-                  <textarea
-                    required
-                    rows={3}
-                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Partecipanti Max
-                  </label>
-                  <input
-                    type="number"
-                    required
-                    min="2"
-                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                    value={formData.maxParticipants}
-                    onChange={(e) => setFormData({ ...formData, maxParticipants: Number(e.target.value) })}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Quota Iscrizione (€)
-                  </label>
-                  <input
-                    type="number"
-                    required
-                    min="0"
-                    step="0.01"
-                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                    value={formData.entryFee}
-                    onChange={(e) => setFormData({ ...formData, entryFee: Number(e.target.value) })}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Montepremi
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="es: Booster Box, 50€ in buoni, etc."
-                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                    value={formData.prizePool}
-                    onChange={(e) => setFormData({ ...formData, prizePool: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Data e Ora Inizio
                   </label>
                   <input
@@ -472,18 +471,111 @@ export default function MerchantTournaments() {
                     onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Data e Ora Fine
-                  </label>
-                  <input
-                    type="datetime-local"
-                    required
-                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                    value={formData.endDate}
-                    onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
-                  />
-                </div>
+
+                {/* Fields only for Local Tournaments */}
+                {!formData.isRanked && (
+                  <>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Tipo Torneo
+                      </label>
+                      <select
+                        required
+                        className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                        value={formData.type}
+                        onChange={(e) => setFormData({ ...formData, type: e.target.value as Tournament['type'] })}
+                      >
+                        <option value="CASUAL">Casual</option>
+                        <option value="COMPETITIVE">Competitivo</option>
+                        <option value="CHAMPIONSHIP">Campionato</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Stato
+                      </label>
+                      <select
+                        required
+                        className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                        value={formData.status}
+                        onChange={(e) => setFormData({ ...formData, status: e.target.value as Tournament['status'] })}
+                      >
+                        <option value="UPCOMING">In Arrivo</option>
+                        <option value="REGISTRATION_OPEN">Iscrizioni Aperte</option>
+                        <option value="REGISTRATION_CLOSED">Iscrizioni Chiuse</option>
+                        <option value="IN_PROGRESS">In Corso</option>
+                        <option value="COMPLETED">Completato</option>
+                        <option value="CANCELLED">Cancellato</option>
+                      </select>
+                    </div>
+                    <div className="col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Descrizione
+                      </label>
+                      <textarea
+                        required
+                        rows={3}
+                        className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                        value={formData.description}
+                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Partecipanti Max
+                      </label>
+                      <input
+                        type="number"
+                        required
+                        min="2"
+                        className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                        value={formData.maxParticipants}
+                        onChange={(e) => setFormData({ ...formData, maxParticipants: Number(e.target.value) })}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Quota Iscrizione (€)
+                      </label>
+                      <input
+                        type="number"
+                        required
+                        min="0"
+                        step="0.01"
+                        className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                        value={formData.entryFee}
+                        onChange={(e) => setFormData({ ...formData, entryFee: Number(e.target.value) })}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Montepremi
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="es: Booster Box, 50€ in buoni, etc."
+                        className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                        value={formData.prizePool}
+                        onChange={(e) => setFormData({ ...formData, prizePool: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Data e Ora Fine
+                      </label>
+                      <input
+                        type="datetime-local"
+                        required
+                        className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                        value={formData.endDate}
+                        onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
+                      />
+                    </div>
+                  </>
+                )}
+
+                {/* Location fields - always visible but pre-filled */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Nome Luogo

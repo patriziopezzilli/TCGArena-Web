@@ -79,16 +79,29 @@ export default function MerchantInventory() {
   const [editingCard, setEditingCard] = useState<InventoryCard | null>(null)
   const [selectedTemplate, setSelectedTemplate] = useState<CardTemplate | null>(null)
   const [shopId, setShopId] = useState<string>('')
-  const [currentView, setCurrentView] = useState<'templates' | 'inventory'>('templates')
+  const [currentView, setCurrentView] = useState<'templates' | 'inventory' | 'import'>('templates')
   const [templatePage, setTemplatePage] = useState(0)
   const [hasMoreTemplates, setHasMoreTemplates] = useState(true)
-  
+
   // Filter options
   const [tcgTypes, setTcgTypes] = useState<string[]>([])
   const [rarities, setRarities] = useState<string[]>([])
   const [setCodes, setSetCodes] = useState<string[]>([])
   const [expansions, setExpansions] = useState<any[]>([])
-  
+
+  // Import state
+  const [importMode, setImportMode] = useState<'standard' | 'custom'>('standard')
+  const [importFile, setImportFile] = useState<File | null>(null)
+  const [customNotes, setCustomNotes] = useState('')
+  const [importLoading, setImportLoading] = useState(false)
+  const [importResult, setImportResult] = useState<{
+    success: boolean
+    message: string
+    successCount?: number
+    errorCount?: number
+    errors?: string[]
+  } | null>(null)
+
   // Form state
   const [formData, setFormData] = useState({
     cardId: '',
@@ -150,15 +163,15 @@ export default function MerchantInventory() {
         page,
         size: 20
       })
-      
+
       console.log('Loaded card templates:', data.content?.map((t: any) => ({ id: t.id, name: t.name })))
-      
+
       if (append) {
         setCardTemplates(prev => [...prev, ...data.content])
       } else {
         setCardTemplates(data.content)
       }
-      
+
       setHasMoreTemplates(!data.last)
       setTemplatePage(page)
     } catch (error) {
@@ -222,7 +235,7 @@ export default function MerchantInventory() {
   const handleUpdateCard = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!editingCard) return
-    
+
     try {
       const requestData = {
         condition: formData.condition,
@@ -245,7 +258,7 @@ export default function MerchantInventory() {
 
   const handleDeleteCard = async (cardId: string) => {
     if (!confirm('Sei sicuro di voler eliminare questa carta?')) return
-    
+
     try {
       await merchantService.deleteInventoryCard(cardId)
       showToast('Carta eliminata con successo', 'success')
@@ -320,7 +333,7 @@ export default function MerchantInventory() {
               <h1 className="text-2xl font-semibold text-gray-900">Gestione Inventario</h1>
             </div>
           </div>
-          
+
           {/* View Tabs */}
           <div className="flex mt-4 border-b border-gray-200">
             <button
@@ -328,11 +341,10 @@ export default function MerchantInventory() {
                 setCurrentView('templates')
                 if (shopId) loadCardTemplates(0, false)
               }}
-              className={`px-4 py-2 font-medium text-sm ${
-                currentView === 'templates'
-                  ? 'text-primary border-b-2 border-primary'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
+              className={`px-4 py-2 font-medium text-sm ${currentView === 'templates'
+                ? 'text-primary border-b-2 border-primary'
+                : 'text-gray-600 hover:text-gray-900'
+                }`}
             >
               Sfoglia Carte
             </button>
@@ -341,13 +353,21 @@ export default function MerchantInventory() {
                 setCurrentView('inventory')
                 if (shopId) loadInventory(shopId)
               }}
-              className={`px-4 py-2 font-medium text-sm ${
-                currentView === 'inventory'
-                  ? 'text-primary border-b-2 border-primary'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
+              className={`px-4 py-2 font-medium text-sm ${currentView === 'inventory'
+                ? 'text-primary border-b-2 border-primary'
+                : 'text-gray-600 hover:text-gray-900'
+                }`}
             >
               Inventario ({inventory.length})
+            </button>
+            <button
+              onClick={() => setCurrentView('import')}
+              className={`px-4 py-2 font-medium text-sm ${currentView === 'import'
+                ? 'text-primary border-b-2 border-primary'
+                : 'text-gray-600 hover:text-gray-900'
+                }`}
+            >
+              📥 Import
             </button>
           </div>
         </div>
@@ -487,30 +507,30 @@ export default function MerchantInventory() {
                       key={template.id}
                       className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
                     >
-                        <div className="flex items-start gap-3">
-                          {getFullImageUrl(template.imageUrl) ? (
-                            <img
-                              src={getFullImageUrl(template.imageUrl)!}
-                              alt={template.name}
-                              className="w-16 h-16 object-cover rounded flex-shrink-0"
-                              onError={(e) => {
-                                const target = e.target as HTMLImageElement;
-                                target.style.display = 'none';
-                                const parent = target.parentElement;
-                                if (parent) {
-                                  const placeholder = parent.querySelector('.card-placeholder') as HTMLElement;
-                                  if (placeholder) placeholder.style.display = 'flex';
-                                }
-                              }}
-                            />
-                          ) : null}
-                          <div className={`w-16 h-16 bg-gray-100 border-2 border-gray-200 rounded flex-shrink-0 flex items-center justify-center card-placeholder ${template.imageUrl ? 'hidden' : 'flex'}`}>
-                            <div className="text-gray-400 text-xs text-center">
-                              <div className="text-lg">🃏</div>
-                              <div>CARD</div>
-                            </div>
+                      <div className="flex items-start gap-3">
+                        {getFullImageUrl(template.imageUrl) ? (
+                          <img
+                            src={getFullImageUrl(template.imageUrl)!}
+                            alt={template.name}
+                            className="w-16 h-16 object-cover rounded flex-shrink-0"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = 'none';
+                              const parent = target.parentElement;
+                              if (parent) {
+                                const placeholder = parent.querySelector('.card-placeholder') as HTMLElement;
+                                if (placeholder) placeholder.style.display = 'flex';
+                              }
+                            }}
+                          />
+                        ) : null}
+                        <div className={`w-16 h-16 bg-gray-100 border-2 border-gray-200 rounded flex-shrink-0 flex items-center justify-center card-placeholder ${template.imageUrl ? 'hidden' : 'flex'}`}>
+                          <div className="text-gray-400 text-xs text-center">
+                            <div className="text-lg">🃏</div>
+                            <div>CARD</div>
                           </div>
-                          <div className="flex-1 min-w-0">
+                        </div>
+                        <div className="flex-1 min-w-0">
                           <h3 className="font-semibold text-gray-900 text-sm truncate">{template.name}</h3>
                           <p className="text-xs text-gray-600 mt-1">
                             {template.tcgType} • {template.setName}
@@ -543,7 +563,7 @@ export default function MerchantInventory() {
               </>
             )}
           </>
-        ) : (
+        ) : currentView === 'inventory' ? (
           /* Inventory List */
           <>
             {loading ? (
@@ -597,33 +617,31 @@ export default function MerchantInventory() {
                             {card.card_template.tcgType} • {card.card_template.expansion.title} • {card.card_template.rarity}
                           </p>
                           <div className="flex items-center gap-2 mt-1">
-                            <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                              card.condition === 'MINT' ? 'bg-green-100 text-green-800' :
+                            <span className={`px-2 py-1 text-xs font-medium rounded-full ${card.condition === 'MINT' ? 'bg-green-100 text-green-800' :
                               card.condition === 'NEAR_MINT' ? 'bg-blue-100 text-blue-800' :
-                              card.condition === 'EXCELLENT' ? 'bg-yellow-100 text-yellow-800' :
-                              card.condition === 'GOOD' ? 'bg-orange-100 text-orange-800' :
-                              card.condition === 'LIGHT_PLAYED' ? 'bg-purple-100 text-purple-800' :
-                              card.condition === 'PLAYED' ? 'bg-pink-100 text-pink-800' :
-                              'bg-gray-100 text-gray-800'
-                            }`}>
+                                card.condition === 'EXCELLENT' ? 'bg-yellow-100 text-yellow-800' :
+                                  card.condition === 'GOOD' ? 'bg-orange-100 text-orange-800' :
+                                    card.condition === 'LIGHT_PLAYED' ? 'bg-purple-100 text-purple-800' :
+                                      card.condition === 'PLAYED' ? 'bg-pink-100 text-pink-800' :
+                                        'bg-gray-100 text-gray-800'
+                              }`}>
                               {card.condition.replace('_', ' ')}
                             </span>
                             <span className="px-2 py-1 text-xs font-medium bg-indigo-100 text-indigo-800 rounded-full">
                               QTY: {card.quantity}
                             </span>
-                            <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                              card.nationality === 'JPN' ? 'bg-red-100 text-red-800' :
+                            <span className={`px-2 py-1 text-xs font-medium rounded-full ${card.nationality === 'JPN' ? 'bg-red-100 text-red-800' :
                               card.nationality === 'ITA' ? 'bg-green-100 text-green-800' :
-                              card.nationality === 'EN' ? 'bg-blue-100 text-blue-800' :
-                              card.nationality === 'COR' ? 'bg-yellow-100 text-yellow-800' :
-                              card.nationality === 'FRA' ? 'bg-purple-100 text-purple-800' :
-                              card.nationality === 'GER' ? 'bg-pink-100 text-pink-800' :
-                              card.nationality === 'SPA' ? 'bg-orange-100 text-orange-800' :
-                              card.nationality === 'POR' ? 'bg-teal-100 text-teal-800' :
-                              card.nationality === 'CHI' ? 'bg-indigo-100 text-indigo-800' :
-                              card.nationality === 'RUS' ? 'bg-gray-100 text-gray-800' :
-                              'bg-gray-100 text-gray-800'
-                            }`}>
+                                card.nationality === 'EN' ? 'bg-blue-100 text-blue-800' :
+                                  card.nationality === 'COR' ? 'bg-yellow-100 text-yellow-800' :
+                                    card.nationality === 'FRA' ? 'bg-purple-100 text-purple-800' :
+                                      card.nationality === 'GER' ? 'bg-pink-100 text-pink-800' :
+                                        card.nationality === 'SPA' ? 'bg-orange-100 text-orange-800' :
+                                          card.nationality === 'POR' ? 'bg-teal-100 text-teal-800' :
+                                            card.nationality === 'CHI' ? 'bg-indigo-100 text-indigo-800' :
+                                              card.nationality === 'RUS' ? 'bg-gray-100 text-gray-800' :
+                                                'bg-gray-100 text-gray-800'
+                              }`}>
                               {card.nationality || 'EN'}
                             </span>
                           </div>
@@ -658,7 +676,247 @@ export default function MerchantInventory() {
               </div>
             )}
           </>
-        )}
+        ) : currentView === 'import' ? (
+          /* Import View */
+          <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-6">Import Inventario</h2>
+
+            {/* Import Mode Tabs */}
+            <div className="flex gap-2 mb-6">
+              <button
+                onClick={() => { setImportMode('standard'); setImportResult(null) }}
+                className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${importMode === 'standard'
+                  ? 'bg-blue-100 text-blue-700 border border-blue-300'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+              >
+                📊 Import Veloce (CSV)
+              </button>
+              <button
+                onClick={() => { setImportMode('custom'); setImportResult(null) }}
+                className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${importMode === 'custom'
+                  ? 'bg-purple-100 text-purple-700 border border-purple-300'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+              >
+                🤖 Import Personalizzato (AI)
+              </button>
+            </div>
+
+            {importMode === 'standard' ? (
+              /* Standard CSV Import */
+              <div className="space-y-6">
+                <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                  <h3 className="font-semibold text-blue-900 mb-2">Come funziona</h3>
+                  <ol className="text-sm text-blue-800 space-y-1 list-decimal list-inside">
+                    <li>Scarica il template CSV</li>
+                    <li>Compila il file con i dati del tuo inventario</li>
+                    <li>Carica il file compilato</li>
+                    <li>Le carte verranno aggiunte automaticamente!</li>
+                  </ol>
+                </div>
+
+                {/* Download Template Button */}
+                <div>
+                  <button
+                    onClick={async () => {
+                      try {
+                        const blob = await merchantService.downloadInventoryTemplate()
+                        const url = window.URL.createObjectURL(blob)
+                        const a = document.createElement('a')
+                        a.href = url
+                        a.download = 'inventory_import_template.csv'
+                        document.body.appendChild(a)
+                        a.click()
+                        window.URL.revokeObjectURL(url)
+                        document.body.removeChild(a)
+                        showToast('Template scaricato!', 'success')
+                      } catch (error) {
+                        showToast('Errore durante il download del template', 'error')
+                      }
+                    }}
+                    className="px-6 py-3 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-700 transition-colors flex items-center gap-2"
+                  >
+                    ⬇️ Scarica Template CSV
+                  </button>
+                </div>
+
+                {/* File Upload */}
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                  <input
+                    type="file"
+                    accept=".csv"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0]
+                      if (file) setImportFile(file)
+                    }}
+                    className="hidden"
+                    id="csv-upload"
+                  />
+                  <label htmlFor="csv-upload" className="cursor-pointer">
+                    {importFile ? (
+                      <div className="text-gray-900">
+                        <span className="text-2xl">📄</span>
+                        <p className="mt-2 font-medium">{importFile.name}</p>
+                        <p className="text-sm text-gray-500">Clicca per cambiare file</p>
+                      </div>
+                    ) : (
+                      <div className="text-gray-500">
+                        <span className="text-4xl">📤</span>
+                        <p className="mt-2">Trascina qui il file CSV o clicca per selezionarlo</p>
+                      </div>
+                    )}
+                  </label>
+                </div>
+
+                {/* Import Button */}
+                {importFile && (
+                  <button
+                    onClick={async () => {
+                      if (!importFile || !shopId) return
+                      setImportLoading(true)
+                      setImportResult(null)
+                      try {
+                        const result = await merchantService.bulkImportInventory(shopId, importFile)
+                        setImportResult({
+                          success: result.errorCount === 0,
+                          message: result.message,
+                          successCount: result.successCount,
+                          errorCount: result.errorCount,
+                          errors: result.errors
+                        })
+                        if (result.successCount > 0) {
+                          showToast(`${result.successCount} carte importate con successo!`, 'success')
+                        }
+                      } catch (error) {
+                        setImportResult({ success: false, message: 'Errore durante l\'import' })
+                        showToast('Errore durante l\'import', 'error')
+                      } finally {
+                        setImportLoading(false)
+                        setImportFile(null)
+                      }
+                    }}
+                    disabled={importLoading}
+                    className="w-full px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50"
+                  >
+                    {importLoading ? 'Importazione in corso...' : '📥 Importa Inventario'}
+                  </button>
+                )}
+              </div>
+            ) : (
+              /* Custom AI Import */
+              <div className="space-y-6">
+                <div className="bg-purple-50 rounded-lg p-4 border border-purple-200">
+                  <h3 className="font-semibold text-purple-900 mb-2">🤖 Import con AI</h3>
+                  <p className="text-sm text-purple-800">
+                    Carica qualsiasi file (Excel, PDF, foto) e il nostro team lo elaborerà con l'aiuto dell'AI.
+                    <br />Riceverai l'inventario aggiornato entro <strong>48 ore</strong>.
+                  </p>
+                </div>
+
+                {/* Custom File Upload */}
+                <div className="border-2 border-dashed border-purple-300 rounded-lg p-8 text-center bg-purple-50">
+                  <input
+                    type="file"
+                    accept=".xlsx,.xls,.csv,.pdf,.jpg,.jpeg,.png"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0]
+                      if (file) setImportFile(file)
+                    }}
+                    className="hidden"
+                    id="custom-upload"
+                  />
+                  <label htmlFor="custom-upload" className="cursor-pointer">
+                    {importFile ? (
+                      <div className="text-purple-900">
+                        <span className="text-2xl">📄</span>
+                        <p className="mt-2 font-medium">{importFile.name}</p>
+                        <p className="text-sm text-purple-600">Clicca per cambiare file</p>
+                      </div>
+                    ) : (
+                      <div className="text-purple-700">
+                        <span className="text-4xl">🤖</span>
+                        <p className="mt-2">Carica Excel, PDF, o foto del tuo inventario</p>
+                      </div>
+                    )}
+                  </label>
+                </div>
+
+                {/* Notes */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Note (opzionale)
+                  </label>
+                  <textarea
+                    value={customNotes}
+                    onChange={(e) => setCustomNotes(e.target.value)}
+                    placeholder="Aggiungi dettagli o istruzioni per l'elaborazione..."
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    rows={3}
+                  />
+                </div>
+
+                {/* Submit Button */}
+                {importFile && (
+                  <button
+                    onClick={async () => {
+                      if (!importFile || !shopId) return
+                      setImportLoading(true)
+                      setImportResult(null)
+                      try {
+                        const result = await merchantService.submitCustomImportRequest(shopId, importFile, customNotes)
+                        setImportResult({
+                          success: true,
+                          message: result.message
+                        })
+                        showToast('Richiesta inviata! Riceverai aggiornamenti via email.', 'success')
+                      } catch (error) {
+                        setImportResult({ success: false, message: 'Errore durante l\'invio' })
+                        showToast('Errore durante l\'invio della richiesta', 'error')
+                      } finally {
+                        setImportLoading(false)
+                        setImportFile(null)
+                        setCustomNotes('')
+                      }
+                    }}
+                    disabled={importLoading}
+                    className="w-full px-6 py-3 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition-colors disabled:opacity-50"
+                  >
+                    {importLoading ? 'Invio in corso...' : '🚀 Invia Richiesta di Elaborazione'}
+                  </button>
+                )}
+              </div>
+            )}
+
+            {/* Import Result */}
+            {importResult && (
+              <div className={`mt-6 p-4 rounded-lg ${importResult.success ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'
+                }`}>
+                <p className={`font-medium ${importResult.success ? 'text-green-900' : 'text-red-900'}`}>
+                  {importResult.success ? '✅' : '❌'} {importResult.message}
+                </p>
+                {importResult.successCount !== undefined && (
+                  <p className="text-sm text-gray-700 mt-1">
+                    {importResult.successCount} carte importate, {importResult.errorCount} errori
+                  </p>
+                )}
+                {importResult.errors && importResult.errors.length > 0 && (
+                  <div className="mt-2">
+                    <p className="text-sm font-medium text-red-800">Errori:</p>
+                    <ul className="text-sm text-red-700 list-disc list-inside">
+                      {importResult.errors.slice(0, 5).map((err, i) => (
+                        <li key={i}>{err}</li>
+                      ))}
+                      {importResult.errors.length > 5 && (
+                        <li>...e altri {importResult.errors.length - 5} errori</li>
+                      )}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        ) : null}
       </div>
 
       {/* Add/Edit Modal */}
