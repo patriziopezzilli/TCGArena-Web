@@ -9,6 +9,7 @@ import BatchImport from './BatchImport'
 import ShopsManagement from './ShopsManagement'
 import ExpansionsAndSetsManagement from './ExpansionsAndSetsManagement'
 import PartnersManagement from './PartnersManagement'
+import RewardFulfillment from './RewardFulfillment'
 
 interface Shop {
   id: number
@@ -38,7 +39,7 @@ interface WaitingListEntry {
   contacted: boolean
 }
 
-type TabType = 'all-shops' | 'pending-shops' | 'waiting-list' | 'partners' | 'rewards' | 'achievements' | 'batch-import' | 'expansions-sets'
+type TabType = 'all-shops' | 'pending-shops' | 'waiting-list' | 'partners' | 'rewards' | 'fulfillment' | 'achievements' | 'batch-import' | 'expansions-sets'
 
 export default function AdminDashboard() {
   const navigate = useNavigate()
@@ -153,86 +154,87 @@ export default function AdminDashboard() {
               Logout
             </button>
           </div>
-          
+
           {/* Tabs */}
           <div className="flex gap-2 overflow-x-auto pb-2">
             <button
               onClick={() => setActiveTab('all-shops')}
-              className={`px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap ${
-                activeTab === 'all-shops'
-                  ? 'bg-white text-gray-900 shadow-lg'
-                  : 'bg-white/10 text-white hover:bg-white/20 border border-white/20'
-              }`}
+              className={`px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap ${activeTab === 'all-shops'
+                ? 'bg-white text-gray-900 shadow-lg'
+                : 'bg-white/10 text-white hover:bg-white/20 border border-white/20'
+                }`}
             >
               Tutti i Negozi
             </button>
             <button
               onClick={() => setActiveTab('pending-shops')}
-              className={`px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap ${
-                activeTab === 'pending-shops'
-                  ? 'bg-white text-gray-900 shadow-lg'
-                  : 'bg-white/10 text-white hover:bg-white/20 border border-white/20'
-              }`}
+              className={`px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap ${activeTab === 'pending-shops'
+                ? 'bg-white text-gray-900 shadow-lg'
+                : 'bg-white/10 text-white hover:bg-white/20 border border-white/20'
+                }`}
             >
               In Attesa {stats?.pending ? <span className="ml-1 px-2 py-0.5 bg-amber-500 rounded-full text-xs text-white">{stats.pending}</span> : null}
             </button>
             <button
               onClick={() => setActiveTab('waiting-list')}
-              className={`px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap ${
-                activeTab === 'waiting-list'
-                  ? 'bg-white text-gray-900 shadow-lg'
-                  : 'bg-white/10 text-white hover:bg-white/20 border border-white/20'
-              }`}
+              className={`px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap ${activeTab === 'waiting-list'
+                ? 'bg-white text-gray-900 shadow-lg'
+                : 'bg-white/10 text-white hover:bg-white/20 border border-white/20'
+                }`}
             >
               Waiting List {waitingList.length > 0 ? <span className="ml-1 px-2 py-0.5 bg-blue-500 rounded-full text-xs text-white">{waitingList.length}</span> : null}
             </button>
             <button
               onClick={() => setActiveTab('partners')}
-              className={`px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap ${
-                activeTab === 'partners'
-                  ? 'bg-white text-gray-900 shadow-lg'
-                  : 'bg-white/10 text-white hover:bg-white/20 border border-white/20'
-              }`}
+              className={`px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap ${activeTab === 'partners'
+                ? 'bg-white text-gray-900 shadow-lg'
+                : 'bg-white/10 text-white hover:bg-white/20 border border-white/20'
+                }`}
             >
               Partners
             </button>
             <button
               onClick={() => setActiveTab('rewards')}
-              className={`px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap ${
-                activeTab === 'rewards'
-                  ? 'bg-white text-gray-900 shadow-lg'
-                  : 'bg-white/10 text-white hover:bg-white/20 border border-white/20'
-              }`}
+              className={`px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap ${activeTab === 'rewards'
+                ? 'bg-white text-gray-900 shadow-lg'
+                : 'bg-white/10 text-white hover:bg-white/20 border border-white/20'
+                }`}
             >
               Rewards
             </button>
             <button
+              onClick={() => setActiveTab('fulfillment')}
+              className={`px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap ${activeTab === 'fulfillment'
+                ? 'bg-white text-gray-900 shadow-lg'
+                : 'bg-white/10 text-white hover:bg-white/20 border border-white/20'
+                }`}
+            >
+              📦 Fulfillment
+            </button>
+            <button
               onClick={() => setActiveTab('achievements')}
-              className={`px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap ${
-                activeTab === 'achievements'
-                  ? 'bg-white text-gray-900 shadow-lg'
-                  : 'bg-white/10 text-white hover:bg-white/20 border border-white/20'
-              }`}
+              className={`px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap ${activeTab === 'achievements'
+                ? 'bg-white text-gray-900 shadow-lg'
+                : 'bg-white/10 text-white hover:bg-white/20 border border-white/20'
+                }`}
             >
               Achievements
             </button>
             <button
               onClick={() => setActiveTab('batch-import')}
-              className={`px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap ${
-                activeTab === 'batch-import'
-                  ? 'bg-white text-gray-900 shadow-lg'
-                  : 'bg-white/10 text-white hover:bg-white/20 border border-white/20'
-              }`}
+              className={`px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap ${activeTab === 'batch-import'
+                ? 'bg-white text-gray-900 shadow-lg'
+                : 'bg-white/10 text-white hover:bg-white/20 border border-white/20'
+                }`}
             >
               Batch Import
             </button>
             <button
               onClick={() => setActiveTab('expansions-sets')}
-              className={`px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap ${
-                activeTab === 'expansions-sets'
-                  ? 'bg-white text-gray-900 shadow-lg'
-                  : 'bg-white/10 text-white hover:bg-white/20 border border-white/20'
-              }`}
+              className={`px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap ${activeTab === 'expansions-sets'
+                ? 'bg-white text-gray-900 shadow-lg'
+                : 'bg-white/10 text-white hover:bg-white/20 border border-white/20'
+                }`}
             >
               Espansioni & Sets
             </button>
@@ -289,7 +291,7 @@ export default function AdminDashboard() {
                               In Attesa
                             </span>
                           </div>
-                          
+
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                             <div>
                               <span className="text-gray-500">Indirizzo:</span>
@@ -408,11 +410,10 @@ export default function AdminDashboard() {
                             {entry.city}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`px-2 py-1 text-xs font-medium rounded ${
-                              entry.userType === 'PLAYER'
-                                ? 'bg-blue-100 text-blue-800'
-                                : 'bg-purple-100 text-purple-800'
-                            }`}>
+                            <span className={`px-2 py-1 text-xs font-medium rounded ${entry.userType === 'PLAYER'
+                              ? 'bg-blue-100 text-blue-800'
+                              : 'bg-purple-100 text-purple-800'
+                              }`}>
                               {entry.userType === 'PLAYER' ? 'Giocatore' : 'Negoziante'}
                             </span>
                           </td>
@@ -420,11 +421,10 @@ export default function AdminDashboard() {
                             {new Date(entry.createdAt).toLocaleDateString('it-IT')}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`px-2 py-1 text-xs font-medium rounded ${
-                              entry.contacted
-                                ? 'bg-green-100 text-green-800'
-                                : 'bg-gray-100 text-gray-800'
-                            }`}>
+                            <span className={`px-2 py-1 text-xs font-medium rounded ${entry.contacted
+                              ? 'bg-green-100 text-green-800'
+                              : 'bg-gray-100 text-gray-800'
+                              }`}>
                               {entry.contacted ? 'Contattato' : 'Da contattare'}
                             </span>
                           </td>
@@ -454,6 +454,8 @@ export default function AdminDashboard() {
           <RewardsManagement />
         ) : activeTab === 'achievements' ? (
           <AchievementsManagement />
+        ) : activeTab === 'fulfillment' ? (
+          <RewardFulfillment />
         ) : activeTab === 'batch-import' ? (
           <BatchImport />
         ) : activeTab === 'expansions-sets' ? (

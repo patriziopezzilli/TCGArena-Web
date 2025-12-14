@@ -162,20 +162,71 @@ export default function ExpansionsAndSetsManagement() {
     }
   }
 
-  const handleDelete = async (item: Expansion | TCGSet) => {
+  const handleDelete = async (item: Expansion | TCGSet, force: boolean = false) => {
     const itemName = 'title' in item ? item.title : item.name
-    if (!confirm(`Sei sicuro di voler eliminare "${itemName}"?`)) return
+    const isExpansion = 'title' in item
+
+    // Only show initial confirmation if not forcing
+    if (!force && !confirm(`Sei sicuro di voler eliminare "${itemName}"?`)) return
+
     try {
-      if ('title' in item) {
-        await adminService.deleteExpansion(item.id)
+      if (isExpansion) {
+        const response = await adminService.deleteExpansion(item.id, force)
+        // Check if response indicates cascade confirmation needed
+        if (response.status === 409 && response.data?.confirmRequired) {
+          const { setCount, cardCount, message } = response.data
+          const confirmMessage = `⚠️ ATTENZIONE!\n\n${message}\n\n` +
+            `Questa operazione eliminerà:\n` +
+            `• ${setCount} set\n` +
+            `• ${cardCount} carte\n\n` +
+            `Questa azione è IRREVERSIBILE. Vuoi procedere?`
+
+          if (confirm(confirmMessage)) {
+            await handleDelete(item, true) // Retry with force=true
+          }
+          return
+        }
         showToast('Espansione eliminata con successo', 'success')
       } else {
-        await adminService.deleteSet(item.id)
+        const response = await adminService.deleteSet(item.id, force)
+        // Check if response indicates cascade confirmation needed
+        if (response.status === 409 && response.data?.confirmRequired) {
+          const { cardCount, message } = response.data
+          const confirmMessage = `⚠️ ATTENZIONE!\n\n${message}\n\n` +
+            `Questa operazione eliminerà ${cardCount} carte.\n\n` +
+            `Questa azione è IRREVERSIBILE. Vuoi procedere?`
+
+          if (confirm(confirmMessage)) {
+            await handleDelete(item, true) // Retry with force=true
+          }
+          return
+        }
         showToast('Set eliminato con successo', 'success')
       }
       loadData()
     } catch (err: any) {
-      showToast('Errore: ' + (err.response?.data?.message || err.message), 'error')
+      // Handle 409 response from axios error
+      if (err.response?.status === 409 && err.response?.data?.confirmRequired) {
+        const { setCount, cardCount, message } = err.response.data
+        let confirmMessage = `⚠️ ATTENZIONE!\n\n${message}\n\n`
+
+        if (isExpansion) {
+          confirmMessage += `Questa operazione eliminerà:\n` +
+            `• ${setCount || 0} set\n` +
+            `• ${cardCount || 0} carte\n\n`
+        } else {
+          confirmMessage += `Questa operazione eliminerà ${cardCount || 0} carte.\n\n`
+        }
+        confirmMessage += `Questa azione è IRREVERSIBILE. Vuoi procedere?`
+
+        if (confirm(confirmMessage)) {
+          await handleDelete(item, true) // Retry with force=true
+        }
+        return
+      }
+
+      const errorMessage = err.response?.data?.error || err.response?.data?.message || err.message
+      showToast(errorMessage, 'error')
     }
   }
 

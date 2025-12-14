@@ -79,9 +79,25 @@ export default function MerchantInventory() {
   const [editingCard, setEditingCard] = useState<InventoryCard | null>(null)
   const [selectedTemplate, setSelectedTemplate] = useState<CardTemplate | null>(null)
   const [shopId, setShopId] = useState<string>('')
-  const [currentView, setCurrentView] = useState<'templates' | 'inventory' | 'import'>('templates')
+  const [currentView, setCurrentView] = useState<'templates' | 'inventory' | 'import' | 'bulk'>('templates')
   const [templatePage, setTemplatePage] = useState(0)
   const [hasMoreTemplates, setHasMoreTemplates] = useState(true)
+
+  // Multi-select state
+  const [selectedTemplates, setSelectedTemplates] = useState<Set<string>>(new Set())
+  const [showBulkAddModal, setShowBulkAddModal] = useState(false)
+
+  // Bulk add by set/expansion state
+  const [bulkSettings, setBulkSettings] = useState({
+    selectedTcgType: '',
+    selectedExpansionId: '',
+    selectedSetCode: '',
+    condition: 'NEAR_MINT',
+    quantity: 1,
+    price: 0,
+    nationality: 'EN'
+  })
+  const [bulkLoading, setBulkLoading] = useState(false)
 
   // Filter options
   const [tcgTypes, setTcgTypes] = useState<string[]>([])
@@ -369,6 +385,15 @@ export default function MerchantInventory() {
             >
               📥 Import
             </button>
+            <button
+              onClick={() => setCurrentView('bulk')}
+              className={`px-4 py-2 font-medium text-sm ${currentView === 'bulk'
+                ? 'text-primary border-b-2 border-primary'
+                : 'text-gray-600 hover:text-gray-900'
+                }`}
+            >
+              📦 Aggiungi Set
+            </button>
           </div>
         </div>
       </header>
@@ -501,13 +526,71 @@ export default function MerchantInventory() {
               </div>
             ) : (
               <>
+                {/* Multi-select action bar */}
+                {selectedTemplates.size > 0 && (
+                  <div className="bg-blue-100 border border-blue-300 rounded-lg p-4 mb-4 flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <span className="font-medium text-blue-900">
+                        {selectedTemplates.size} carte selezionate
+                      </span>
+                      <button
+                        onClick={() => setSelectedTemplates(new Set())}
+                        className="text-sm text-blue-700 hover:text-blue-900"
+                      >
+                        Deseleziona tutto
+                      </button>
+                    </div>
+                    <button
+                      onClick={() => setShowBulkAddModal(true)}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                    >
+                      📦 Aggiungi {selectedTemplates.size} carte selezionate
+                    </button>
+                  </div>
+                )}
+
+                {/* Select all / none buttons */}
+                <div className="flex items-center gap-4 mb-4">
+                  <button
+                    onClick={() => {
+                      const allIds = new Set(cardTemplates.map(t => t.id))
+                      setSelectedTemplates(allIds)
+                    }}
+                    className="text-sm text-gray-600 hover:text-gray-900"
+                  >
+                    ☑️ Seleziona tutto
+                  </button>
+                  <button
+                    onClick={() => setSelectedTemplates(new Set())}
+                    className="text-sm text-gray-600 hover:text-gray-900"
+                  >
+                    ☐ Deseleziona tutto
+                  </button>
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                   {cardTemplates.map((template) => (
                     <div
                       key={template.id}
-                      className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+                      className={`bg-white border rounded-lg p-4 hover:shadow-md transition-shadow ${selectedTemplates.has(template.id) ? 'border-blue-500 ring-2 ring-blue-200' : 'border-gray-200'
+                        }`}
                     >
                       <div className="flex items-start gap-3">
+                        {/* Checkbox */}
+                        <input
+                          type="checkbox"
+                          checked={selectedTemplates.has(template.id)}
+                          onChange={(e) => {
+                            const newSelected = new Set(selectedTemplates)
+                            if (e.target.checked) {
+                              newSelected.add(template.id)
+                            } else {
+                              newSelected.delete(template.id)
+                            }
+                            setSelectedTemplates(newSelected)
+                          }}
+                          className="w-5 h-5 mt-1 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        />
                         {getFullImageUrl(template.imageUrl) ? (
                           <img
                             src={getFullImageUrl(template.imageUrl)!}
@@ -563,6 +646,7 @@ export default function MerchantInventory() {
               </>
             )}
           </>
+
         ) : currentView === 'inventory' ? (
           /* Inventory List */
           <>
@@ -916,8 +1000,247 @@ export default function MerchantInventory() {
               </div>
             )}
           </div>
+        ) : currentView === 'bulk' ? (
+          /* Bulk Add Set/Expansion View */
+          <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-6">📦 Aggiungi Set o Espansione Intera</h2>
+
+            <div className="bg-blue-50 rounded-lg p-4 border border-blue-200 mb-6">
+              <h3 className="font-semibold text-blue-900 mb-2">Come funziona</h3>
+              <p className="text-sm text-blue-800">
+                Seleziona un TCG, un'espansione e un set per aggiungere tutte le carte con le impostazioni scelte.
+                Oppure seleziona solo espansione per aggiungere tutte le carte di tutti i set.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Left Column - Selectors */}
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">TCG Type</label>
+                  <select
+                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    value={bulkSettings.selectedTcgType}
+                    onChange={(e) => setBulkSettings({ ...bulkSettings, selectedTcgType: e.target.value, selectedExpansionId: '', selectedSetCode: '' })}
+                  >
+                    <option value="">Seleziona TCG...</option>
+                    {tcgTypes.map(type => (
+                      <option key={type} value={type}>{type}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Espansione</label>
+                  <select
+                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    value={bulkSettings.selectedExpansionId}
+                    onChange={(e) => setBulkSettings({ ...bulkSettings, selectedExpansionId: e.target.value, selectedSetCode: '' })}
+                    disabled={!bulkSettings.selectedTcgType}
+                  >
+                    <option value="">Seleziona Espansione...</option>
+                    {expansions
+                      .filter(exp => !bulkSettings.selectedTcgType || exp.tcgType === bulkSettings.selectedTcgType)
+                      .map(expansion => (
+                        <option key={expansion.id} value={expansion.id}>{expansion.title}</option>
+                      ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Set (opzionale)</label>
+                  <select
+                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    value={bulkSettings.selectedSetCode}
+                    onChange={(e) => setBulkSettings({ ...bulkSettings, selectedSetCode: e.target.value })}
+                    disabled={!bulkSettings.selectedExpansionId}
+                  >
+                    <option value="">Tutti i set dell'espansione</option>
+                    {setCodes.map(code => (
+                      <option key={code} value={code}>{code}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Right Column - Settings */}
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Condizione Default</label>
+                  <select
+                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    value={bulkSettings.condition}
+                    onChange={(e) => setBulkSettings({ ...bulkSettings, condition: e.target.value })}
+                  >
+                    <option value="MINT">Mint</option>
+                    <option value="NEAR_MINT">Near Mint</option>
+                    <option value="EXCELLENT">Excellent</option>
+                    <option value="GOOD">Good</option>
+                    <option value="LIGHT_PLAYED">Light Played</option>
+                    <option value="PLAYED">Played</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Quantità Default</label>
+                  <input
+                    type="number"
+                    min="1"
+                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    value={bulkSettings.quantity}
+                    onChange={(e) => setBulkSettings({ ...bulkSettings, quantity: Number(e.target.value) })}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Prezzo Default (€)</label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    value={bulkSettings.price}
+                    onChange={(e) => setBulkSettings({ ...bulkSettings, price: Number(e.target.value) })}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Nazionalità</label>
+                  <select
+                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    value={bulkSettings.nationality}
+                    onChange={(e) => setBulkSettings({ ...bulkSettings, nationality: e.target.value })}
+                  >
+                    <option value="EN">English</option>
+                    <option value="ITA">Italian</option>
+                    <option value="JPN">Japanese</option>
+                    <option value="COR">Korean</option>
+                    <option value="FRA">French</option>
+                    <option value="GER">German</option>
+                    <option value="SPA">Spanish</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="mt-8 flex gap-4">
+              {bulkSettings.selectedSetCode && (
+                <button
+                  onClick={async () => {
+                    if (!shopId || !bulkSettings.selectedSetCode) return
+                    setBulkLoading(true)
+                    try {
+                      const result = await merchantService.bulkAddBySet({
+                        shopId: parseInt(shopId),
+                        setCode: bulkSettings.selectedSetCode,
+                        condition: bulkSettings.condition,
+                        quantity: bulkSettings.quantity,
+                        price: bulkSettings.price,
+                        nationality: bulkSettings.nationality
+                      })
+                      if (result.successCount > 0) {
+                        showToast(`${result.successCount} carte aggiunte dal set ${bulkSettings.selectedSetCode}!`, 'success')
+                      } else {
+                        showToast(result.message, 'error')
+                      }
+                      setImportResult({
+                        success: result.errorCount === 0,
+                        message: result.message,
+                        successCount: result.successCount,
+                        errorCount: result.errorCount,
+                        errors: result.errors
+                      })
+                    } catch (error) {
+                      showToast('Errore durante l\'aggiunta bulk', 'error')
+                    } finally {
+                      setBulkLoading(false)
+                    }
+                  }}
+                  disabled={bulkLoading}
+                  className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50"
+                >
+                  {bulkLoading ? 'Aggiunta in corso...' : `📦 Aggiungi Carte del Set ${bulkSettings.selectedSetCode}`}
+                </button>
+              )}
+
+              {bulkSettings.selectedExpansionId && !bulkSettings.selectedSetCode && (
+                <button
+                  onClick={async () => {
+                    if (!shopId || !bulkSettings.selectedExpansionId) return
+                    setBulkLoading(true)
+                    try {
+                      const result = await merchantService.bulkAddByExpansion({
+                        shopId: parseInt(shopId),
+                        expansionId: parseInt(bulkSettings.selectedExpansionId),
+                        condition: bulkSettings.condition,
+                        quantity: bulkSettings.quantity,
+                        price: bulkSettings.price,
+                        nationality: bulkSettings.nationality
+                      })
+                      if (result.successCount > 0) {
+                        showToast(`${result.successCount} carte aggiunte dall'espansione!`, 'success')
+                      } else {
+                        showToast(result.message, 'error')
+                      }
+                      setImportResult({
+                        success: result.errorCount === 0,
+                        message: result.message,
+                        successCount: result.successCount,
+                        errorCount: result.errorCount,
+                        errors: result.errors
+                      })
+                    } catch (error) {
+                      showToast('Errore durante l\'aggiunta bulk', 'error')
+                    } finally {
+                      setBulkLoading(false)
+                    }
+                  }}
+                  disabled={bulkLoading}
+                  className="flex-1 px-6 py-3 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition-colors disabled:opacity-50"
+                >
+                  {bulkLoading ? 'Aggiunta in corso...' : '📦 Aggiungi Tutte le Carte dell\'Espansione'}
+                </button>
+              )}
+
+              {!bulkSettings.selectedExpansionId && (
+                <p className="text-gray-500 text-center w-full py-4">
+                  Seleziona un TCG e un'espansione per continuare
+                </p>
+              )}
+            </div>
+
+            {/* Import Result */}
+            {importResult && (
+              <div className={`mt-6 p-4 rounded-lg ${importResult.success ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}>
+                <p className={`font-medium ${importResult.success ? 'text-green-900' : 'text-red-900'}`}>
+                  {importResult.success ? '✅' : '❌'} {importResult.message}
+                </p>
+                {importResult.successCount !== undefined && (
+                  <p className="text-sm text-gray-700 mt-1">
+                    {importResult.successCount} carte aggiunte, {importResult.errorCount} errori
+                  </p>
+                )}
+                {importResult.errors && importResult.errors.length > 0 && (
+                  <div className="mt-2">
+                    <p className="text-sm font-medium text-red-800">Errori:</p>
+                    <ul className="text-sm text-red-700 list-disc list-inside max-h-40 overflow-y-auto">
+                      {importResult.errors.slice(0, 10).map((err, i) => (
+                        <li key={i}>{err}</li>
+                      ))}
+                      {importResult.errors.length > 10 && (
+                        <li>...e altri {importResult.errors.length - 10} errori</li>
+                      )}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         ) : null}
+
       </div>
+
 
       {/* Add/Edit Modal */}
       {(showAddModal || editingCard) && (
@@ -1102,6 +1425,117 @@ export default function MerchantInventory() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Bulk Add Selected Templates Modal */}
+      {showBulkAddModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-8 max-w-lg w-full mx-4">
+            <h2 className="text-2xl font-semibold text-gray-900 mb-6">
+              📦 Aggiungi {selectedTemplates.size} carte selezionate
+            </h2>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Condizione</label>
+                <select
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  value={bulkSettings.condition}
+                  onChange={(e) => setBulkSettings({ ...bulkSettings, condition: e.target.value })}
+                >
+                  <option value="MINT">Mint</option>
+                  <option value="NEAR_MINT">Near Mint</option>
+                  <option value="EXCELLENT">Excellent</option>
+                  <option value="GOOD">Good</option>
+                  <option value="LIGHT_PLAYED">Light Played</option>
+                  <option value="PLAYED">Played</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Quantità per carta</label>
+                <input
+                  type="number"
+                  min="1"
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  value={bulkSettings.quantity}
+                  onChange={(e) => setBulkSettings({ ...bulkSettings, quantity: Number(e.target.value) })}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Prezzo per carta (€)</label>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  value={bulkSettings.price}
+                  onChange={(e) => setBulkSettings({ ...bulkSettings, price: Number(e.target.value) })}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Nazionalità</label>
+                <select
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  value={bulkSettings.nationality}
+                  onChange={(e) => setBulkSettings({ ...bulkSettings, nationality: e.target.value })}
+                >
+                  <option value="EN">English</option>
+                  <option value="ITA">Italian</option>
+                  <option value="JPN">Japanese</option>
+                  <option value="COR">Korean</option>
+                  <option value="FRA">French</option>
+                  <option value="GER">German</option>
+                  <option value="SPA">Spanish</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex gap-4 mt-6">
+              <button
+                type="button"
+                onClick={() => setShowBulkAddModal(false)}
+                className="flex-1 px-6 py-3 border border-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+              >
+                Annulla
+              </button>
+              <button
+                onClick={async () => {
+                  if (!shopId || selectedTemplates.size === 0) return
+                  setBulkLoading(true)
+                  try {
+                    const templateIds = Array.from(selectedTemplates).map(id => parseInt(id))
+                    const result = await merchantService.bulkAddByTemplates({
+                      shopId: parseInt(shopId),
+                      templateIds,
+                      condition: bulkSettings.condition,
+                      quantity: bulkSettings.quantity,
+                      price: bulkSettings.price,
+                      nationality: bulkSettings.nationality
+                    })
+                    if (result.successCount > 0) {
+                      showToast(`${result.successCount} carte aggiunte all'inventario!`, 'success')
+                    } else {
+                      showToast(result.message, 'error')
+                    }
+                    setShowBulkAddModal(false)
+                    setSelectedTemplates(new Set())
+                  } catch (error) {
+                    showToast('Errore durante l\'aggiunta bulk', 'error')
+                  } finally {
+                    setBulkLoading(false)
+                  }
+                }}
+                disabled={bulkLoading}
+                className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50"
+              >
+                {bulkLoading ? 'Aggiunta in corso...' : `Aggiungi ${selectedTemplates.size} carte`}
+              </button>
+            </div>
           </div>
         </div>
       )}

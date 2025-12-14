@@ -73,15 +73,15 @@ export default function MerchantSettings() {
     try {
       const status = await merchantService.getShopStatus()
       setPhotoPreview(status.shop.photoBase64 || null)
-      
+
       // Parse tcgTypes and services from comma-separated strings
-      const tcgTypesArray = status.shop.tcgTypes 
-        ? status.shop.tcgTypes.split(',').filter((t: string) => t.trim()) 
+      const tcgTypesArray = status.shop.tcgTypes
+        ? status.shop.tcgTypes.split(',').filter((t: string) => t.trim())
         : []
-      const servicesArray = status.shop.services 
-        ? status.shop.services.split(',').filter((s: string) => s.trim()) 
+      const servicesArray = status.shop.services
+        ? status.shop.services.split(',').filter((s: string) => s.trim())
         : []
-      
+
       setFormData({
         name: status.shop.name || '',
         description: status.shop.description || '',
@@ -194,7 +194,7 @@ export default function MerchantSettings() {
       // Check if address seems complete (has comma or number)
       const hasComma = value.includes(',')
       const hasNumber = /\d+/.test(value)
-      
+
       if (hasComma || hasNumber) {
         if (geocodingTimeoutRef.current) {
           clearTimeout(geocodingTimeoutRef.current)
@@ -224,8 +224,7 @@ export default function MerchantSettings() {
     }
   }
 
-  const handleReservationSettingsSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleReservationSettingsSubmit = async () => {
     setSaving(true)
     try {
       const status = await merchantService.getShopStatus()
@@ -396,11 +395,10 @@ export default function MerchantSettings() {
                         : [...formData.tcgTypes, tcg.value]
                       setFormData({ ...formData, tcgTypes: newTypes })
                     }}
-                    className={`flex items-center gap-3 p-4 rounded-lg border-2 transition-all ${
-                      isSelected
+                    className={`flex items-center gap-3 p-4 rounded-lg border-2 transition-all ${isSelected
                         ? `${tcg.color} border-current`
                         : 'bg-gray-50 border-gray-200 hover:border-gray-300'
-                    }`}
+                      }`}
                   >
                     <span className="text-2xl">{tcg.icon}</span>
                     <span className={`font-medium ${isSelected ? '' : 'text-gray-700'}`}>{tcg.label}</span>
@@ -434,11 +432,10 @@ export default function MerchantSettings() {
                         : [...formData.services, service.value]
                       setFormData({ ...formData, services: newServices })
                     }}
-                    className={`flex items-start gap-3 p-4 rounded-lg border-2 text-left transition-all ${
-                      isSelected
+                    className={`flex items-start gap-3 p-4 rounded-lg border-2 text-left transition-all ${isSelected
                         ? 'bg-blue-50 border-blue-500 text-blue-900'
                         : 'bg-gray-50 border-gray-200 hover:border-gray-300'
-                    }`}
+                      }`}
                   >
                     <span className="text-2xl">{service.icon}</span>
                     <div className="flex-1 min-w-0">
@@ -640,8 +637,8 @@ export default function MerchantSettings() {
           <div className="bg-white rounded-lg border border-gray-200 p-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-2">Impostazioni Prenotazioni</h2>
             <p className="text-sm text-gray-500 mb-4">Configura la durata delle prenotazioni per il tuo negozio</p>
-            
-            <form onSubmit={handleReservationSettingsSubmit} className="space-y-4">
+
+            <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Durata Prenotazione (minuti) *
@@ -673,17 +670,17 @@ export default function MerchantSettings() {
               </div>
 
               <button
-                type="submit"
+                type="button"
+                onClick={handleReservationSettingsSubmit}
                 disabled={saving}
-                className={`w-full px-4 py-2 rounded-lg font-medium transition-colors ${
-                  saving
+                className={`w-full px-4 py-2 rounded-lg font-medium transition-colors ${saving
                     ? 'bg-blue-300 text-blue-500 cursor-not-allowed'
                     : 'bg-blue-600 text-white hover:bg-blue-700'
-                }`}
+                  }`}
               >
                 {saving ? 'Salvataggio...' : 'Salva Impostazioni Prenotazioni'}
               </button>
-            </form>
+            </div>
           </div>
 
           {/* Submit Button */}
@@ -698,11 +695,10 @@ export default function MerchantSettings() {
             <button
               type="submit"
               disabled={saving}
-              className={`flex-1 px-6 py-3 rounded-lg font-medium transition-colors ${
-                saving
+              className={`flex-1 px-6 py-3 rounded-lg font-medium transition-colors ${saving
                   ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                   : 'bg-gray-900 text-white hover:bg-gray-800'
-              }`}
+                }`}
             >
               {saving ? 'Salvataggio...' : 'Salva Modifiche'}
             </button>

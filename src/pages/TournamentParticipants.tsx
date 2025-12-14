@@ -35,11 +35,25 @@ export default function TournamentParticipants() {
     third: null
   })
 
+  // Live Updates state
+  const [updates, setUpdates] = useState<any[]>([])
+  const [loadingUpdates, setLoadingUpdates] = useState(false)
+  const [showUpdateModal, setShowUpdateModal] = useState(false)
+  const [updateMessage, setUpdateMessage] = useState('')
+  const [updateImage, setUpdateImage] = useState<string | null>(null)
+  const [addingUpdate, setAddingUpdate] = useState(false)
+
   useEffect(() => {
     if (tournamentId) {
       loadTournamentAndParticipants()
     }
   }, [tournamentId])
+
+  useEffect(() => {
+    if (tournament?.status === 'IN_PROGRESS' && tournamentId) {
+      loadUpdates()
+    }
+  }, [tournament?.status, tournamentId])
 
   const loadTournamentAndParticipants = async () => {
     if (!tournamentId) {
@@ -172,6 +186,82 @@ export default function TournamentParticipants() {
       showToast(error.response?.data || 'Errore nel completamento del torneo', 'error')
     } finally {
       setCompletingTournament(false)
+    }
+  }
+
+  // ========== LIVE UPDATES FUNCTIONS ==========
+
+  const loadUpdates = async () => {
+    if (!tournamentId) return
+    try {
+      setLoadingUpdates(true)
+      console.log('Loading updates for tournament:', tournamentId)
+      const data = await merchantService.getTournamentUpdates(Number(tournamentId))
+      console.log('Updates loaded:', data)
+      setUpdates(data)
+    } catch (error: any) {
+      console.error('Error loading updates:', error)
+      showToast('Errore caricamento aggiornamenti: ' + (error.response?.data?.error || error.message), 'error')
+    } finally {
+      setLoadingUpdates(false)
+    }
+  }
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      showToast('L\'immagine non può superare i 5MB', 'error')
+      return
+    }
+
+    // Convert to base64
+    const reader = new FileReader()
+    reader.onloadend = () => {
+      setUpdateImage(reader.result as string)
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const handleAddUpdate = async () => {
+    if (!tournamentId) return
+    if (!updateMessage.trim() && !updateImage) {
+      showToast('Inserisci un messaggio o un\'immagine', 'error')
+      return
+    }
+
+    try {
+      setAddingUpdate(true)
+      await merchantService.addTournamentUpdate(Number(tournamentId), {
+        message: updateMessage.trim() || undefined,
+        imageBase64: updateImage || undefined
+      })
+      showToast('Aggiornamento pubblicato! 📢', 'success')
+      setShowUpdateModal(false)
+      setUpdateMessage('')
+      setUpdateImage(null)
+      loadUpdates()
+    } catch (error: any) {
+      console.error('Error adding update:', error)
+      showToast(error.response?.data?.error || 'Errore nella pubblicazione', 'error')
+    } finally {
+      setAddingUpdate(false)
+    }
+  }
+
+  const handleDeleteUpdate = async (updateId: number) => {
+    if (!tournamentId) return
+    if (!confirm('Sei sicuro di voler eliminare questo aggiornamento?')) return
+
+    try {
+      await merchantService.deleteTournamentUpdate(Number(tournamentId), updateId)
+      showToast('Aggiornamento eliminato', 'success')
+      loadUpdates()
+    } catch (error: any) {
+      console.error('Error deleting update:', error)
+      showToast(error.response?.data?.error || 'Errore nell\'eliminazione', 'error')
     }
   }
 
@@ -463,7 +553,168 @@ export default function TournamentParticipants() {
             </div>
           </div>
         )}
+
+        {/* Live Updates Section - Only shown when tournament is IN_PROGRESS */}
+        {tournament?.status === 'IN_PROGRESS' && (
+          <div className="mt-8 bg-white border border-purple-200 rounded-lg overflow-hidden">
+            <div className="px-6 py-4 border-b border-purple-200 bg-purple-50 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">📢</span>
+                <div>
+                  <h2 className="text-lg font-semibold text-purple-900">Aggiornamenti Live</h2>
+                  <p className="text-sm text-purple-600">Pubblica messaggi e foto per i partecipanti</p>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={loadUpdates}
+                  disabled={loadingUpdates}
+                  className="px-3 py-2 text-purple-600 hover:text-purple-700 border border-purple-200 rounded-lg hover:bg-purple-100 transition-colors disabled:opacity-50"
+                >
+                  {loadingUpdates ? '⏳' : '🔄'} Aggiorna
+                </button>
+                <button
+                  onClick={() => setShowUpdateModal(true)}
+                  className="px-4 py-2 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition-colors flex items-center gap-2"
+                >
+                  ➕ Pubblica Aggiornamento
+                </button>
+              </div>
+            </div>
+
+            <div className="p-6">
+              {updates.length === 0 ? (
+                <div className="text-center py-8">
+                  <div className="text-5xl mb-3">📭</div>
+                  <p className="text-gray-600 mb-2">Nessun aggiornamento pubblicato</p>
+                  <p className="text-sm text-gray-400">Pubblica messaggi o foto per comunicare con i partecipanti</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {updates.map((update) => (
+                    <div key={update.id} className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="text-xs text-gray-500">
+                          {new Date(update.createdAt).toLocaleString('it-IT', {
+                            day: '2-digit',
+                            month: 'short',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </div>
+                        <button
+                          onClick={() => handleDeleteUpdate(update.id)}
+                          className="text-red-500 hover:text-red-700 text-sm"
+                          title="Elimina aggiornamento"
+                        >
+                          🗑️
+                        </button>
+                      </div>
+                      {update.message && (
+                        <p className="text-gray-800 mb-3 whitespace-pre-wrap">{update.message}</p>
+                      )}
+                      {update.imageBase64 && (
+                        <div className="mt-3">
+                          <img
+                            src={update.imageBase64}
+                            alt="Aggiornamento"
+                            className="max-w-full max-h-96 rounded-lg border border-gray-200 cursor-pointer hover:opacity-90 transition-opacity"
+                            onClick={() => window.open(update.imageBase64, '_blank')}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
+
+      {/* Add Update Modal */}
+      {showUpdateModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-8 max-w-lg w-full mx-4">
+            <h2 className="text-2xl font-semibold text-gray-900 mb-6 flex items-center gap-3">
+              <span>📢</span> Nuovo Aggiornamento
+            </h2>
+
+            <div className="space-y-4 mb-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Messaggio
+                </label>
+                <textarea
+                  value={updateMessage}
+                  onChange={(e) => setUpdateMessage(e.target.value)}
+                  placeholder="Scrivi un messaggio per i partecipanti..."
+                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
+                  rows={4}
+                  maxLength={2000}
+                />
+                <p className="text-xs text-gray-400 mt-1">{updateMessage.length}/2000</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Immagine (opzionale)
+                </label>
+                <div className="border-2 border-dashed border-gray-200 rounded-lg p-4 text-center">
+                  {updateImage ? (
+                    <div className="relative">
+                      <img
+                        src={updateImage}
+                        alt="Preview"
+                        className="max-h-48 mx-auto rounded-lg"
+                      />
+                      <button
+                        onClick={() => setUpdateImage(null)}
+                        className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-red-600"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ) : (
+                    <label className="cursor-pointer block">
+                      <div className="text-4xl mb-2">📷</div>
+                      <p className="text-sm text-gray-600 mb-1">Clicca per caricare un'immagine</p>
+                      <p className="text-xs text-gray-400">Max 5MB • JPG, PNG, GIF</p>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        className="hidden"
+                      />
+                    </label>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-4">
+              <button
+                onClick={() => {
+                  setShowUpdateModal(false)
+                  setUpdateMessage('')
+                  setUpdateImage(null)
+                }}
+                className="flex-1 px-6 py-3 border border-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+              >
+                Annulla
+              </button>
+              <button
+                onClick={handleAddUpdate}
+                disabled={addingUpdate || (!updateMessage.trim() && !updateImage)}
+                className="flex-1 px-6 py-3 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {addingUpdate ? 'Pubblicazione...' : '📢 Pubblica'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Add Participant Modal */}
       {showAddModal && (

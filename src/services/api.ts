@@ -125,6 +125,61 @@ export const merchantService = {
     return response.data
   },
 
+  // Bulk Add endpoints
+  async bulkAddBySet(data: {
+    shopId: number
+    setCode: string
+    condition: string
+    quantity: number
+    price: number
+    nationality?: string
+  }): Promise<{
+    totalRows: number
+    successCount: number
+    errorCount: number
+    errors: string[]
+    message: string
+  }> {
+    const response = await apiClient.post('/inventory/bulk-add-by-set', data)
+    return response.data
+  },
+
+  async bulkAddByExpansion(data: {
+    shopId: number
+    expansionId: number
+    condition: string
+    quantity: number
+    price: number
+    nationality?: string
+  }): Promise<{
+    totalRows: number
+    successCount: number
+    errorCount: number
+    errors: string[]
+    message: string
+  }> {
+    const response = await apiClient.post('/inventory/bulk-add-by-expansion', data)
+    return response.data
+  },
+
+  async bulkAddByTemplates(data: {
+    shopId: number
+    templateIds: number[]
+    condition: string
+    quantity: number
+    price: number
+    nationality?: string
+  }): Promise<{
+    totalRows: number
+    successCount: number
+    errorCount: number
+    errors: string[]
+    message: string
+  }> {
+    const response = await apiClient.post('/inventory/bulk-add-by-templates', data)
+    return response.data
+  },
+
 
   // Reservation endpoints
   async getReservations(shopId: string, status?: string): Promise<any> {
@@ -360,6 +415,29 @@ export const merchantService = {
   async deleteNews(shopId: string, newsId: string): Promise<void> {
     await apiClient.delete(`/merchant/shops/${shopId}/news/${newsId}`)
   },
+
+  // ========== TOURNAMENT LIVE UPDATES ==========
+  async getTournamentUpdates(tournamentId: number): Promise<any[]> {
+    const response = await apiClient.get(`/tournaments/${tournamentId}/updates`)
+    return response.data
+  },
+
+  async addTournamentUpdate(tournamentId: number, data: {
+    message?: string
+    imageBase64?: string
+  }): Promise<any> {
+    const response = await apiClient.post(`/tournaments/${tournamentId}/updates`, data)
+    return response.data
+  },
+
+  async deleteTournamentUpdate(tournamentId: number, updateId: number): Promise<void> {
+    await apiClient.delete(`/tournaments/${tournamentId}/updates/${updateId}`)
+  },
+
+  async getTournamentUpdateCount(tournamentId: number): Promise<number> {
+    const response = await apiClient.get(`/tournaments/${tournamentId}/updates/count`)
+    return response.data.count
+  },
 }
 
 export const adminService = {
@@ -436,6 +514,26 @@ export const adminService = {
     return response.data
   },
 
+  // ========== REWARD FULFILLMENT MANAGEMENT ==========
+  async getAllRewardTransactions(): Promise<any[]> {
+    const response = await apiClient.get('/rewards/admin/transactions')
+    return response.data
+  },
+
+  async getPendingFulfillments(): Promise<any[]> {
+    const response = await apiClient.get('/rewards/admin/transactions/pending')
+    return response.data
+  },
+
+  async updateRewardTransaction(transactionId: number, updates: {
+    status?: string
+    voucherCode?: string
+    trackingNumber?: string
+  }): Promise<any> {
+    const response = await apiClient.put(`/rewards/admin/transactions/${transactionId}`, updates)
+    return response.data
+  },
+
   // ========== ACHIEVEMENTS MANAGEMENT ==========
   async getAllAchievements(): Promise<any[]> {
     const response = await apiClient.get('/achievements')
@@ -502,8 +600,9 @@ export const adminService = {
     return response.data
   },
 
-  async deleteExpansion(id: number): Promise<void> {
-    await apiClient.delete(`/expansions/${id}`)
+  async deleteExpansion(id: number, force: boolean = false): Promise<any> {
+    const response = await apiClient.delete(`/expansions/${id}?force=${force}`)
+    return response
   },
 
   // ========== TCG SETS MANAGEMENT ==========
@@ -517,8 +616,9 @@ export const adminService = {
     return response.data
   },
 
-  async deleteSet(id: number): Promise<void> {
-    await apiClient.delete(`/sets/${id}`)
+  async deleteSet(id: number, force: boolean = false): Promise<any> {
+    const response = await apiClient.delete(`/sets/${id}?force=${force}`)
+    return response
   },
 }
 

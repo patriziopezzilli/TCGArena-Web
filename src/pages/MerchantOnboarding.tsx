@@ -4,7 +4,10 @@ import { Link, useNavigate } from 'react-router-dom'
 import { merchantService } from '../services/api'
 import type { MerchantRegistrationRequest } from '../types/api'
 
-type FormData = MerchantRegistrationRequest
+type FormData = MerchantRegistrationRequest & {
+  latitude?: number | null
+  longitude?: number | null
+}
 
 export default function MerchantOnboarding() {
   const navigate = useNavigate()
@@ -18,18 +21,54 @@ export default function MerchantOnboarding() {
     formState: { errors },
   } = useForm<FormData>()
 
+  // Geocode address to get coordinates
+  const geocodeAddress = async (address: string, city: string, zipCode: string): Promise<{ latitude: number | null, longitude: number | null }> => {
+    try {
+      const fullAddress = `${address}, ${zipCode} ${city}, Italia`
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(fullAddress)}&limit=1&countrycodes=IT`
+      )
+
+      if (!response.ok) {
+        return { latitude: null, longitude: null }
+      }
+
+      const data = await response.json()
+
+      if (data && data.length > 0) {
+        return {
+          latitude: parseFloat(data[0].lat),
+          longitude: parseFloat(data[0].lon)
+        }
+      }
+    } catch (err) {
+      console.error('Geocoding error:', err)
+    }
+    return { latitude: null, longitude: null }
+  }
+
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true)
     setError(null)
 
     try {
-      const response = await merchantService.register(data)
+      // Auto-geocode address before registration
+      const { latitude, longitude } = await geocodeAddress(data.address, data.city, data.zipCode)
+
+      // Add coordinates to registration data
+      const registrationData = {
+        ...data,
+        latitude,
+        longitude
+      }
+
+      const response = await merchantService.register(registrationData)
       setSuccess(true)
-      
+
       // Store token
       localStorage.setItem('merchant_token', response.token)
       localStorage.setItem('merchant_user', JSON.stringify(response.user))
-      
+
       // Redirect to dashboard after 2 seconds
       setTimeout(() => {
         navigate('/merchant/dashboard')
@@ -232,11 +271,10 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         </label>
         <input
           ref={ref}
-          className={`w-full px-4 py-3 text-gray-900 bg-white border rounded-lg focus:outline-none focus:ring-2 transition-colors ${
-            error
+          className={`w-full px-4 py-3 text-gray-900 bg-white border rounded-lg focus:outline-none focus:ring-2 transition-colors ${error
               ? 'border-red-300 focus:ring-red-500'
               : 'border-gray-200 focus:ring-gray-900 focus:border-transparent'
-          }`}
+            }`}
           {...props}
         />
         {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
@@ -259,11 +297,10 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
         </label>
         <textarea
           ref={ref}
-          className={`w-full px-4 py-3 text-gray-900 bg-white border rounded-lg focus:outline-none focus:ring-2 transition-colors resize-none ${
-            error
+          className={`w-full px-4 py-3 text-gray-900 bg-white border rounded-lg focus:outline-none focus:ring-2 transition-colors resize-none ${error
               ? 'border-red-300 focus:ring-red-500'
               : 'border-gray-200 focus:ring-gray-900 focus:border-transparent'
-          }`}
+            }`}
           {...props}
         />
         {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
