@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { merchantService } from '../services/api'
 import { useToast } from '../contexts/ToastContext'
+import { OpeningHoursForm, OpeningHours } from '../components/OpeningHoursForm'
 
 const TCG_TYPES = [
   { value: 'POKEMON', label: 'Pokémon', icon: '⚡', color: 'bg-yellow-100 text-yellow-800 border-yellow-300' },
@@ -51,6 +52,7 @@ export default function MerchantSettings() {
     twitterUrl: '',
     openingHours: '',
     openingDays: '',
+    openingHoursStructured: null as OpeningHours | null,
     type: 'PHYSICAL_STORE',
     tcgTypes: [] as string[],
     services: [] as string[],
@@ -82,6 +84,17 @@ export default function MerchantSettings() {
         ? status.shop.services.split(',').filter((s: string) => s.trim())
         : []
 
+      // Initialize default opening hours if not present
+      const defaultHours: OpeningHours = {
+        monday: { open: '09:00', close: '18:00', closed: false },
+        tuesday: { open: '09:00', close: '18:00', closed: false },
+        wednesday: { open: '09:00', close: '18:00', closed: false },
+        thursday: { open: '09:00', close: '18:00', closed: false },
+        friday: { open: '09:00', close: '18:00', closed: false },
+        saturday: { open: '09:00', close: '13:00', closed: false },
+        sunday: { closed: true },
+      }
+
       setFormData({
         name: status.shop.name || '',
         description: status.shop.description || '',
@@ -96,6 +109,7 @@ export default function MerchantSettings() {
         twitterUrl: status.shop.twitterUrl || '',
         openingHours: status.shop.openingHours || '',
         openingDays: status.shop.openingDays || '',
+        openingHoursStructured: status.shop.openingHoursStructured || defaultHours,
         type: status.shop.type || 'PHYSICAL_STORE',
         tcgTypes: tcgTypesArray,
         services: servicesArray,
@@ -603,34 +617,10 @@ export default function MerchantSettings() {
           {/* Opening Hours */}
           <div className="bg-white rounded-lg border border-gray-200 p-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Orari di Apertura</h2>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Orario
-                  <span className="text-xs text-gray-500 ml-2">(es. 9:00-13:00, 15:00-19:00)</span>
-                </label>
-                <input
-                  type="text"
-                  value={formData.openingHours}
-                  onChange={(e) => handleInputChange('openingHours', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
-                  placeholder="9:00-13:00, 15:00-19:00"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Giorni
-                  <span className="text-xs text-gray-500 ml-2">(es. Lun-Ven, Sab)</span>
-                </label>
-                <input
-                  type="text"
-                  value={formData.openingDays}
-                  onChange={(e) => handleInputChange('openingDays', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
-                  placeholder="Lun-Ven, Sab"
-                />
-              </div>
-            </div>
+            <OpeningHoursForm
+              value={formData.openingHoursStructured!}
+              onChange={(hours) => handleInputChange('openingHoursStructured', hours)}
+            />
           </div>
 
           {/* Reservation Settings */}
