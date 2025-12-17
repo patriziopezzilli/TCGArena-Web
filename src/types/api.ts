@@ -139,9 +139,13 @@ export interface Tournament {
   prizePool: string
   startDate: string
   endDate: string
-  status: 'UPCOMING' | 'REGISTRATION_OPEN' | 'REGISTRATION_CLOSED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED'
+  status: 'PENDING_APPROVAL' | 'UPCOMING' | 'REGISTRATION_OPEN' | 'REGISTRATION_CLOSED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED' | 'REJECTED'
   location: TournamentLocation
   organizerId: number
+  createdByUserId?: number
+  approvedByUserId?: number
+  approvalDate?: string
+  rejectionReason?: string
   isRanked?: boolean
   externalRegistrationUrl?: string
 }

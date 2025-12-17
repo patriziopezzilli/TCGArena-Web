@@ -14,6 +14,7 @@ import MerchantRequests from './pages/MerchantRequests'
 import MerchantSettings from './pages/MerchantSettings'
 import MerchantSubscribers from './pages/MerchantSubscribers'
 import ShopNews from './pages/ShopNews'
+import TournamentRequests from './pages/TournamentRequests'
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
           <Route path="/merchant/reservations" element={<MerchantReservations />} />
           <Route path="/merchant/tournaments" element={<MerchantTournaments />} />
           <Route path="/merchant/tournaments/:tournamentId/participants" element={<TournamentParticipants />} />
+          <Route path="/merchant/tournament-requests" element={<TournamentRequests />} />
           <Route path="/merchant/requests" element={<MerchantRequests />} />
           <Route path="/merchant/settings" element={<MerchantSettings />} />
           <Route path="/merchant/subscribers" element={<MerchantSubscribers />} />

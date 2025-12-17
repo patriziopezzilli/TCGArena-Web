@@ -293,9 +293,15 @@ export default function MerchantDashboard() {
                 </p>
                 <button
                   onClick={() => navigate('/merchant/tournaments')}
-                  className="w-full bg-gray-800 text-white py-3 rounded-xl font-semibold hover:bg-gray-700 transition-all hover:scale-105"
+                  className="w-full bg-gray-800 text-white py-3 rounded-xl font-semibold hover:bg-gray-700 transition-all hover:scale-105 mb-3"
                 >
                   Gestisci Tornei →
+                </button>
+                <button
+                  onClick={() => navigate('/merchant/tournament-requests')}
+                  className="w-full border border-orange-200 text-orange-700 py-3 rounded-xl font-semibold hover:bg-orange-50 transition-all"
+                >
+                  Richieste Tornei ⏱️
                 </button>
               </div>
 

@@ -438,6 +438,37 @@ export const merchantService = {
     const response = await apiClient.get(`/tournaments/${tournamentId}/updates/count`)
     return response.data.count
   },
+
+  // Tournament Request & Approval endpoints
+  async requestTournament(data: {
+    title: string
+    description?: string
+    tcgType: string
+    type: string
+    startDate: string
+    maxParticipants: number
+    entryFee: number
+    prizePool?: string
+    shopId: number
+  }): Promise<any> {
+    const response = await apiClient.post('/tournaments/request', data)
+    return response.data
+  },
+
+  async approveTournament(tournamentId: number): Promise<any> {
+    const response = await apiClient.put(`/tournaments/${tournamentId}/approve`)
+    return response.data
+  },
+
+  async rejectTournament(tournamentId: number, reason: string): Promise<any> {
+    const response = await apiClient.put(`/tournaments/${tournamentId}/reject`, { reason })
+    return response.data
+  },
+
+  async getPendingTournamentRequests(): Promise<any[]> {
+    const response = await apiClient.get('/tournaments/pending-requests')
+    return response.data
+  },
 }
 
 export const adminService = {
