@@ -2,6 +2,9 @@ import { useState, useEffect } from 'react'
 import { adminService } from '../services/api'
 import { useToast } from '../contexts/ToastContext'
 import type { ImportJob } from '../types/api'
+import {
+  BanknotesIcon, SparklesIcon, RocketLaunchIcon, CubeIcon
+} from '../components/Icons'
 
 type TCGType = 'POKEMON' | 'MAGIC' | 'YUGIOH' | 'ONE_PIECE' | 'DIGIMON' | 'DRAGON_BALL_SUPER' | 'DRAGON_BALL_FUSION' | 'FLESH_AND_BLOOD' | 'LORCANA'
 
@@ -177,10 +180,12 @@ export default function BatchImport() {
         </p>
       </div>
 
-      {/* JustTCG Import Section - NEW */}
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-6">
+      {/* JustTCG Import Section */}
+      <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6">
         <div className="flex items-center gap-3 mb-4">
-          <span className="text-2xl">💰</span>
+          <div className="bg-gray-100 p-2 rounded-lg">
+            <BanknotesIcon className="w-6 h-6 text-gray-700" />
+          </div>
           <div>
             <h3 className="font-semibold text-gray-900">JustTCG Import (Prezzi Real-Time)</h3>
             <p className="text-sm text-gray-600">Import cards con prezzi aggiornati da JustTCG API</p>
@@ -208,9 +213,10 @@ export default function BatchImport() {
         </div>
 
         {/* Info Box */}
-        <div className="bg-blue-100 border border-blue-300 rounded-lg p-4 mb-4">
+        <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 mb-4 flex gap-3">
+          <SparklesIcon className="w-5 h-5 text-blue-600 flex-shrink-0" />
           <p className="text-sm text-blue-900">
-            <strong>✨ JustTCG API:</strong> Importa cards con prezzi Near Mint aggiornati in tempo reale.
+            <strong>JustTCG API:</strong> Importa cards con prezzi Near Mint aggiornati in tempo reale.
             Supporta: Pokémon, MTG, Yu-Gi-Oh!, One Piece, Digimon, Lorcana.
           </p>
         </div>
@@ -234,7 +240,10 @@ export default function BatchImport() {
                 Avvio Import in corso...
               </span>
             ) : (
-              `🚀 Avvia JustTCG Import - ${selectedJustTCG}`
+              <span className="flex items-center justify-center gap-2">
+                <RocketLaunchIcon className="w-5 h-5" />
+                Avvia JustTCG Import - {selectedJustTCG}
+              </span>
             )}
           </button>
         ) : (
@@ -379,7 +388,15 @@ export default function BatchImport() {
                         : 'bg-gray-100 text-gray-800'
                         }`}
                     >
-                      {entry.source === 'justtcg' ? '💰 JustTCG' : '📦 Legacy'}
+                      {entry.source === 'justtcg' ? (
+                        <span className="flex items-center gap-1">
+                          <BanknotesIcon className="w-3 h-3" /> JustTCG
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-1">
+                          <CubeIcon className="w-3 h-3" /> Legacy
+                        </span>
+                      )}
                     </span>
                     <span
                       className={`px-2 py-1 text-xs font-medium rounded ${entry.status === 'success'
@@ -415,4 +432,3 @@ export default function BatchImport() {
     </div>
   )
 }
-

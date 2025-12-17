@@ -2,6 +2,21 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { merchantService } from '../services/api'
 import { useToast } from '../contexts/ToastContext'
+import DashboardLayout from '../components/DashboardLayout'
+import { TournamentIcon } from '../components/Icons'
+
+// Merchant menu items
+const merchantMenuItems = [
+  { id: 'dashboard', label: 'Dashboard', icon: '📊', path: '/merchant/dashboard' },
+  { id: 'inventory', label: 'Inventario', icon: '📦', path: '/merchant/inventory' },
+  { id: 'reservations', label: 'Prenotazioni', icon: '🎫', path: '/merchant/reservations' },
+  { id: 'tournaments', label: 'Tornei', icon: '🏆', path: '/merchant/tournaments' },
+  { id: 'tournament-requests', label: 'Richieste Tornei', icon: '⏱️', path: '/merchant/tournament-requests' },
+  { id: 'requests', label: 'Richieste Clienti', icon: '💬', path: '/merchant/requests' },
+  { id: 'subscribers', label: 'Iscritti', icon: '🔔', path: '/merchant/subscribers' },
+  { id: 'news', label: 'Notizie', icon: '📰', path: '/merchant/news' },
+  { id: 'settings', label: 'Impostazioni', icon: '⚙️', path: '/merchant/settings' },
+]
 
 interface Tournament {
   id: string
@@ -29,7 +44,11 @@ interface TournamentLocation {
   country: string
 }
 
-export default function MerchantTournaments() {
+interface MerchantTournamentsProps {
+  embedded?: boolean
+}
+
+export default function MerchantTournaments({ embedded = false }: MerchantTournamentsProps) {
   const navigate = useNavigate()
   const { showToast } = useToast()
   const [loading, setLoading] = useState(true)
@@ -230,146 +249,139 @@ export default function MerchantTournaments() {
 
   const stats = getStats()
 
-  return (
-    <div className="min-h-screen bg-white">
-      {/* Header */}
-      <header className="border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <button
-                onClick={() => navigate('/merchant/dashboard')}
-                className="text-sm text-gray-600 hover:text-gray-900 mb-2"
-              >
-                ← Torna alla Dashboard
-              </button>
-              <h1 className="text-2xl font-semibold text-gray-900">Gestione Tornei</h1>
-            </div>
-            <button
-              onClick={() => { resetForm(); setShowModal(true) }}
-              className="px-6 py-2 bg-primary text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
-            >
-              + Crea Torneo
-            </button>
-          </div>
-        </div>
-      </header>
+  // Get user info for layout
+  const merchantUser = localStorage.getItem('merchant_user')
+  const userData = merchantUser ? JSON.parse(merchantUser) : null
+
+  const content = (
+    <>
+      {/* Action Bar */}
+      <div className="flex items-center justify-between mb-6 -mt-2">
+        <div></div>
+        <button
+          onClick={() => { resetForm(); setShowModal(true) }}
+          className="px-5 py-2.5 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition-colors flex items-center gap-2"
+        >
+          <span>+</span> Crea Torneo
+        </button>
+      </div>
 
       {/* Stats */}
-      <div className="max-w-7xl mx-auto px-6 py-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-            <p className="text-sm text-blue-600 font-medium mb-1">In Programma</p>
-            <p className="text-3xl font-bold text-blue-900">{stats.upcoming}</p>
-          </div>
-          <div className="bg-purple-50 border border-purple-200 rounded-lg p-6">
-            <p className="text-sm text-purple-600 font-medium mb-1">In Corso</p>
-            <p className="text-3xl font-bold text-purple-900">{stats.inProgress}</p>
-          </div>
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
-            <p className="text-sm text-gray-600 font-medium mb-1">Completati</p>
-            <p className="text-3xl font-bold text-gray-900">{stats.completed}</p>
-          </div>
-          <div className="bg-green-50 border border-green-200 rounded-lg p-6">
-            <p className="text-sm text-green-600 font-medium mb-1">Partecipanti Totali</p>
-            <p className="text-3xl font-bold text-green-900">{stats.totalParticipants}</p>
-          </div>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="bg-white rounded-xl border border-gray-200 p-5">
+          <p className="text-sm text-gray-500 mb-1">In Programma</p>
+          <p className="text-3xl font-bold text-gray-900">{stats.upcoming}</p>
         </div>
+        <div className="bg-white rounded-xl border border-gray-200 p-5">
+          <p className="text-sm text-gray-500 mb-1">In Corso</p>
+          <p className="text-3xl font-bold text-gray-900">{stats.inProgress}</p>
+        </div>
+        <div className="bg-white rounded-xl border border-gray-200 p-5">
+          <p className="text-sm text-gray-500 mb-1">Completati</p>
+          <p className="text-3xl font-bold text-gray-900">{stats.completed}</p>
+        </div>
+        <div className="bg-white rounded-xl border border-gray-200 p-5">
+          <p className="text-sm text-gray-500 mb-1">Partecipanti Totali</p>
+          <p className="text-3xl font-bold text-gray-900">{stats.totalParticipants}</p>
+        </div>
+      </div>
 
-        {/* Tournaments List */}
-        {loading ? (
-          <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      {/* Tournaments List */}
+      {loading ? (
+        <div className="text-center py-12">
+          <div className="inline-block animate-spin rounded-full h-10 w-10 border-2 border-gray-900 border-t-transparent"></div>
+        </div>
+      ) : tournaments.length === 0 ? (
+        <div className="text-center py-16 bg-white rounded-xl border border-gray-200">
+          <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <TournamentIcon className="w-8 h-8 text-gray-400" />
           </div>
-        ) : tournaments.length === 0 ? (
-          <div className="text-center py-12 bg-gray-50 rounded-lg">
-            <p className="text-gray-600">Nessun torneo creato</p>
-            <button
-              onClick={() => { resetForm(); setShowModal(true) }}
-              className="mt-4 text-primary hover:underline"
+          <p className="text-gray-600 font-medium">Nessun torneo creato</p>
+          <button
+            onClick={() => { resetForm(); setShowModal(true) }}
+            className="mt-4 px-5 py-2 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition-colors"
+          >
+            Crea il primo torneo
+          </button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-6">
+          {tournaments.map((tournament) => (
+            <div
+              key={tournament.id}
+              className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow"
             >
-              Crea il primo torneo
-            </button>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 gap-6">
-            {tournaments.map((tournament) => (
-              <div
-                key={tournament.id}
-                className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow"
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-xl font-semibold text-gray-900">{tournament.title}</h3>
-                      {tournament.isRanked && (
-                        <span className="px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-yellow-400 to-orange-400 text-black">
-                          🏆 Ufficiale
-                        </span>
-                      )}
-                      {getStatusBadge(tournament.status)}
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-2">
+                    <h3 className="text-xl font-semibold text-gray-900">{tournament.title}</h3>
+                    {tournament.isRanked && (
+                      <span className="px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-yellow-400 to-orange-400 text-black">
+                        🏆 Ufficiale
+                      </span>
+                    )}
+                    {getStatusBadge(tournament.status)}
+                  </div>
+                  <p className="text-sm text-gray-600 mb-3">{tournament.description}</p>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                    <div>
+                      <p className="text-gray-500">TCG</p>
+                      <p className="text-gray-900 font-medium">{tournament.tcgType}</p>
                     </div>
-                    <p className="text-sm text-gray-600 mb-3">{tournament.description}</p>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                      <div>
-                        <p className="text-gray-500">TCG</p>
-                        <p className="text-gray-900 font-medium">{tournament.tcgType}</p>
-                      </div>
-                      <div>
-                        <p className="text-gray-500">Tipo</p>
-                        <p className="text-gray-900 font-medium">{tournament.type}</p>
-                      </div>
-                      <div>
-                        <p className="text-gray-500">Partecipanti</p>
-                        <p className="text-gray-900 font-medium">
-                          {tournament.currentParticipants || 0}/{tournament.maxParticipants}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-gray-500">Quota</p>
-                        <p className="text-gray-900 font-medium">€{tournament.entryFee.toFixed(2)}</p>
-                      </div>
+                    <div>
+                      <p className="text-gray-500">Tipo</p>
+                      <p className="text-gray-900 font-medium">{tournament.type}</p>
                     </div>
-                    <div className="mt-3 pt-3 border-t border-gray-100 text-sm text-gray-600">
-                      <p>📍 {tournament.location.venueName}, {tournament.location.city}</p>
-                      <p className="mt-1">
-                        📅 {new Date(tournament.startDate).toLocaleDateString('it-IT')} - {new Date(tournament.endDate).toLocaleDateString('it-IT')}
+                    <div>
+                      <p className="text-gray-500">Partecipanti</p>
+                      <p className="text-gray-900 font-medium">
+                        {tournament.currentParticipants || 0}/{tournament.maxParticipants}
                       </p>
-                      {tournament.prizePool && (
-                        <p className="mt-1">🏆 {tournament.prizePool}</p>
-                      )}
+                    </div>
+                    <div>
+                      <p className="text-gray-500">Quota</p>
+                      <p className="text-gray-900 font-medium">€{tournament.entryFee.toFixed(2)}</p>
                     </div>
                   </div>
-                  <div className="flex flex-col gap-2 ml-4">
-                    <button
-                      onClick={() => navigate(`/merchant/tournaments/${tournament.id}/participants`)}
-                      className="px-4 py-2 text-sm text-blue-600 hover:text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-50 transition-colors whitespace-nowrap"
-                    >
-                      Gestisci Partecipanti
-                    </button>
-                    <button
-                      onClick={() => openEditModal(tournament)}
-                      className="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors whitespace-nowrap"
-                    >
-                      Modifica
-                    </button>
-                    <button
-                      onClick={() => handleDelete(tournament.id)}
-                      className="px-4 py-2 text-sm text-red-600 hover:text-red-700 border border-red-200 rounded-lg hover:bg-red-50 transition-colors whitespace-nowrap"
-                    >
-                      Elimina
-                    </button>
+                  <div className="mt-3 pt-3 border-t border-gray-100 text-sm text-gray-600">
+                    <p>📍 {tournament.location.venueName}, {tournament.location.city}</p>
+                    <p className="mt-1">
+                      📅 {new Date(tournament.startDate).toLocaleDateString('it-IT')} - {new Date(tournament.endDate).toLocaleDateString('it-IT')}
+                    </p>
+                    {tournament.prizePool && (
+                      <p className="mt-1">🏆 {tournament.prizePool}</p>
+                    )}
                   </div>
                 </div>
+                <div className="flex flex-col gap-2 ml-4">
+                  <button
+                    onClick={() => navigate(`/merchant/tournaments/${tournament.id}/participants`)}
+                    className="px-4 py-2 text-sm text-blue-600 hover:text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-50 transition-colors whitespace-nowrap"
+                  >
+                    Gestisci Partecipanti
+                  </button>
+                  <button
+                    onClick={() => openEditModal(tournament)}
+                    className="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors whitespace-nowrap"
+                  >
+                    Modifica
+                  </button>
+                  <button
+                    onClick={() => handleDelete(tournament.id)}
+                    className="px-4 py-2 text-sm text-red-600 hover:text-red-700 border border-red-200 rounded-lg hover:bg-red-50 transition-colors whitespace-nowrap"
+                  >
+                    Elimina
+                  </button>
+                </div>
               </div>
-            ))}
-          </div>
-        )}
-      </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Create/Edit Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-8 max-w-3xl w-full mx-4 max-h-[90vh] overflow-y-auto">
             <h2 className="text-2xl font-semibold text-gray-900 mb-6">
               {editingTournament ? 'Modifica Torneo' : 'Crea Nuovo Torneo'}
@@ -639,6 +651,22 @@ export default function MerchantTournaments() {
           </div>
         </div>
       )}
-    </div>
+    </>
+  )
+
+  if (embedded) {
+    return content
+  }
+
+  return (
+    <DashboardLayout
+      title="Gestione Tornei"
+      subtitle={`${tournaments.length} tornei totali`}
+      menuItems={merchantMenuItems}
+      userName={userData?.displayName || userData?.username}
+      shopName={userData?.shopName}
+    >
+      {content}
+    </DashboardLayout>
   )
 }

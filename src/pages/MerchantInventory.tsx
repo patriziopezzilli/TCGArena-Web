@@ -2,6 +2,9 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { merchantService } from '../services/api'
 import { useToast } from '../contexts/ToastContext'
+import {
+  ImportIcon, CubeIcon, DocumentIcon, CloudArrowUpIcon, CpuChipIcon
+} from '../components/Icons'
 
 interface InventoryCard {
   id: string
@@ -67,7 +70,11 @@ interface TemplateFilters {
   q?: string
 }
 
-export default function MerchantInventory() {
+interface MerchantInventoryProps {
+  embedded?: boolean
+}
+
+export default function MerchantInventory({ embedded = false }: MerchantInventoryProps) {
   const navigate = useNavigate()
   const { showToast } = useToast()
   const [loading, setLoading] = useState(true)
@@ -334,72 +341,76 @@ export default function MerchantInventory() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Header */}
-      <header className="border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <button
-                onClick={() => navigate('/merchant/dashboard')}
-                className="text-sm text-gray-600 hover:text-gray-900 mb-2"
-              >
-                ← Torna alla Dashboard
-              </button>
-              <h1 className="text-2xl font-semibold text-gray-900">Gestione Inventario</h1>
+    <div className={embedded ? "" : "min-h-screen bg-white"}>
+      {/* Header - only show when not embedded */}
+      {!embedded && (
+        <header className="border-b border-gray-100">
+          <div className="max-w-7xl mx-auto px-6 py-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <button
+                  onClick={() => navigate('/merchant/dashboard')}
+                  className="text-sm text-gray-600 hover:text-gray-900 mb-2"
+                >
+                  ← Torna alla Dashboard
+                </button>
+                <h1 className="text-2xl font-semibold text-gray-900">Gestione Inventario</h1>
+              </div>
             </div>
           </div>
+        </header>
+      )}
 
-          {/* View Tabs */}
-          <div className="flex mt-4 border-b border-gray-200">
-            <button
-              onClick={() => {
-                setCurrentView('templates')
-                if (shopId) loadCardTemplates(0, false)
-              }}
-              className={`px-4 py-2 font-medium text-sm ${currentView === 'templates'
-                ? 'text-primary border-b-2 border-primary'
-                : 'text-gray-600 hover:text-gray-900'
-                }`}
-            >
-              Sfoglia Carte
-            </button>
-            <button
-              onClick={() => {
-                setCurrentView('inventory')
-                if (shopId) loadInventory(shopId)
-              }}
-              className={`px-4 py-2 font-medium text-sm ${currentView === 'inventory'
-                ? 'text-primary border-b-2 border-primary'
-                : 'text-gray-600 hover:text-gray-900'
-                }`}
-            >
-              Inventario ({inventory.length})
-            </button>
-            <button
-              onClick={() => setCurrentView('import')}
-              className={`px-4 py-2 font-medium text-sm ${currentView === 'import'
-                ? 'text-primary border-b-2 border-primary'
-                : 'text-gray-600 hover:text-gray-900'
-                }`}
-            >
-              📥 Import
-            </button>
-            <button
-              onClick={() => setCurrentView('bulk')}
-              className={`px-4 py-2 font-medium text-sm ${currentView === 'bulk'
-                ? 'text-primary border-b-2 border-primary'
-                : 'text-gray-600 hover:text-gray-900'
-                }`}
-            >
-              📦 Aggiungi Set
-            </button>
-          </div>
+      {/* View Tabs - always show */}
+      <div className={embedded ? "mb-4" : "max-w-7xl mx-auto px-6 pt-4"}>
+        <div className="flex border-b border-gray-200">
+          <button
+            onClick={() => {
+              setCurrentView('templates')
+              if (shopId) loadCardTemplates(0, false)
+            }}
+            className={`px-4 py-2 font-medium text-sm ${currentView === 'templates'
+              ? 'text-primary border-b-2 border-primary'
+              : 'text-gray-600 hover:text-gray-900'
+              }`}
+          >
+            Sfoglia Carte
+          </button>
+          <button
+            onClick={() => {
+              setCurrentView('inventory')
+              if (shopId) loadInventory(shopId)
+            }}
+            className={`px-4 py-2 font-medium text-sm ${currentView === 'inventory'
+              ? 'text-primary border-b-2 border-primary'
+              : 'text-gray-600 hover:text-gray-900'
+              }`}
+          >
+            Inventario ({inventory.length})
+          </button>
+          <button
+            onClick={() => setCurrentView('import')}
+            className={`px-4 py-2 font-medium text-sm flex items-center gap-2 ${currentView === 'import'
+              ? 'text-primary border-b-2 border-primary'
+              : 'text-gray-600 hover:text-gray-900'
+              }`}
+          >
+            <ImportIcon className="w-4 h-4" /> Import
+          </button>
+          <button
+            onClick={() => setCurrentView('bulk')}
+            className={`px-4 py-2 font-medium text-sm flex items-center gap-2 ${currentView === 'bulk'
+              ? 'text-primary border-b-2 border-primary'
+              : 'text-gray-600 hover:text-gray-900'
+              }`}
+          >
+            <CubeIcon className="w-4 h-4" /> Aggiungi Set
+          </button>
         </div>
-      </header>
+      </div>
 
       {/* Filters */}
-      <div className="max-w-7xl mx-auto px-6 py-6">
+      <div className={embedded ? "py-4" : "max-w-7xl mx-auto px-6 py-6"}>
         {currentView === 'templates' ? (
           /* Template Filters */
           <div className="bg-gray-50 rounded-lg p-6 mb-6">
@@ -839,14 +850,14 @@ export default function MerchantInventory() {
                   />
                   <label htmlFor="csv-upload" className="cursor-pointer">
                     {importFile ? (
-                      <div className="text-gray-900">
-                        <span className="text-2xl">📄</span>
+                      <div className="text-gray-900 flex flex-col items-center">
+                        <DocumentIcon className="w-8 h-8 text-gray-400" />
                         <p className="mt-2 font-medium">{importFile.name}</p>
                         <p className="text-sm text-gray-500">Clicca per cambiare file</p>
                       </div>
                     ) : (
-                      <div className="text-gray-500">
-                        <span className="text-4xl">📤</span>
+                      <div className="text-gray-500 flex flex-col items-center">
+                        <CloudArrowUpIcon className="w-10 h-10 text-gray-400" />
                         <p className="mt-2">Trascina qui il file CSV o clicca per selezionarlo</p>
                       </div>
                     )}
@@ -883,7 +894,11 @@ export default function MerchantInventory() {
                     disabled={importLoading}
                     className="w-full px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50"
                   >
-                    {importLoading ? 'Importazione in corso...' : '📥 Importa Inventario'}
+                    {importLoading ? 'Importazione in corso...' : (
+                      <span className="flex items-center justify-center gap-2">
+                        <ImportIcon className="w-5 h-5" /> Importa Inventario
+                      </span>
+                    )}
                   </button>
                 )}
               </div>
@@ -891,7 +906,9 @@ export default function MerchantInventory() {
               /* Custom AI Import */
               <div className="space-y-6">
                 <div className="bg-purple-50 rounded-lg p-4 border border-purple-200">
-                  <h3 className="font-semibold text-purple-900 mb-2">🤖 Import con AI</h3>
+                  <h3 className="font-semibold text-purple-900 mb-2 flex items-center gap-2">
+                    <CpuChipIcon className="w-5 h-5" /> Import con AI
+                  </h3>
                   <p className="text-sm text-purple-800">
                     Carica qualsiasi file (Excel, PDF, foto) e il nostro team lo elaborerà con l'aiuto dell'AI.
                     <br />Riceverai l'inventario aggiornato entro <strong>48 ore</strong>.
@@ -912,14 +929,14 @@ export default function MerchantInventory() {
                   />
                   <label htmlFor="custom-upload" className="cursor-pointer">
                     {importFile ? (
-                      <div className="text-purple-900">
-                        <span className="text-2xl">📄</span>
+                      <div className="text-purple-900 flex flex-col items-center">
+                        <DocumentIcon className="w-8 h-8 text-purple-400" />
                         <p className="mt-2 font-medium">{importFile.name}</p>
                         <p className="text-sm text-purple-600">Clicca per cambiare file</p>
                       </div>
                     ) : (
-                      <div className="text-purple-700">
-                        <span className="text-4xl">🤖</span>
+                      <div className="text-purple-700 flex flex-col items-center">
+                        <CpuChipIcon className="w-10 h-10 text-purple-400" />
                         <p className="mt-2">Carica Excel, PDF, o foto del tuo inventario</p>
                       </div>
                     )}

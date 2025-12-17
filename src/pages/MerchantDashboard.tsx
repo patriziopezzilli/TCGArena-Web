@@ -1,7 +1,41 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { merchantService } from '../services/api'
+import DashboardLayout from '../components/DashboardLayout'
 import AdminDashboard from './AdminDashboard'
+import MerchantReservations from './MerchantReservations'
+import MerchantTournaments from './MerchantTournaments'
+import MerchantRequests from './MerchantRequests'
+import MerchantSubscribers from './MerchantSubscribers'
+import ShopNews from './ShopNews'
+import TournamentRequests from './TournamentRequests'
+import MerchantSettings from './MerchantSettings'
+import MerchantInventory from './MerchantInventory'
+import {
+  DashboardIcon,
+  InventoryIcon,
+  ReservationsIcon,
+  TournamentIcon,
+  ClockIcon,
+  ChatIcon,
+  BellIcon,
+  NewsIcon,
+  SettingsIcon,
+  ArrowRightIcon
+} from '../components/Icons'
+
+// Merchant menu items with SVG icons
+const merchantMenuItems = [
+  { id: 'dashboard', label: 'Dashboard', icon: <DashboardIcon /> },
+  { id: 'inventory', label: 'Inventario', icon: <InventoryIcon /> },
+  { id: 'reservations', label: 'Prenotazioni', icon: <ReservationsIcon /> },
+  { id: 'tournaments', label: 'Tornei', icon: <TournamentIcon /> },
+  { id: 'tournament-requests', label: 'Richieste Tornei', icon: <ClockIcon /> },
+  { id: 'requests', label: 'Richieste Clienti', icon: <ChatIcon /> },
+  { id: 'subscribers', label: 'Iscritti', icon: <BellIcon /> },
+  { id: 'news', label: 'Notizie', icon: <NewsIcon /> },
+  { id: 'settings', label: 'Impostazioni', icon: <SettingsIcon /> },
+]
 
 export default function MerchantDashboard() {
   const navigate = useNavigate()
@@ -16,6 +50,7 @@ export default function MerchantDashboard() {
   } | null>(null)
   const [error, setError] = useState('')
   const [isAdmin, setIsAdmin] = useState(false)
+  const [activeTab, setActiveTab] = useState('dashboard')
 
   useEffect(() => {
     const token = localStorage.getItem('merchant_token')
@@ -26,7 +61,6 @@ export default function MerchantDashboard() {
       return
     }
 
-    // Check if admin
     if (adminFlag === 'true') {
       setIsAdmin(true)
       setLoading(false)
@@ -41,7 +75,6 @@ export default function MerchantDashboard() {
       const status = await merchantService.getShopStatus()
       setShopStatus(status)
 
-      // Load dashboard stats if shop is active
       if (status.active) {
         await loadDashboardStats()
       }
@@ -63,29 +96,19 @@ export default function MerchantDashboard() {
       setDashboardStats(stats)
     } catch (err: any) {
       console.error('Error loading dashboard stats:', err)
-      // Don't set error state for stats, just log it
-      // Stats are not critical for the dashboard to function
     }
   }
 
-  const handleLogout = () => {
-    localStorage.removeItem('merchant_token')
-    localStorage.removeItem('merchant_user')
-    localStorage.removeItem('is_admin')
-    navigate('/merchant/login')
-  }
-
-  // Render admin dashboard if admin
   if (isAdmin) {
     return <AdminDashboard />
   }
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-          <p className="mt-4 text-gray-600">Caricamento...</p>
+          <div className="inline-block animate-spin rounded-full h-10 w-10 border-2 border-gray-900 border-t-transparent"></div>
+          <p className="mt-4 text-gray-600 animate-pulse">Caricamento...</p>
         </div>
       </div>
     )
@@ -93,12 +116,18 @@ export default function MerchantDashboard() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center max-w-md">
-          <p className="text-red-600 mb-4">{error}</p>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center max-w-md p-8 bg-white rounded-2xl shadow-xl animate-fadeIn">
+          <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+          <p className="text-gray-900 font-medium mb-2">Si è verificato un errore</p>
+          <p className="text-gray-600 mb-6">{error}</p>
           <button
-            onClick={handleLogout}
-            className="text-primary hover:underline"
+            onClick={() => navigate('/merchant/login')}
+            className="px-6 py-2.5 bg-gray-900 text-white rounded-xl font-medium hover:bg-gray-800 transition-all duration-200 transform hover:scale-105"
           >
             Torna al login
           </button>
@@ -107,275 +136,302 @@ export default function MerchantDashboard() {
     )
   }
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-gray-800 border-b border-gray-700 shadow-lg">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-xl font-bold text-white flex items-center gap-2">
-                <span className="text-2xl">🏪</span>
-                TCG Arena Backoffice
-              </h1>
-              <p className="text-sm text-gray-300 mt-1">
-                Benvenuto, {shopStatus?.user?.displayName || shopStatus?.user?.username}
-              </p>
-            </div>
-            <div className="flex items-center gap-4">
-              <button
-                onClick={handleLogout}
-                className="text-sm text-gray-300 hover:text-white transition-colors"
-              >
-                Logout
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
+  const menuWithBadges = merchantMenuItems.map(item => ({
+    ...item,
+    badge: item.id === 'reservations' ? dashboardStats?.activeReservations :
+      item.id === 'requests' ? dashboardStats?.pendingRequests :
+        undefined
+  }))
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-6 py-12">
-        {!shopStatus?.active ? (
-          // Shop NOT Active - Show Pending Status
-          <div className="max-w-2xl mx-auto">
-            <div className="bg-amber-50 border border-amber-200 rounded-lg p-8 text-center">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-amber-100 rounded-full mb-4">
-                <svg className="w-8 h-8 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+  // Get page title based on active tab
+  const getPageTitle = () => {
+    switch (activeTab) {
+      case 'dashboard': return 'Dashboard'
+      case 'inventory': return 'Inventario'
+      case 'reservations': return 'Prenotazioni'
+      case 'tournaments': return 'Tornei'
+      case 'tournament-requests': return 'Richieste Tornei'
+      case 'requests': return 'Richieste Clienti'
+      case 'subscribers': return 'Iscritti'
+      case 'news': return 'Notizie'
+      case 'settings': return 'Impostazioni'
+      default: return 'Dashboard'
+    }
+  }
+
+  // Handle tab change - all render inline now
+  const handleTabChange = (tabId: string) => {
+    setActiveTab(tabId)
+  }
+
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'dashboard':
+        return renderDashboardContent()
+      case 'inventory':
+        return <MerchantInventory embedded />
+      case 'reservations':
+        return <MerchantReservations embedded />
+      case 'tournaments':
+        return <MerchantTournaments embedded />
+      case 'tournament-requests':
+        return <TournamentRequests embedded />
+      case 'requests':
+        return <MerchantRequests embedded />
+      case 'subscribers':
+        return <MerchantSubscribers embedded />
+      case 'news':
+        return <ShopNews embedded />
+      case 'settings':
+        return <MerchantSettings embedded />
+      default:
+        return renderDashboardContent()
+    }
+  }
+
+  const renderDashboardContent = () => {
+    if (!shopStatus?.active) {
+      return (
+        <div className="max-w-2xl mx-auto animate-fadeIn">
+          <div className="bg-white rounded-2xl border border-gray-200 p-8 shadow-sm">
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-amber-50 to-amber-100 rounded-2xl mb-4 shadow-lg">
+                <ClockIcon className="w-10 h-10 text-amber-600" />
               </div>
-              <h2 className="text-2xl font-semibold text-gray-900 mb-2">
+              <h2 className="text-xl font-semibold text-gray-900 mb-2">
                 Negozio in Attesa di Approvazione
               </h2>
-              <p className="text-gray-600 mb-6">
+              <p className="text-gray-600">
                 Il tuo negozio è stato registrato con successo ma non è ancora attivo.
                 Il nostro team sta verificando le informazioni fornite.
               </p>
+            </div>
 
-              <div className="bg-white rounded-lg p-6 text-left space-y-3">
-                <h3 className="font-medium text-gray-900 mb-3">Informazioni Negozio:</h3>
-                <div className="grid grid-cols-2 gap-3 text-sm">
-                  <div>
-                    <p className="text-gray-500">Nome Negozio</p>
-                    <p className="text-gray-900 font-medium">{shopStatus?.shop?.name}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-500">Indirizzo</p>
-                    <p className="text-gray-900 font-medium">{shopStatus?.shop?.address}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-500">Telefono</p>
-                    <p className="text-gray-900 font-medium">{shopStatus?.shop?.phoneNumber || 'N/A'}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-500">Tipo</p>
-                    <p className="text-gray-900 font-medium">{shopStatus?.shop?.type}</p>
-                  </div>
-                  <div className="col-span-2">
-                    <p className="text-gray-500">Status</p>
-                    <p className="text-amber-600 font-medium">⏳ In attesa di verifica</p>
-                  </div>
+            <div className="bg-gray-50 rounded-xl p-6 space-y-4">
+              <h3 className="font-medium text-gray-900">Informazioni Negozio</h3>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <p className="text-gray-400 text-xs uppercase tracking-wide">Nome Negozio</p>
+                  <p className="text-gray-900 font-medium mt-0.5">{shopStatus?.shop?.name}</p>
+                </div>
+                <div>
+                  <p className="text-gray-400 text-xs uppercase tracking-wide">Indirizzo</p>
+                  <p className="text-gray-900 font-medium mt-0.5">{shopStatus?.shop?.address}</p>
+                </div>
+                <div>
+                  <p className="text-gray-400 text-xs uppercase tracking-wide">Telefono</p>
+                  <p className="text-gray-900 font-medium mt-0.5">{shopStatus?.shop?.phoneNumber || 'N/A'}</p>
+                </div>
+                <div>
+                  <p className="text-gray-400 text-xs uppercase tracking-wide">Tipo</p>
+                  <p className="text-gray-900 font-medium mt-0.5">{shopStatus?.shop?.type}</p>
                 </div>
               </div>
-
-              <p className="text-sm text-gray-500 mt-6">
-                Riceverai una notifica via email quando il negozio sarà attivato.
-              </p>
+              <div className="pt-4 border-t border-gray-200">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 bg-amber-400 rounded-full animate-pulse"></span>
+                  <span className="text-sm text-amber-700 font-medium">In attesa di verifica</span>
+                </div>
+              </div>
             </div>
+
+            <p className="text-sm text-gray-500 text-center mt-6">
+              Riceverai una notifica via email quando il negozio sarà attivato.
+            </p>
           </div>
-        ) : (
-          // Shop Active - Show Full Dashboard
-          <div>
-            <div className="mb-8">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-2">
-                Dashboard {shopStatus?.shop?.name}
+        </div>
+      )
+    }
+
+    return (
+      <div className="space-y-8 animate-fadeIn">
+        {/* Welcome Section */}
+        <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-300">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900">
+                Benvenuto, {shopStatus?.user?.displayName || shopStatus?.user?.username}
               </h2>
-              <p className="text-gray-600">
-                Gestisci il tuo negozio, inventario, tornei e richieste
+              <p className="text-gray-600 mt-1">
+                Ecco un riepilogo delle attività del tuo negozio
               </p>
             </div>
-
-            {/* Quick Stats - Scrollable Horizontal */}
-            <div className="relative">
-              <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
-                <div className="flex-shrink-0 w-48 bg-green-50 border border-green-200 rounded-2xl p-6 hover:shadow-lg transition-all">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-sm font-medium text-green-800">Inventario</h3>
-                    <span className="text-2xl">📦</span>
-                  </div>
-                  <p className="text-4xl font-bold text-green-700">{dashboardStats?.inventoryCount ?? 0}</p>
-                  <p className="text-xs text-green-600 mt-1">Carte totali</p>
-                </div>
-
-                <div className="flex-shrink-0 w-48 bg-blue-50 border border-blue-200 rounded-2xl p-6 hover:shadow-lg transition-all">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-sm font-medium text-blue-800">Prenotazioni</h3>
-                    <span className="text-2xl">🎫</span>
-                  </div>
-                  <p className="text-4xl font-bold text-blue-700">{dashboardStats?.activeReservations ?? 0}</p>
-                  <p className="text-xs text-blue-600 mt-1">Attive</p>
-                </div>
-
-                <div className="flex-shrink-0 w-48 bg-purple-50 border border-purple-200 rounded-2xl p-6 hover:shadow-lg transition-all">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-sm font-medium text-purple-800">Tornei</h3>
-                    <span className="text-2xl">🏆</span>
-                  </div>
-                  <p className="text-4xl font-bold text-purple-700">{dashboardStats?.upcomingTournaments ?? 0}</p>
-                  <p className="text-xs text-purple-600 mt-1">In programma</p>
-                </div>
-
-                <div className="flex-shrink-0 w-48 bg-amber-50 border border-amber-200 rounded-2xl p-6 hover:shadow-lg transition-all">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-sm font-medium text-amber-800">Richieste</h3>
-                    <span className="text-2xl">💬</span>
-                  </div>
-                  <p className="text-4xl font-bold text-amber-700">{dashboardStats?.pendingRequests ?? 0}</p>
-                  <p className="text-xs text-amber-600 mt-1">Da gestire</p>
-                </div>
-
-                <div className="flex-shrink-0 w-48 bg-indigo-50 border border-indigo-200 rounded-2xl p-6 hover:shadow-lg transition-all">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-sm font-medium text-indigo-800">Iscritti</h3>
-                    <span className="text-2xl">🔔</span>
-                  </div>
-                  <p className="text-4xl font-bold text-indigo-700">{dashboardStats?.subscriberCount ?? 0}</p>
-                  <p className="text-xs text-indigo-600 mt-1">Abbonati alle notifiche</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Main Sections */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {/* Inventory Section */}
-              <div className="bg-white border border-gray-100 rounded-2xl p-8 hover:shadow-lg transition-all">
-                <div className="text-4xl mb-4">📦</div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">
-                  Gestione Inventario
-                </h3>
-                <p className="text-gray-600 mb-6">
-                  Aggiungi, modifica ed elimina carte dal tuo inventario
-                </p>
-                <button
-                  onClick={() => navigate('/merchant/inventory')}
-                  className="w-full bg-gray-800 text-white py-3 rounded-xl font-semibold hover:bg-gray-700 transition-all hover:scale-105"
-                >
-                  Gestisci Inventario →
-                </button>
-              </div>
-
-              {/* Reservations Section */}
-              <div className="bg-white border border-gray-100 rounded-2xl p-8 hover:shadow-lg transition-all">
-                <div className="text-4xl mb-4">🎫</div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">
-                  Prenotazioni
-                </h3>
-                <p className="text-gray-600 mb-6">
-                  Gestisci le prenotazioni e scansiona i QR per i ritiri
-                </p>
-                <button
-                  onClick={() => navigate('/merchant/reservations')}
-                  className="w-full bg-gray-800 text-white py-3 rounded-xl font-semibold hover:bg-gray-700 transition-all hover:scale-105"
-                >
-                  Vedi Prenotazioni →
-                </button>
-              </div>
-
-              {/* Tournaments Section */}
-              <div className="bg-white border border-gray-100 rounded-2xl p-8 hover:shadow-lg transition-all">
-                <div className="text-4xl mb-4">🏆</div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">
-                  Tornei
-                </h3>
-                <p className="text-gray-600 mb-6">
-                  Crea e gestisci tornei per i tuoi clienti, gestendo anche i partecipanti
-                </p>
-                <button
-                  onClick={() => navigate('/merchant/tournaments')}
-                  className="w-full bg-gray-800 text-white py-3 rounded-xl font-semibold hover:bg-gray-700 transition-all hover:scale-105 mb-3"
-                >
-                  Gestisci Tornei →
-                </button>
-                <button
-                  onClick={() => navigate('/merchant/tournament-requests')}
-                  className="w-full border border-orange-200 text-orange-700 py-3 rounded-xl font-semibold hover:bg-orange-50 transition-all"
-                >
-                  Richieste Tornei ⏱️
-                </button>
-              </div>
-
-              {/* Requests Section */}
-              <div className="bg-white border border-gray-100 rounded-2xl p-8 hover:shadow-lg transition-all">
-                <div className="text-4xl mb-4">💬</div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">
-                  Richieste Clienti
-                </h3>
-                <p className="text-gray-600 mb-6">
-                  Rispondi alle richieste di disponibilità, valutazioni e altro
-                </p>
-                <button
-                  onClick={() => navigate('/merchant/requests')}
-                  className="w-full bg-gray-800 text-white py-3 rounded-xl font-semibold hover:bg-gray-700 transition-all hover:scale-105"
-                >
-                  Vedi Richieste →
-                </button>
-              </div>
-
-              {/* Subscribers Section */}
-              <div className="bg-white border border-gray-100 rounded-2xl p-8 hover:shadow-lg transition-all">
-                <div className="text-4xl mb-4">🔔</div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">
-                  Iscritti alle Notifiche
-                </h3>
-                <p className="text-gray-600 mb-6">
-                  Gestisci gli iscritti alle notifiche e invia aggiornamenti
-                </p>
-                <button
-                  onClick={() => navigate('/merchant/subscribers')}
-                  className="w-full bg-gray-800 text-white py-3 rounded-xl font-semibold hover:bg-gray-700 transition-all hover:scale-105"
-                >
-                  Gestisci Iscritti →
-                </button>
-              </div>
-
-              {/* News Section */}
-              <div className="bg-white border border-gray-100 rounded-2xl p-8 hover:shadow-lg transition-all">
-                <div className="text-4xl mb-4">📰</div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">
-                  Notizie
-                </h3>
-                <p className="text-gray-600 mb-6">
-                  Pubblica notizie, offerte e aggiornamenti per i tuoi clienti
-                </p>
-                <button
-                  onClick={() => navigate('/merchant/news')}
-                  className="w-full bg-gray-800 text-white py-3 rounded-xl font-semibold hover:bg-gray-700 transition-all hover:scale-105"
-                >
-                  Gestisci Notizie →
-                </button>
-              </div>
-
-              {/* Shop Management Section */}
-              <div className="bg-white border border-gray-100 rounded-2xl p-8 hover:shadow-lg transition-all">
-                <div className="text-4xl mb-4">🏪</div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">
-                  Gestione Negozio
-                </h3>
-                <p className="text-gray-600 mb-6">
-                  Modifica informazioni, foto, contatti e impostazioni del negozio
-                </p>
-                <button
-                  onClick={() => navigate('/merchant/settings')}
-                  className="w-full bg-gray-800 text-white py-3 rounded-xl font-semibold hover:bg-gray-700 transition-all hover:scale-105"
-                >
-                  Configura Negozio →
-                </button>
-              </div>
+            <div className="hidden sm:flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-50 to-emerald-100 rounded-full ring-1 ring-emerald-200">
+              <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+              <span className="text-sm font-medium text-emerald-700">Negozio Attivo</span>
             </div>
           </div>
-        )}
-      </main>
+        </div>
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+          <StatCard
+            label="Carte in Inventario"
+            value={dashboardStats?.inventoryCount ?? 0}
+            icon={<InventoryIcon className="w-6 h-6" />}
+            delay={0}
+          />
+          <StatCard
+            label="Prenotazioni Attive"
+            value={dashboardStats?.activeReservations ?? 0}
+            icon={<ReservationsIcon className="w-6 h-6" />}
+            delay={100}
+          />
+          <StatCard
+            label="Tornei in Programma"
+            value={dashboardStats?.upcomingTournaments ?? 0}
+            icon={<TournamentIcon className="w-6 h-6" />}
+            delay={200}
+          />
+          <StatCard
+            label="Richieste in Attesa"
+            value={dashboardStats?.pendingRequests ?? 0}
+            icon={<ChatIcon className="w-6 h-6" />}
+            delay={300}
+          />
+          <StatCard
+            label="Iscritti Notifiche"
+            value={dashboardStats?.subscriberCount ?? 0}
+            icon={<BellIcon className="w-6 h-6" />}
+            delay={400}
+          />
+        </div>
+
+        {/* Quick Actions Grid */}
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Azioni Rapide</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <QuickActionCard
+              title="Gestione Inventario"
+              description="Aggiungi, modifica ed elimina carte dal tuo inventario"
+              icon={<InventoryIcon className="w-7 h-7" />}
+              onClick={() => navigate('/merchant/inventory')}
+              delay={0}
+            />
+            <QuickActionCard
+              title="Prenotazioni"
+              description="Gestisci le prenotazioni e scansiona i QR per i ritiri"
+              icon={<ReservationsIcon className="w-7 h-7" />}
+              onClick={() => setActiveTab('reservations')}
+              delay={100}
+            />
+            <QuickActionCard
+              title="Tornei"
+              description="Crea e gestisci tornei per i tuoi clienti"
+              icon={<TournamentIcon className="w-7 h-7" />}
+              onClick={() => setActiveTab('tournaments')}
+              delay={200}
+            />
+            <QuickActionCard
+              title="Richieste Clienti"
+              description="Rispondi alle richieste di disponibilità e valutazioni"
+              icon={<ChatIcon className="w-7 h-7" />}
+              onClick={() => setActiveTab('requests')}
+              delay={300}
+            />
+            <QuickActionCard
+              title="Iscritti Notifiche"
+              description="Gestisci gli iscritti e invia aggiornamenti"
+              icon={<BellIcon className="w-7 h-7" />}
+              onClick={() => setActiveTab('subscribers')}
+              delay={400}
+            />
+            <QuickActionCard
+              title="Notizie"
+              description="Pubblica notizie, offerte e aggiornamenti"
+              icon={<NewsIcon className="w-7 h-7" />}
+              onClick={() => setActiveTab('news')}
+              delay={500}
+            />
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <DashboardLayout
+      title={getPageTitle()}
+      subtitle={shopStatus?.shop?.name || 'Il tuo negozio'}
+      menuItems={menuWithBadges}
+      userName={shopStatus?.user?.displayName || shopStatus?.user?.username}
+      shopName={shopStatus?.shop?.name}
+      activeTab={activeTab}
+      onTabChange={handleTabChange}
+    >
+      {renderContent()}
+
+      {/* Animation styles */}
+      <style>{`
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.4s ease-out;
+        }
+        @keyframes slideUp {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-slideUp {
+          animation: slideUp 0.4s ease-out forwards;
+        }
+      `}</style>
+    </DashboardLayout>
+  )
+}
+
+// Stat Card Component - Premium Style
+interface StatCardProps {
+  label: string
+  value: number
+  icon: ReactNode
+  delay: number
+}
+
+function StatCard({ label, value, icon, delay }: StatCardProps) {
+  return (
+    <div
+      className="bg-white rounded-2xl border border-gray-200 p-5 hover:shadow-md hover:border-gray-300 transition-all duration-300 transform hover:-translate-y-0.5 animate-slideUp"
+      style={{ animationDelay: `${delay}ms` }}
+    >
+      <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center mb-3 text-gray-600">
+        {icon}
+      </div>
+      <p className="text-3xl font-bold text-gray-900">{value}</p>
+      <p className="text-sm text-gray-500 mt-1">{label}</p>
     </div>
+  )
+}
+
+// Quick Action Card Component
+interface QuickActionCardProps {
+  title: string
+  description: string
+  icon: ReactNode
+  onClick: () => void
+  delay: number
+}
+
+function QuickActionCard({ title, description, icon, onClick, delay }: QuickActionCardProps) {
+  return (
+    <button
+      onClick={onClick}
+      className="bg-white rounded-2xl border border-gray-200 p-6 text-left hover:border-gray-300 hover:shadow-lg transition-all duration-300 group transform hover:-translate-y-1 animate-slideUp"
+      style={{ animationDelay: `${delay}ms` }}
+    >
+      <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mb-4 text-gray-600 group-hover:bg-gray-900 group-hover:text-white transition-all duration-300">
+        {icon}
+      </div>
+      <h4 className="font-semibold text-gray-900 mb-1">{title}</h4>
+      <p className="text-sm text-gray-600">{description}</p>
+      <div className="mt-4 flex items-center text-gray-900 font-medium text-sm group-hover:text-gray-700">
+        Gestisci
+        <span className="ml-1 group-hover:translate-x-1 transition-transform duration-200">
+          <ArrowRightIcon className="w-4 h-4" />
+        </span>
+      </div>
+    </button>
   )
 }
