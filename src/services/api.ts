@@ -564,8 +564,18 @@ export const adminService = {
     return response.data
   },
 
-  async triggerJustTCGImport(tcgType: string): Promise<any> {
+  async triggerJustTCGImport(tcgType: string): Promise<{
+    success: boolean
+    message: string
+    tcgType: string
+    jobId: string
+  }> {
     const response = await apiClient.post(`/batch/justtcg/${tcgType}`)
+    return response.data
+  },
+
+  async getImportJobStatus(jobId: string): Promise<import('../types/api').ImportJob> {
+    const response = await apiClient.get(`/batch/jobs/${jobId}`)
     return response.data
   },
 

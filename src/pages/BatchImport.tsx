@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { adminService } from '../services/api'
 import { useToast } from '../contexts/ToastContext'
+import type { ImportJob } from '../types/api'
 
 type TCGType = 'POKEMON' | 'MAGIC' | 'YUGIOH' | 'ONE_PIECE' | 'DIGIMON' | 'DRAGON_BALL_SUPER' | 'DRAGON_BALL_FUSION' | 'FLESH_AND_BLOOD' | 'LORCANA'
 
@@ -42,7 +43,57 @@ export default function BatchImport() {
   const [endIndex, setEndIndex] = useState<string>('-99')
   const [importing, setImporting] = useState(false)
   const [importingJustTCG, setImportingJustTCG] = useState(false)
+  const [activeJob, setActiveJob] = useState<ImportJob | null>(null)
   const [history, setHistory] = useState<ImportHistory[]>([])
+
+  // Polling effect for active job
+  useEffect(() => {
+    let intervalId: any
+
+    if (activeJob && (activeJob.status === 'PENDING' || activeJob.status === 'RUNNING')) {
+      intervalId = setInterval(async () => {
+        try {
+          const updatedJob = await adminService.getImportJobStatus(activeJob.id)
+          setActiveJob(updatedJob)
+
+          if (updatedJob.status === 'COMPLETED') {
+            setImportingJustTCG(false)
+            showToast('Import completato con successo! 🎉', 'success')
+            // Add to history
+            const newEntry: ImportHistory = {
+              tcgType: updatedJob.tcgType as TCGType,
+              timestamp: new Date().toISOString(),
+              status: 'success',
+              message: updatedJob.message,
+              source: 'justtcg'
+            }
+            setHistory(prev => [newEntry, ...prev])
+            // Clean up active job after a delay to show 100%
+            setTimeout(() => setActiveJob(null), 5000)
+          } else if (updatedJob.status === 'FAILED') {
+            setImportingJustTCG(false)
+            showToast('Import fallito: ' + updatedJob.message, 'error')
+            const errorEntry: ImportHistory = {
+              tcgType: updatedJob.tcgType as TCGType,
+              timestamp: new Date().toISOString(),
+              status: 'error',
+              message: updatedJob.message,
+              source: 'justtcg'
+            }
+            setHistory(prev => [errorEntry, ...prev])
+            setActiveJob(null)
+          }
+
+        } catch (error) {
+          console.error("Polling error", error)
+        }
+      }, 1000)
+    }
+
+    return () => {
+      if (intervalId) clearInterval(intervalId)
+    }
+  }, [activeJob, showToast])
 
   const handleImport = async () => {
     if (!confirm(`Sei sicuro di voler avviare l'import Legacy per ${selectedTCG}?`)) return
@@ -88,28 +139,30 @@ export default function BatchImport() {
     try {
       const result = await adminService.triggerJustTCGImport(selectedJustTCG)
 
-      const newEntry: ImportHistory = {
+      // Initialize job for polling
+      setActiveJob({
+        id: result.jobId,
         tcgType: selectedJustTCG,
-        timestamp: new Date().toISOString(),
-        status: 'success',
-        message: result.message || 'JustTCG import avviato con successo',
-        source: 'justtcg',
-      }
+        status: 'PENDING',
+        progressPercent: 0,
+        totalItems: 0,
+        processedItems: 0,
+        message: 'Inizializzazione jobs...',
+        startTime: new Date().toISOString()
+      })
 
-      setHistory([newEntry, ...history])
-      showToast('JustTCG import avviato con successo!', 'success')
+      showToast('JustTCG import avviato in background!', 'success')
     } catch (err: any) {
       const errorEntry: ImportHistory = {
         tcgType: selectedJustTCG,
         timestamp: new Date().toISOString(),
         status: 'error',
-        message: err.response?.data?.message || err.message || 'Errore durante JustTCG import',
+        message: err.response?.data?.message || err.message || 'Errore durante avvio JustTCG import',
         source: 'justtcg',
       }
 
       setHistory([errorEntry, ...history])
       showToast('Errore: ' + errorEntry.message, 'error')
-    } finally {
       setImportingJustTCG(false)
     }
   }
@@ -162,27 +215,60 @@ export default function BatchImport() {
           </p>
         </div>
 
-        {/* Submit Button */}
-        <button
-          onClick={handleJustTCGImport}
-          disabled={importingJustTCG}
-          className={`w-full px-6 py-3 rounded-lg font-medium transition-colors ${importingJustTCG
-            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-            : 'bg-blue-600 text-white hover:bg-blue-700'
-            }`}
-        >
-          {importingJustTCG ? (
-            <span className="flex items-center justify-center">
-              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              JustTCG Import in corso...
-            </span>
-          ) : (
-            `🚀 Avvia JustTCG Import - ${selectedJustTCG}`
-          )}
-        </button>
+        {/* Submit Button or Progress UI */}
+        {!activeJob ? (
+          <button
+            onClick={handleJustTCGImport}
+            disabled={importingJustTCG}
+            className={`w-full px-6 py-3 rounded-lg font-medium transition-colors ${importingJustTCG
+              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              : 'bg-blue-600 text-white hover:bg-blue-700'
+              }`}
+          >
+            {importingJustTCG ? (
+              <span className="flex items-center justify-center">
+                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Avvio Import in corso...
+              </span>
+            ) : (
+              `🚀 Avvia JustTCG Import - ${selectedJustTCG}`
+            )}
+          </button>
+        ) : (
+          <div className="bg-white rounded-lg border border-blue-200 p-4 shadow-sm">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-sm font-semibold text-gray-700">Import in corso...</span>
+              <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
+                {activeJob.status}
+              </span>
+            </div>
+
+            {/* Progress Bar Container */}
+            <div className="h-4 w-full bg-gray-100 rounded-full overflow-hidden mb-2 relative">
+              {/* Animated Gradient Bar */}
+              <div
+                className="h-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 transition-all duration-500 ease-out flex items-center justify-end"
+                style={{ width: `${Math.max(5, activeJob.progressPercent || 0)}%` }}
+              >
+                {/* Shine effect */}
+                <div className="w-full h-full absolute top-0 left-0 bg-white opacity-20 animate-pulse"></div>
+              </div>
+            </div>
+
+            <div className="flex justify-between items-end">
+              <div>
+                <p className="text-xs text-gray-500 mb-1">{activeJob.message || 'Elaborazione...'}</p>
+                <p className="text-xs font-mono text-gray-400">
+                  {activeJob.processedItems} / {activeJob.totalItems > 0 ? activeJob.totalItems : '?'} items
+                </p>
+              </div>
+              <span className="text-2xl font-bold text-gray-800">{activeJob.progressPercent}%</span>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Legacy Import Form */}

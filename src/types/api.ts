@@ -152,3 +152,17 @@ export interface TournamentLocation {
   city: string
   country: string
 }
+
+export type JobStatus = 'PENDING' | 'RUNNING' | 'COMPLETED' | 'FAILED'
+
+export interface ImportJob {
+  id: string
+  tcgType: string
+  status: JobStatus
+  progressPercent: number
+  totalItems: number
+  processedItems: number
+  message: string
+  startTime: string
+  endTime?: string
+}
