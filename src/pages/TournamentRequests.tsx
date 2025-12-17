@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { merchantService } from '../services/api'
 import { useToast } from '../contexts/ToastContext'
 import type { Tournament } from '../types/api'
 
 export default function TournamentRequests() {
+  const navigate = useNavigate()
   const { showToast } = useToast()
   const [requests, setRequests] = useState<Tournament[]>([])
   const [loading, setLoading] = useState(true)
@@ -93,8 +95,17 @@ export default function TournamentRequests() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Header */}
+      {/* Header with Back Button */}
       <div className="mb-8">
+        <button
+          onClick={() => navigate('/merchant/dashboard')}
+          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4 transition-colors"
+        >
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          <span className="font-medium">Torna alla Dashboard</span>
+        </button>
         <h1 className="text-3xl font-bold text-gray-900">Richieste Tornei</h1>
         <p className="mt-2 text-gray-600">
           Gestisci le richieste di torneo ricevute dai giocatori
