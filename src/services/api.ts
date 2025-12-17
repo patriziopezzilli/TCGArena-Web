@@ -21,8 +21,12 @@ const publicApiClient = axios.create({
 // Add token to requests if available
 apiClient.interceptors.request.use((config) => {
   const token = localStorage.getItem('merchant_token')
+  console.log('🔑 Token found:', token ? 'YES' : 'NO')
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
+    console.log('📤 Sending Authorization header:', config.headers.Authorization?.substring(0, 20) + '...')
+  } else {
+    console.log('⚠️ No token in localStorage')
   }
   return config
 })
@@ -466,7 +470,9 @@ export const merchantService = {
   },
 
   async getPendingTournamentRequests(): Promise<any[]> {
+    console.log('Calling GET /tournaments/pending-requests')
     const response = await apiClient.get('/tournaments/pending-requests')
+    console.log('Response:', response.data)
     return response.data
   },
 }

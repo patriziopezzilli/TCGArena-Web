@@ -15,17 +15,35 @@ export default function TournamentRequests() {
   const [processing, setProcessing] = useState(false)
 
   useEffect(() => {
+    // Check authentication
+    const token = localStorage.getItem('merchant_token')
+    if (!token) {
+      showToast('Devi effettuare il login', 'error')
+      navigate('/merchant/login', { replace: true })
+      return
+    }
+    
     loadRequests()
-  }, [])
+  }, [navigate, showToast])
 
   const loadRequests = async () => {
     try {
       setLoading(true)
       const data = await merchantService.getPendingTournamentRequests()
       setRequests(data)
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error loading tournament requests:', error)
-      showToast('Errore nel caricamento delle richieste', 'error')
+      
+      // Handle authentication errors
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        showToast('Sessione scaduta. Effettua nuovamente il login', 'error')
+        localStorage.removeItem('merchant_token')
+        navigate('/merchant/login')
+        return
+      }
+      
+      const errorMessage = error.response?.data?.error || error.message || 'Errore nel caricamento delle richieste'
+      showToast(errorMessage, 'error')
     } finally {
       setLoading(false)
     }
