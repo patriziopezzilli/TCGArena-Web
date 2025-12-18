@@ -68,6 +68,22 @@ export const merchantService = {
     return response.data
   },
 
+  async getMerchantNotifications(): Promise<{
+    items: Array<{
+      id: string;
+      type: 'TOURNAMENT_TODAY' | 'TOURNAMENT_UPCOMING' | 'PENDING_REQUEST' | 'ACTIVE_RESERVATION' | 'UNREAD_MESSAGE';
+      title: string;
+      message: string;
+      link: string;
+      timestamp: string;
+      urgent: boolean;
+    }>;
+    totalCount: number;
+  }> {
+    const response = await apiClient.get('/merchant/dashboard/notifications')
+    return response.data
+  },
+
   async getProfile(): Promise<any> {
     const response = await apiClient.get('/merchant/profile')
     return response.data

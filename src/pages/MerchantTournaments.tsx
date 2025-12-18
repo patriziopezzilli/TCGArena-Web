@@ -95,10 +95,28 @@ export default function MerchantTournaments({ embedded = false }: MerchantTourna
         const shopStatus = await merchantService.getShopStatus()
         if (shopStatus.shop) {
           const shop = shopStatus.shop
+          let city = ''
+
+          // Try to extract city using reverse geocoding if coordinates are available
+          if (shop.latitude && shop.longitude) {
+            try {
+              const response = await fetch(
+                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${shop.latitude}&lon=${shop.longitude}&addressdetails=1`
+              )
+              const data = await response.json()
+              if (data.address) {
+                // Try city, then town, then village, then municipality
+                city = data.address.city || data.address.town || data.address.village || data.address.municipality || ''
+              }
+            } catch (geocodeError) {
+              console.error('Error reverse geocoding:', geocodeError)
+            }
+          }
+
           setShopData({
             name: shop.name || '',
             address: shop.address || '',
-            city: shop.city || ''
+            city: city
           })
         }
       } catch (error) {
