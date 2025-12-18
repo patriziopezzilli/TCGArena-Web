@@ -166,22 +166,62 @@ export default function Landing() {
             <h2 className="text-2xl md:text-3xl font-bold text-gray-900 text-center mb-12">
               I TCG piu popolari, tutti in un unico posto
             </h2>
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 md:gap-6">
-              {['Pokemon', 'One Piece', 'Magic', 'Yu-Gi-Oh!', 'Digimon'].map((tcg, index) => (
-                <div
-                  key={tcg}
-                  className="group p-6 bg-white rounded-xl border border-gray-100 text-center
-                    hover:border-gray-300 hover:shadow-lg hover:-translate-y-1
-                    transition-all duration-300"
-                  style={{ animationDelay: `${index * 100}ms` }}
-                >
-                  <div className="w-12 h-12 bg-gray-100 rounded-lg mx-auto mb-3 flex items-center justify-center
-                    group-hover:bg-gray-900 transition-colors duration-300">
-                    <CardIcon className="w-6 h-6 text-gray-500 group-hover:text-white transition-colors" />
-                  </div>
-                  <p className="font-medium text-gray-700 text-sm">{tcg}</p>
+            <div className="grid grid-cols-3 md:grid-cols-6 gap-4 md:gap-6">
+              {/* Pokemon */}
+              <div className="group p-4 md:p-6 bg-white rounded-xl border border-gray-100 text-center
+                hover:border-yellow-400 hover:shadow-lg hover:-translate-y-1
+                transition-all duration-300">
+                <div className="w-12 h-12 md:w-16 md:h-16 mx-auto mb-2 md:mb-3 flex items-center justify-center">
+                  <img src="/images/tcg/pokemon.png" alt="Pokemon" className="w-full h-full object-contain" />
                 </div>
-              ))}
+                <p className="font-medium text-gray-700 text-xs md:text-sm">Pokemon</p>
+              </div>
+              {/* One Piece */}
+              <div className="group p-4 md:p-6 bg-white rounded-xl border border-gray-100 text-center
+                hover:border-red-500 hover:shadow-lg hover:-translate-y-1
+                transition-all duration-300">
+                <div className="w-12 h-12 md:w-16 md:h-16 mx-auto mb-2 md:mb-3 flex items-center justify-center">
+                  <img src="/images/tcg/onepiece.png" alt="One Piece" className="w-full h-full object-contain" />
+                </div>
+                <p className="font-medium text-gray-700 text-xs md:text-sm">One Piece</p>
+              </div>
+              {/* Magic */}
+              <div className="group p-4 md:p-6 bg-white rounded-xl border border-gray-100 text-center
+                hover:border-purple-600 hover:shadow-lg hover:-translate-y-1
+                transition-all duration-300">
+                <div className="w-12 h-12 md:w-16 md:h-16 mx-auto mb-2 md:mb-3 flex items-center justify-center">
+                  <img src="/images/tcg/magic.png" alt="Magic" className="w-full h-full object-contain" />
+                </div>
+                <p className="font-medium text-gray-700 text-xs md:text-sm">Magic</p>
+              </div>
+              {/* Yu-Gi-Oh */}
+              <div className="group p-4 md:p-6 bg-white rounded-xl border border-gray-100 text-center
+                hover:border-orange-500 hover:shadow-lg hover:-translate-y-1
+                transition-all duration-300">
+                <div className="w-12 h-12 md:w-16 md:h-16 mx-auto mb-2 md:mb-3 flex items-center justify-center">
+                  <img src="/images/tcg/yugioh.png" alt="Yu-Gi-Oh!" className="w-full h-full object-contain" />
+                </div>
+                <p className="font-medium text-gray-700 text-xs md:text-sm">Yu-Gi-Oh!</p>
+              </div>
+              {/* Digimon */}
+              <div className="group p-4 md:p-6 bg-white rounded-xl border border-gray-100 text-center
+                hover:border-blue-500 hover:shadow-lg hover:-translate-y-1
+                transition-all duration-300">
+                <div className="w-12 h-12 md:w-16 md:h-16 mx-auto mb-2 md:mb-3 flex items-center justify-center">
+                  <img src="/images/tcg/digimon.png" alt="Digimon" className="w-full h-full object-contain" />
+                </div>
+                <p className="font-medium text-gray-700 text-xs md:text-sm">Digimon</p>
+              </div>
+              {/* E tanti altri */}
+              <div className="group p-4 md:p-6 bg-gray-100 rounded-xl border border-dashed border-gray-300 text-center
+                hover:border-gray-400 hover:bg-gray-200
+                transition-all duration-300 flex flex-col items-center justify-center">
+                <div className="w-12 h-12 md:w-16 md:h-16 mx-auto mb-2 md:mb-3 flex items-center justify-center
+                  text-gray-400 font-bold text-2xl md:text-3xl">
+                  +
+                </div>
+                <p className="font-medium text-gray-500 text-xs md:text-sm">e tanti altri...</p>
+              </div>
             </div>
           </div>
         </section>
