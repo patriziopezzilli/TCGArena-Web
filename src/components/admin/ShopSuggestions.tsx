@@ -3,6 +3,7 @@ import { MapPinIcon, UserIcon, CalendarIcon, CheckCircleIcon, XCircleIcon, Clock
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+import apiClient from '../../services/api';
 
 // Fix for default marker icons in Leaflet
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -47,22 +48,12 @@ const ShopSuggestions: React.FC = () => {
   const loadSuggestions = async () => {
     setLoading(true);
     try {
-      const url = statusFilter === 'ALL' 
-        ? '/api/admin/shop-suggestions'
-        : `/api/admin/shop-suggestions?status=${statusFilter}`;
-      
-      const response = await fetch(url, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setSuggestions(data);
-      }
+      const params = statusFilter === 'ALL' ? undefined : { status: statusFilter };
+      const { data } = await apiClient.get('/admin/shop-suggestions', { params });
+      setSuggestions(data);
     } catch (error) {
       console.error('Error loading suggestions:', error);
+      setSuggestions([]);
     } finally {
       setLoading(false);
     }
@@ -73,23 +64,20 @@ const ShopSuggestions: React.FC = () => {
 
     setUpdating(true);
     try {
-      const response = await fetch(`/api/admin/shop-suggestions/${updateModal.suggestion.id}/status`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          status: updateModal.newStatus,
-          notes: notes.trim() || null,
-        }),
-      });
+      await apiClient.put(
+        `/admin/shop-suggestions/${updateModal.suggestion.id}/status`,
+        null,
+        {
+          params: {
+            status: updateModal.newStatus,
+            notes: notes.trim() || undefined,
+          },
+        }
+      );
 
-      if (response.ok) {
-        await loadSuggestions();
-        setUpdateModal(null);
-        setNotes('');
-      }
+      await loadSuggestions();
+      setUpdateModal(null);
+      setNotes('');
     } catch (error) {
       console.error('Error updating status:', error);
     } finally {
