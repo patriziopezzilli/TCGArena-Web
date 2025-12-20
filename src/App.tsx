@@ -16,6 +16,7 @@ import MerchantSubscribers from './pages/MerchantSubscribers'
 import ShopNews from './pages/ShopNews'
 import TournamentRequests from './pages/TournamentRequests'
 import AdminDashboard from './pages/AdminDashboard'
+import ShopSuggestions from './components/admin/ShopSuggestions'
 
 function App() {
   return (
@@ -39,6 +40,7 @@ function App() {
           <Route path="/merchant/news" element={<ShopNews />} />
           {/* Admin routes */}
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/shop-suggestions" element={<ShopSuggestions />} />
         </Routes>
         <ToastContainer />
       </BrowserRouter>

@@ -4,7 +4,7 @@ import apiClient from '../services/api'
 import { useToast } from '../contexts/ToastContext'
 import {
   MegaphoneIcon, UsersIcon, PencilIcon, RocketLaunchIcon,
-  ExclamationTriangleIcon, InformationCircleIcon, ChatIcon, NewspaperIcon
+  ExclamationTriangleIcon, InformationCircleIcon, NewspaperIcon
 } from '../components/Icons'
 
 type NewsType = 'ANNOUNCEMENT' | 'NEW_STOCK' | 'TOURNAMENT' | 'SALE' | 'EVENT' | 'GENERAL'

@@ -281,3 +281,10 @@ export const InformationCircleIcon: React.FC<IconProps> = ({ className = "w-5 h-
     </svg>
 )
 
+export const MapPinIcon: React.FC<IconProps> = ({ className = "w-5 h-5" }) => (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.458-7.5 11.458s-7.5-4.316-7.5-11.458a7.5 7.5 0 1115 0z" />
+    </svg>
+)
+
