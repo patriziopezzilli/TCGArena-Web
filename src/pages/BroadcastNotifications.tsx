@@ -61,8 +61,8 @@ export default function BroadcastNotifications() {
           title: title.trim(),
           content: message.trim(),
           newsType,
-          startDate: startDate || null,
-          expiryDate: expiryDate || null,
+          startDate: startDate ? startDate : null,  // null means "now" on backend
+          expiryDate: expiryDate ? expiryDate : null,
           imageUrl: null,
           isPinned
         }
