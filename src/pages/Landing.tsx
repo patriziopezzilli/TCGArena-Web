@@ -420,6 +420,81 @@ export default function Landing() {
           </div>
         </section>
 
+        {/* Trade Radar Section */}
+        <section className="py-24 px-6 bg-gray-900 overflow-hidden relative">
+          {/* Background Effects */}
+          <div className="absolute top-0 left-0 w-full h-full overflow-hidden opacity-20 pointer-events-none">
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] border border-gray-700 rounded-full animate-pulse"></div>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border border-gray-700 rounded-full animate-pulse animation-delay-200"></div>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] border border-gray-700 rounded-full animate-pulse animation-delay-400"></div>
+          </div>
+
+          <div className="max-w-6xl mx-auto relative z-10">
+            <div className="grid lg:grid-cols-2 gap-16 items-center">
+              {/* Radar Visual */}
+              <div className="relative mx-auto lg:mx-0 order-2 lg:order-1">
+                <div className="w-80 h-80 md:w-96 md:h-96 bg-gray-800 rounded-full relative flex items-center justify-center border-2 border-gray-700 shadow-[0_0_50px_rgba(0,0,0,0.5)]">
+                  {/* Scanning Line */}
+                  <div className="absolute inset-0 rounded-full overflow-hidden">
+                    <div className="w-1/2 h-full bg-gradient-to-r from-transparent to-green-500/20 absolute top-0 left-1/2 origin-left animate-spin-slow"></div>
+                  </div>
+                  {/* Center User */}
+                  <div className="w-16 h-16 bg-blue-500 rounded-full border-4 border-gray-900 shadow-lg z-20 flex items-center justify-center">
+                    <PlayerIcon className="w-8 h-8 text-white" />
+                  </div>
+                  {/* Blips */}
+                  <div className="absolute top-20 left-20 w-4 h-4 bg-green-500 rounded-full animate-ping"></div>
+                  <div className="absolute top-20 left-20 w-4 h-4 bg-green-500 rounded-full border-2 border-white shadow-[0_0_10px_#22c55e]"></div>
+                  
+                  <div className="absolute bottom-24 right-24 w-4 h-4 bg-green-500 rounded-full animate-ping animation-delay-500"></div>
+                  <div className="absolute bottom-24 right-24 w-4 h-4 bg-green-500 rounded-full border-2 border-white shadow-[0_0_10px_#22c55e]"></div>
+
+                  <div className="absolute top-1/2 right-10 w-3 h-3 bg-gray-500 rounded-full"></div>
+                </div>
+              </div>
+
+              {/* Content */}
+              <div className="text-center lg:text-left order-1 lg:order-2">
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-500/10 border border-green-500/20 rounded-full text-sm text-green-400 mb-6">
+                  <RadarIcon className="w-4 h-4 animate-pulse" />
+                  <span className="font-medium">Novità Esclusiva</span>
+                </div>
+                <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 tracking-tight">
+                  Trade Radar
+                  <br />
+                  <span className="text-gray-500">Trova scambi vicini a te</span>
+                </h2>
+                <p className="text-lg text-gray-400 mb-8 leading-relaxed">
+                  Il nostro algoritmo di matching incrocia le tue carte "Cerco" con le carte "Offro" degli altri giocatori.
+                  <br /><br />
+                  Apri il radar e vedi in tempo reale chi ha le carte che ti servono intorno a te.
+                  Chatta, accordati e scambia di persona.
+                </p>
+                <ul className="space-y-4 text-left mx-auto lg:mx-0 max-w-md">
+                  <li className="flex items-center gap-3 text-gray-300">
+                    <div className="w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center text-green-400">
+                      <CheckIcon className="w-4 h-4" />
+                    </div>
+                    <span>Matching automatico basato sulle tue liste</span>
+                  </li>
+                  <li className="flex items-center gap-3 text-gray-300">
+                    <div className="w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center text-green-400">
+                      <CheckIcon className="w-4 h-4" />
+                    </div>
+                    <span>Chat integrata per accordarsi</span>
+                  </li>
+                  <li className="flex items-center gap-3 text-gray-300">
+                    <div className="w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center text-green-400">
+                      <CheckIcon className="w-4 h-4" />
+                    </div>
+                    <span>Guadagna punti fedeltà per ogni scambio concluso</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Features */}
         <section className="py-20 px-6 bg-gray-50">
           <div className="max-w-6xl mx-auto">
@@ -1076,6 +1151,16 @@ function CheckIcon({ className = "w-5 h-5" }: { className?: string }) {
   return (
     <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
       <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+    </svg>
+  )
+}
+
+function RadarIcon({ className = "w-5 h-5" }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 8a4 4 0 100 8 4 4 0 000-8z" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 2v2m0 16v2m10-10h-2M4 12H2m17.07-7.07l-1.414 1.414M6.343 17.657l-1.414 1.414M19.07 19.07l-1.414-1.414M6.343 6.343L4.93 4.93" />
     </svg>
   )
 }
