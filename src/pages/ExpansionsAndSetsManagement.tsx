@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { adminService } from '../services/api'
+import apiClient from '../services/api'
 import { useToast } from '../contexts/ToastContext'
 import type { Expansion, TCGSet, TCGStats } from '../types/api'
 
@@ -11,6 +12,7 @@ export default function ExpansionsAndSetsManagement() {
   const [expansions, setExpansions] = useState<Expansion[]>([])
   const [stats, setStats] = useState<TCGStats[]>([])
   const [loading, setLoading] = useState(true)
+  const [syncing, setSyncing] = useState(false)
   const [showModal, setShowModal] = useState(false)
   const [modalType, setModalType] = useState<ModalType>('expansion')
   const [editingItem, setEditingItem] = useState<Expansion | TCGSet | null>(null)
@@ -242,6 +244,42 @@ export default function ExpansionsAndSetsManagement() {
     })
   }
 
+  // Sync release dates from JustTCG API
+  const handleSyncReleaseDates = async () => {
+    if (!confirm('Vuoi sincronizzare le date di rilascio di tutti i set da JustTCG? Questa operazione può richiedere diversi minuti.')) return
+
+    setSyncing(true)
+    try {
+      const response = await apiClient.post('/sets/sync-release-dates')
+      const results = response.data as Record<string, number>
+
+      // Format results for display
+      const successMessages: string[] = []
+      const errorMessages: string[] = []
+
+      Object.entries(results).forEach(([tcg, count]) => {
+        if (count >= 0) {
+          successMessages.push(`${tcg}: ${count} set aggiornati`)
+        } else {
+          errorMessages.push(`${tcg}: errore`)
+        }
+      })
+
+      if (errorMessages.length > 0) {
+        showToast(`Sync completato con errori. Successi: ${successMessages.join(', ')}. Errori: ${errorMessages.join(', ')}`, 'warning')
+      } else {
+        showToast(`Sync completato! ${successMessages.join(', ')}`, 'success')
+      }
+
+      // Reload data to show updated dates
+      await loadData()
+    } catch (err: any) {
+      showToast('Errore durante la sincronizzazione: ' + (err.response?.data?.message || err.message), 'error')
+    } finally {
+      setSyncing(false)
+    }
+  }
+
   // Filtra espansioni per TCG
   const filteredExpansions = expansions.filter(expansion =>
     tcgFilter === 'ALL' || expansion.tcgType === tcgFilter
@@ -322,6 +360,25 @@ export default function ExpansionsAndSetsManagement() {
             <span className="flex items-center gap-2">
               {viewMode === 'list' ? '📋 Vista Card' : '📝 Vista Lista'}
               <span className="transform hover:translate-x-1 transition-transform duration-300">→</span>
+            </span>
+          </button>
+          <button
+            onClick={handleSyncReleaseDates}
+            disabled={syncing}
+            className="px-4 py-2 bg-amber-600 text-white rounded-lg font-semibold hover:bg-amber-700 transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Sincronizza date di rilascio da JustTCG API"
+          >
+            <span className="flex items-center gap-2">
+              {syncing ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Sync...
+                </>
+              ) : (
+                <>
+                  🔄 Sync Date
+                </>
+              )}
             </span>
           </button>
         </div>
