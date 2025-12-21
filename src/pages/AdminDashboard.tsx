@@ -13,6 +13,7 @@ import PartnersManagement from './PartnersManagement'
 import RewardFulfillment from './RewardFulfillment'
 import BroadcastNotifications from './BroadcastNotifications'
 import ShopSuggestions from '../components/admin/ShopSuggestions'
+import UserSuggestions from '../components/admin/UserSuggestions'
 import {
   StoreIcon,
   ClockIcon,
@@ -56,7 +57,7 @@ interface WaitingListEntry {
   contacted: boolean
 }
 
-type TabType = 'all-shops' | 'pending-shops' | 'waiting-list' | 'partners' | 'rewards' | 'fulfillment' | 'achievements' | 'batch-import' | 'expansions-sets' | 'broadcast' | 'shop-suggestions'
+type TabType = 'all-shops' | 'pending-shops' | 'waiting-list' | 'partners' | 'rewards' | 'fulfillment' | 'achievements' | 'batch-import' | 'expansions-sets' | 'broadcast' | 'shop-suggestions' | 'user-suggestions'
 
 export default function AdminDashboard() {
   const navigate = useNavigate()
@@ -134,6 +135,7 @@ export default function AdminDashboard() {
     { id: 'expansions-sets', label: 'Espansioni & Sets', icon: <CardsIcon /> },
     { id: 'broadcast', label: 'Broadcast', icon: <MegaphoneIcon /> },
     { id: 'shop-suggestions', label: 'Suggerimenti Negozi', icon: <MapPinIcon /> },
+    { id: 'user-suggestions', label: 'Feedback Utenti', icon: <MegaphoneIcon /> },
   ]
 
   const getActiveTabTitle = () => {
@@ -405,6 +407,8 @@ export default function AdminDashboard() {
         return <div className="animate-fadeIn"><BroadcastNotifications /></div>
       case 'shop-suggestions':
         return <div className="animate-fadeIn"><ShopSuggestions /></div>
+      case 'user-suggestions':
+        return <div className="animate-fadeIn"><UserSuggestions /></div>
       default:
         return null
     }
