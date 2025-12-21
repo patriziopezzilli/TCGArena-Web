@@ -18,6 +18,7 @@ import TournamentRequests from './pages/TournamentRequests'
 import AdminDashboard from './pages/AdminDashboard'
 import ShopSuggestions from './components/admin/ShopSuggestions'
 import QrCodeLanding from './pages/QrCodeLanding'
+import ApiSdk from './pages/ApiSdk'
 
 function App() {
   return (
@@ -26,6 +27,8 @@ function App() {
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/waiting-list" element={<WaitingList />} />
+          {/* API SDK Landing Page */}
+          <Route path="/api/sdk" element={<ApiSdk />} />
           {/* Hidden routes - accessible only via direct URL */}
           <Route path="/merchant/login" element={<MerchantLogin />} />
           <Route path="/merchant/register" element={<MerchantOnboarding />} />

@@ -6,7 +6,7 @@ import {
   BanknotesIcon, SparklesIcon, RocketLaunchIcon, CubeIcon
 } from '../components/Icons'
 
-type TCGType = 'POKEMON' | 'MAGIC' | 'YUGIOH' | 'ONE_PIECE' | 'DIGIMON' | 'DRAGON_BALL_SUPER' | 'DRAGON_BALL_FUSION' | 'FLESH_AND_BLOOD' | 'LORCANA'
+type TCGType = 'POKEMON' | 'MAGIC' | 'YUGIOH' | 'ONE_PIECE' | 'DIGIMON' | 'LORCANA' | 'RIFTBOUND'
 
 const TCG_TYPES: { value: TCGType; label: string; color: string }[] = [
   { value: 'POKEMON', label: 'Pokémon', color: 'bg-yellow-500' },
@@ -14,10 +14,8 @@ const TCG_TYPES: { value: TCGType; label: string; color: string }[] = [
   { value: 'YUGIOH', label: 'Yu-Gi-Oh!', color: 'bg-blue-500' },
   { value: 'ONE_PIECE', label: 'One Piece', color: 'bg-red-500' },
   { value: 'DIGIMON', label: 'Digimon', color: 'bg-cyan-500' },
-  { value: 'DRAGON_BALL_SUPER', label: 'Dragon Ball Super', color: 'bg-orange-500' },
-  { value: 'DRAGON_BALL_FUSION', label: 'Dragon Ball Fusion', color: 'bg-green-500' },
-  { value: 'FLESH_AND_BLOOD', label: 'Flesh and Blood', color: 'bg-rose-600' },
   { value: 'LORCANA', label: 'Lorcana', color: 'bg-indigo-500' },
+  { value: 'RIFTBOUND', label: 'Riftbound: League of Legends', color: 'bg-teal-500' },
 ]
 
 // JustTCG supported types (subset)
@@ -28,6 +26,7 @@ const JUSTTCG_TYPES: { value: TCGType; label: string; color: string }[] = [
   { value: 'ONE_PIECE', label: 'One Piece', color: 'bg-red-500' },
   { value: 'DIGIMON', label: 'Digimon', color: 'bg-cyan-500' },
   { value: 'LORCANA', label: 'Lorcana', color: 'bg-indigo-500' },
+  { value: 'RIFTBOUND', label: 'Riftbound: League of Legends', color: 'bg-teal-500' },
 ]
 
 interface ImportHistory {

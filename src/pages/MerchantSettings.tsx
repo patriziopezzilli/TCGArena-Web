@@ -17,7 +17,7 @@ const TCG_TYPES = [
   { value: 'YUGIOH', label: 'Yu-Gi-Oh!', icon: <CardsIcon className="w-5 h-5" />, color: 'bg-blue-100 text-blue-800 border-blue-300' },
   { value: 'ONE_PIECE', label: 'One Piece', icon: <FireIcon className="w-5 h-5" />, color: 'bg-red-100 text-red-800 border-red-300' },
   { value: 'DIGIMON', label: 'Digimon', icon: <CpuChipIcon className="w-5 h-5" />, color: 'bg-orange-100 text-orange-800 border-orange-300' },
-  { value: 'DRAGON_BALL', label: 'Dragon Ball', icon: <StarIcon className="w-5 h-5" />, color: 'bg-amber-100 text-amber-800 border-amber-300' },
+  { value: 'RIFTBOUND', label: 'Riftbound: League of Legends', icon: <StarIcon className="w-5 h-5" />, color: 'bg-teal-100 text-teal-800 border-teal-300' },
 ]
 
 const SERVICES = [
