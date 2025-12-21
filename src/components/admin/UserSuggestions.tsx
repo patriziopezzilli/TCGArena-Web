@@ -21,7 +21,7 @@ export default function UserSuggestions() {
 
     const loadSuggestions = async () => {
         try {
-            const res = await apiClient.get('/api/suggestions')
+            const res = await apiClient.get('/suggestions')
             setSuggestions(res.data)
         } catch (err) {
             console.error('Error loading suggestions:', err)
@@ -32,7 +32,7 @@ export default function UserSuggestions() {
 
     const markAsRead = async (id: number) => {
         try {
-            await apiClient.put(`/api/suggestions/${id}/read`)
+            await apiClient.put(`/suggestions/${id}/read`)
             // Optimistic update
             setSuggestions(prev => prev.map(s => s.id === id ? { ...s, isRead: true } : s))
         } catch (err) {
