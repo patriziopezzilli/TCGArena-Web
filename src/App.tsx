@@ -17,6 +17,7 @@ import ShopNews from './pages/ShopNews'
 import TournamentRequests from './pages/TournamentRequests'
 import AdminDashboard from './pages/AdminDashboard'
 import ShopSuggestions from './components/admin/ShopSuggestions'
+import QrCodeLanding from './pages/QrCodeLanding'
 
 function App() {
   return (
@@ -41,6 +42,8 @@ function App() {
           {/* Admin routes */}
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/shop-suggestions" element={<ShopSuggestions />} />
+          {/* Landing pages */}
+          <Route path="/qr-code" element={<QrCodeLanding />} />
         </Routes>
         <ToastContainer />
       </BrowserRouter>
