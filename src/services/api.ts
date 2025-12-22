@@ -685,8 +685,12 @@ export const adminService = {
   },
 
   // ========== IMAGE SYNC MANAGEMENT ==========
-  async syncImages(): Promise<any> {
-    const response = await apiClient.post('/admin/images/sync')
+  async syncImages(filters?: { tcgType?: string; year?: number }): Promise<any> {
+    const params = new URLSearchParams()
+    if (filters?.tcgType) params.append('tcgType', filters.tcgType)
+    if (filters?.year) params.append('year', filters.year.toString())
+
+    const response = await apiClient.post(`/admin/images/sync?${params.toString()}`)
     return response.data
   },
 

@@ -7,6 +7,7 @@ export default function Maintenance() {
     const { showToast } = useToast()
     const [status, setStatus] = useState<string>('Idle')
     const [loading, setLoading] = useState(false)
+    const [filters, setFilters] = useState({ tcgType: '', year: '' })
 
     const checkStatus = async () => {
         try {
@@ -28,7 +29,10 @@ export default function Maintenance() {
 
         setLoading(true)
         try {
-            await adminService.syncImages()
+            await adminService.syncImages({
+                tcgType: filters.tcgType || undefined,
+                year: filters.year ? parseInt(filters.year) : undefined
+            })
             showToast('Sincronizzazione avviata in background', 'success')
             checkStatus()
         } catch (err: any) {
@@ -52,9 +56,37 @@ export default function Maintenance() {
                 </p>
 
                 <div className="flex items-center gap-4 bg-gray-50 p-4 rounded-xl border border-gray-100">
-                    <div className="flex-1">
-                        <p className="text-sm text-gray-500 font-medium uppercase tracking-wide">Stato Attuale</p>
-                        <p className="text-gray-900 font-medium mt-1 font-mono">{status}</p>
+                    <div className="flex-1 space-y-3">
+                        <div>
+                            <p className="text-sm text-gray-500 font-medium uppercase tracking-wide">Filtri Opzionali</p>
+                            <div className="flex gap-3 mt-2">
+                                <select
+                                    className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm outline-none focus:border-gray-900"
+                                    value={filters.tcgType}
+                                    onChange={(e) => setFilters({ ...filters, tcgType: e.target.value })}
+                                >
+                                    <option value="">Tutti i TCG</option>
+                                    <option value="POKEMON">Pokémon</option>
+                                    <option value="ONEPIECE">One Piece</option>
+                                    <option value="LORCANA">Lorcana</option>
+                                    <option value="MAGIC">Magic</option>
+                                    <option value="YUGIOH">Yu-Gi-Oh!</option>
+                                    <option value="STARWARS">Star Wars</option>
+                                    <option value="DRAGONBALL">Dragon Ball</option>
+                                </select>
+                                <input
+                                    type="number"
+                                    placeholder="Anno (es. 2024)"
+                                    className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm outline-none focus:border-gray-900 w-32"
+                                    value={filters.year}
+                                    onChange={(e) => setFilters({ ...filters, year: e.target.value })}
+                                />
+                            </div>
+                        </div>
+                        <div>
+                            <p className="text-sm text-gray-500 font-medium uppercase tracking-wide">Stato Attuale</p>
+                            <p className="text-gray-900 font-medium mt-1 font-mono">{status}</p>
+                        </div>
                     </div>
 
                     <button
