@@ -212,6 +212,15 @@ export default function Landing() {
                 </div>
                 <p className="font-medium text-gray-700 text-xs md:text-sm">Digimon</p>
               </div>
+              {/* Riftbound */}
+              <div className="group p-4 md:p-6 bg-white rounded-xl border border-gray-100 text-center
+                hover:border-teal-500 hover:shadow-lg hover:-translate-y-1
+                transition-all duration-300">
+                <div className="w-12 h-12 md:w-16 md:h-16 mx-auto mb-2 md:mb-3 flex items-center justify-center">
+                  <img src="/images/tcg/riftbound.png" alt="Riftbound" className="w-full h-full object-contain" />
+                </div>
+                <p className="font-medium text-gray-700 text-xs md:text-sm">Riftbound</p>
+              </div>
               {/* E tanti altri */}
               <div className="group p-4 md:p-6 bg-gray-100 rounded-xl border border-dashed border-gray-300 text-center
                 hover:border-gray-400 hover:bg-gray-200
@@ -445,7 +454,7 @@ export default function Landing() {
                   {/* Blips */}
                   <div className="absolute top-20 left-20 w-4 h-4 bg-green-500 rounded-full animate-ping"></div>
                   <div className="absolute top-20 left-20 w-4 h-4 bg-green-500 rounded-full border-2 border-white shadow-[0_0_10px_#22c55e]"></div>
-                  
+
                   <div className="absolute bottom-24 right-24 w-4 h-4 bg-green-500 rounded-full animate-ping animation-delay-500"></div>
                   <div className="absolute bottom-24 right-24 w-4 h-4 bg-green-500 rounded-full border-2 border-white shadow-[0_0_10px_#22c55e]"></div>
 

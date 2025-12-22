@@ -14,6 +14,7 @@ import RewardFulfillment from './RewardFulfillment'
 import BroadcastNotifications from './BroadcastNotifications'
 import ShopSuggestions from '../components/admin/ShopSuggestions'
 import UserSuggestions from '../components/admin/UserSuggestions'
+import Maintenance from './Maintenance'
 import {
   StoreIcon,
   ClockIcon,
@@ -22,8 +23,6 @@ import {
   GiftIcon,
   TruckIcon,
   AwardIcon,
-  ImportIcon,
-  CardsIcon,
   MegaphoneIcon,
   CheckCircleIcon,
   MapPinIcon
@@ -57,7 +56,7 @@ interface WaitingListEntry {
   contacted: boolean
 }
 
-type TabType = 'all-shops' | 'pending-shops' | 'waiting-list' | 'partners' | 'rewards' | 'fulfillment' | 'achievements' | 'batch-import' | 'expansions-sets' | 'broadcast' | 'shop-suggestions' | 'user-suggestions'
+type TabType = 'all-shops' | 'pending-shops' | 'waiting-list' | 'partners' | 'rewards' | 'fulfillment' | 'achievements' | 'batch-import' | 'expansions-sets' | 'broadcast' | 'shop-suggestions' | 'user-suggestions' | 'maintenance'
 
 export default function AdminDashboard() {
   const navigate = useNavigate()
@@ -136,6 +135,7 @@ export default function AdminDashboard() {
     { id: 'broadcast', label: 'Broadcast', icon: <MegaphoneIcon /> },
     { id: 'shop-suggestions', label: 'Suggerimenti Negozi', icon: <MapPinIcon /> },
     { id: 'user-suggestions', label: 'Feedback Utenti', icon: <MegaphoneIcon /> },
+    { id: 'maintenance', label: 'Manutenzione', icon: <ImportIcon /> },
   ]
 
   const getActiveTabTitle = () => {
@@ -409,6 +409,8 @@ export default function AdminDashboard() {
         return <div className="animate-fadeIn"><ShopSuggestions /></div>
       case 'user-suggestions':
         return <div className="animate-fadeIn"><UserSuggestions /></div>
+      case 'maintenance':
+        return <div className="animate-fadeIn"><Maintenance /></div>
       default:
         return null
     }

@@ -683,6 +683,17 @@ export const adminService = {
     const response = await apiClient.delete(`/sets/${id}?force=${force}`)
     return response
   },
+
+  // ========== IMAGE SYNC MANAGEMENT ==========
+  async syncImages(): Promise<any> {
+    const response = await apiClient.post('/admin/images/sync')
+    return response.data
+  },
+
+  async getSyncStatus(): Promise<string> {
+    const response = await apiClient.get('/admin/images/status')
+    return response.data
+  },
 }
 
 export default apiClient

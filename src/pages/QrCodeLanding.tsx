@@ -93,6 +93,10 @@ export default function QrCodeLanding() {
                         <div className="w-10 h-10 object-contain">
                             <img src="/images/tcg/digimon.png" alt="Digimon" className="w-full h-full object-contain" />
                         </div>
+                        {/* Riftbound */}
+                        <div className="w-10 h-10 object-contain">
+                            <img src="/images/tcg/riftbound.png" alt="Riftbound" className="w-full h-full object-contain" />
+                        </div>
                     </div>
                 </div>
             </section>
