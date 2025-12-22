@@ -53,6 +53,7 @@ export default function MerchantTournaments({ embedded = false }: MerchantTourna
   const { showToast } = useToast()
   const [loading, setLoading] = useState(true)
   const [tournaments, setTournaments] = useState<Tournament[]>([])
+  const [statusFilter, setStatusFilter] = useState<string>('')
   const [currentUserId, setCurrentUserId] = useState<number | null>(null)
   const [showModal, setShowModal] = useState(false)
   const [editingTournament, setEditingTournament] = useState<Tournament | null>(null)
@@ -271,11 +272,38 @@ export default function MerchantTournaments({ embedded = false }: MerchantTourna
   const merchantUser = localStorage.getItem('merchant_user')
   const userData = merchantUser ? JSON.parse(merchantUser) : null
 
+  // Filter tournaments based on status
+  const filteredTournaments = statusFilter === ''
+    ? tournaments
+    : statusFilter === 'UPCOMING'
+      ? tournaments.filter(t => t.status === 'UPCOMING' || t.status === 'REGISTRATION_OPEN' || t.status === 'REGISTRATION_CLOSED')
+      : statusFilter === 'IN_PROGRESS'
+        ? tournaments.filter(t => t.status === 'IN_PROGRESS')
+        : tournaments.filter(t => t.status === 'COMPLETED' || t.status === 'CANCELLED')
+
   const content = (
     <>
-      {/* Action Bar */}
+      {/* Action Bar with Tabs */}
       <div className="flex items-center justify-between mb-6 -mt-2">
-        <div></div>
+        <div className="flex gap-1 overflow-x-auto">
+          {[
+            { key: '', label: 'Tutti' },
+            { key: 'UPCOMING', label: 'In Arrivo' },
+            { key: 'IN_PROGRESS', label: 'In Corso' },
+            { key: 'COMPLETED', label: 'Completati' }
+          ].map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setStatusFilter(tab.key)}
+              className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${statusFilter === tab.key
+                  ? 'bg-gray-900 text-white'
+                  : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+                }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
         <button
           onClick={() => { resetForm(); setShowModal(true) }}
           className="px-5 py-2.5 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition-colors flex items-center gap-2"
@@ -324,7 +352,7 @@ export default function MerchantTournaments({ embedded = false }: MerchantTourna
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-6">
-          {tournaments.map((tournament) => (
+          {filteredTournaments.map((tournament) => (
             <div
               key={tournament.id}
               className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow"
