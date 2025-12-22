@@ -25,7 +25,9 @@ import {
   AwardIcon,
   MegaphoneIcon,
   CheckCircleIcon,
-  MapPinIcon
+  MapPinIcon,
+  ImportIcon,
+  CardsIcon
 } from '../components/Icons'
 
 interface Shop {
