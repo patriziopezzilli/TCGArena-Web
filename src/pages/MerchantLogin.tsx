@@ -20,18 +20,18 @@ export default function MerchantLogin() {
     try {
       // Login
       const response = await merchantService.login(formData.username, formData.password)
-      
+
       // Save token
       localStorage.setItem('merchant_token', response.token)
       localStorage.setItem('merchant_user', JSON.stringify(response.user))
-      
+
       // Check if user is admin
       if (response.user.isAdmin) {
         localStorage.setItem('is_admin', 'true')
       } else {
         localStorage.removeItem('is_admin')
       }
-      
+
       // Redirect to dashboard
       navigate('/merchant/dashboard')
     } catch (err: any) {
@@ -44,7 +44,7 @@ export default function MerchantLogin() {
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-6 py-12">
       <div className="absolute inset-0 bg-grid-pattern opacity-5 pointer-events-none"></div>
-      
+
       <div className="max-w-md w-full relative animate-fade-in-up">
         {/* Logo */}
         <div className="text-center mb-8">
@@ -76,11 +76,10 @@ export default function MerchantLogin() {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-2">
-              <label 
-                htmlFor="username" 
-                className={`block text-sm font-medium transition-colors duration-200 ${
-                  focusedField === 'username' ? 'text-gray-900' : 'text-gray-600'
-                }`}
+              <label
+                htmlFor="username"
+                className={`block text-sm font-medium transition-colors duration-200 ${focusedField === 'username' ? 'text-gray-900' : 'text-gray-600'
+                  }`}
               >
                 Username
               </label>
@@ -96,18 +95,16 @@ export default function MerchantLogin() {
                   placeholder="Il tuo username"
                   required
                 />
-                <div className={`absolute bottom-0 left-0 h-0.5 bg-gray-900 rounded-full transition-all duration-300 ${
-                  focusedField === 'username' ? 'w-full' : 'w-0'
-                }`}></div>
+                <div className={`absolute bottom-0 left-0 h-0.5 bg-gray-900 rounded-full transition-all duration-300 ${focusedField === 'username' ? 'w-full' : 'w-0'
+                  }`}></div>
               </div>
             </div>
 
             <div className="space-y-2">
-              <label 
-                htmlFor="password" 
-                className={`block text-sm font-medium transition-colors duration-200 ${
-                  focusedField === 'password' ? 'text-gray-900' : 'text-gray-600'
-                }`}
+              <label
+                htmlFor="password"
+                className={`block text-sm font-medium transition-colors duration-200 ${focusedField === 'password' ? 'text-gray-900' : 'text-gray-600'
+                  }`}
               >
                 Password
               </label>
@@ -123,9 +120,8 @@ export default function MerchantLogin() {
                   placeholder="••••••••••"
                   required
                 />
-                <div className={`absolute bottom-0 left-0 h-0.5 bg-gray-900 rounded-full transition-all duration-300 ${
-                  focusedField === 'password' ? 'w-full' : 'w-0'
-                }`}></div>
+                <div className={`absolute bottom-0 left-0 h-0.5 bg-gray-900 rounded-full transition-all duration-300 ${focusedField === 'password' ? 'w-full' : 'w-0'
+                  }`}></div>
               </div>
             </div>
 
@@ -151,7 +147,8 @@ export default function MerchantLogin() {
             </button>
           </form>
 
-          <div className="mt-6 text-center">
+          {/* Registration disabled for now */}
+          {/* <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
               Non hai un account?{' '}
               <Link 
@@ -162,12 +159,12 @@ export default function MerchantLogin() {
                 <span className="transform transition-transform duration-200 group-hover:translate-x-1">→</span>
               </Link>
             </p>
-          </div>
+          </div> */}
         </div>
 
         <div className="mt-8 text-center">
-          <Link 
-            to="/" 
+          <Link
+            to="/"
             className="text-sm text-gray-500 hover:text-gray-900 transition-colors duration-200 inline-flex items-center gap-1 group"
           >
             <span className="transform transition-transform duration-200 group-hover:-translate-x-1">←</span>
