@@ -151,13 +151,10 @@ export default function MerchantLogin() {
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
               Non hai un account?{' '}
-              <Link
-                to="/merchant/register"
-                className="font-semibold text-gray-900 hover:text-primary transition-colors duration-200 inline-flex items-center gap-1 group"
-              >
+              <span className="font-semibold text-gray-400 cursor-not-allowed inline-flex items-center gap-1">
                 Registrati
-                <span className="transform transition-transform duration-200 group-hover:translate-x-1">→</span>
-              </Link>
+                <span className="text-xs bg-gray-200 text-gray-500 px-2 py-0.5 rounded-full ml-1">Coming Soon</span>
+              </span>
             </p>
           </div>
         </div>
