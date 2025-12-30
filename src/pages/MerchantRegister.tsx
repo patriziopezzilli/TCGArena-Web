@@ -4,8 +4,6 @@ import { merchantService } from '../services/api'
 
 export default function MerchantRegister() {
     const navigate = useNavigate()
-    const [isClaiming, setIsClaiming] = useState(false)
-
     const [formData, setFormData] = useState({
         username: '',
         email: '',
@@ -21,23 +19,26 @@ export default function MerchantRegister() {
     })
 
     // Search state
-    const [searchQuery, setSearchQuery] = useState('')
     const [searchResults, setSearchResults] = useState<any[]>([])
     const [searching, setSearching] = useState(false)
-    const [selectedShop, setSelectedShop] = useState<any | null>(null)
+    const [showSuggestions, setShowSuggestions] = useState(false)
 
     const [error, setError] = useState('')
     const [loading, setLoading] = useState(false)
     const [focusedField, setFocusedField] = useState<string | null>(null)
 
-    // Debounce search
+    // Debounce search on shopName
     useEffect(() => {
+        // Only search if we don't have a linked shop yet
+        if (formData.existingShopId) return
+
         const timer = setTimeout(async () => {
-            if (isClaiming && searchQuery.length >= 3) {
+            if (formData.shopName.length >= 3) {
                 setSearching(true)
                 try {
-                    const results = await merchantService.searchUnverifiedShops(searchQuery)
+                    const results = await merchantService.searchUnverifiedShops(formData.shopName)
                     setSearchResults(results)
+                    setShowSuggestions(true)
                 } catch (err) {
                     console.error('Search failed', err)
                 } finally {
@@ -45,39 +46,39 @@ export default function MerchantRegister() {
                 }
             } else {
                 setSearchResults([])
+                setShowSuggestions(false)
             }
         }, 500)
 
         return () => clearTimeout(timer)
-    }, [searchQuery, isClaiming])
+    }, [formData.shopName, formData.existingShopId])
 
     const handleShopSelect = (shop: any) => {
-        setSelectedShop(shop)
         setFormData({
             ...formData,
             existingShopId: shop.id,
             shopName: shop.name,
             description: shop.description || '',
-            address: shop.address || '', // Might need parsing if address field is combined
-            // shop.address in backend is likely formatted "Address, City Zip" or raw. 
-            // DTO has separate fields. Shop entity has single address string usually?
-            // In Shop.java: private String address; private String city; private String zipCode; -> No, wait.
-            // Re-checking Shop.java: 
-            // private String address;
-            // private String city; (Actually I didn't see explicit city/zip in Shop.java view earlier? Let me check memory.)
-            // Shop.java has address, latitude, longitude. NO explicit city/zip fields in Shop entity usually unless added.
-            // Wait, MerchantRegistrationRequestDTO HAS city/zip. 
-            // Backend Register Logic: shop.setAddress(request.getAddress() + ", " + request.getCity() + " " + request.getZipCode());
-            // So Shop entity stores combined address?
-            // Step 3677 ShopService updateShop: shop.setAddress(shopDetails.getAddress());
-            // Let's assume Shop entity has just 'address'. 
-            // If I claim, I should try to parse or just fill 'address' field in form and let user fix city/zip.
+            address: shop.address || '',
             city: '',
             zipCode: '',
             phone: shop.phoneNumber || ''
         })
-        setSearchQuery('')
         setSearchResults([])
+        setShowSuggestions(false)
+    }
+
+    const handleClearLinkedShop = () => {
+        setFormData({
+            ...formData,
+            existingShopId: null,
+            shopName: '',
+            description: '',
+            address: '',
+            city: '',
+            zipCode: '',
+            phone: ''
+        })
     }
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -140,87 +141,10 @@ export default function MerchantRegister() {
                         </div>
                     )}
 
-                    {/* Toggle Claim Mode */}
-                    <div className="mb-8 flex justify-center">
-                        <div className="bg-gray-100 p-1 rounded-xl flex items-center">
-                            <button
-                                type="button"
-                                onClick={() => { setIsClaiming(false); setSelectedShop(null); setFormData(prev => ({ ...prev, existingShopId: null })); }}
-                                className={`px-6 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${!isClaiming ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-900'
-                                    }`}
-                            >
-                                Nuovo Negozio
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setIsClaiming(true)}
-                                className={`px-6 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${isClaiming ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-900'
-                                    }`}
-                            >
-                                Collega Attività
-                            </button>
-                        </div>
+                    {/* Shop Info Section */}
+                    <div className="space-y-5 pt-2">
+                        {/* Removed Toggle Claim Mode */}
                     </div>
-
-                    {isClaiming && !selectedShop && (
-                        <div className="mb-8 animate-fade-in">
-                            <label className="block text-sm font-medium text-gray-900 mb-2">
-                                Cerca la tua attività
-                            </label>
-                            <div className="relative">
-                                <input
-                                    type="text"
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                    className="w-full px-4 py-3.5 bg-white border-2 border-gray-200 rounded-xl focus:border-gray-900 outline-none transition-all"
-                                    placeholder="Digita il nome del negozio..."
-                                />
-                                {searching && (
-                                    <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
-                                        <div className="w-5 h-5 border-2 border-gray-300 border-t-gray-900 rounded-full animate-spin"></div>
-                                    </div>
-                                )}
-
-                                {searchResults.length > 0 && (
-                                    <div className="absolute z-10 w-full mt-2 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden max-h-60 overflow-y-auto">
-                                        {searchResults.map((shop) => (
-                                            <button
-                                                key={shop.id}
-                                                type="button"
-                                                onClick={() => handleShopSelect(shop)}
-                                                className="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0"
-                                            >
-                                                <div className="font-semibold text-gray-900">{shop.name}</div>
-                                                <div className="text-sm text-gray-500">{shop.address}</div>
-                                            </button>
-                                        ))}
-                                    </div>
-                                )}
-
-                                {searchQuery.length >= 3 && !searching && searchResults.length === 0 && (
-                                    <div className="absolute z-10 w-full mt-2 bg-white rounded-xl shadow-xl border border-gray-100 p-4 text-center text-gray-500 text-sm">
-                                        Nessun negozio trovato. Prova con un altro nome o crea un nuovo negozio.
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    )}
-
-                    {isClaiming && selectedShop && (
-                        <div className="mb-8 p-4 bg-blue-50 border border-blue-100 rounded-xl flex items-center justify-between animate-fade-in">
-                            <div>
-                                <div className="font-semibold text-blue-900">{selectedShop.name}</div>
-                                <div className="text-sm text-blue-700">Negozio selezionato</div>
-                            </div>
-                            <button
-                                type="button"
-                                onClick={() => { setSelectedShop(null); setFormData(prev => ({ ...prev, existingShopId: null })); }}
-                                className="text-sm font-medium text-blue-600 hover:text-blue-800"
-                            >
-                                Cambia
-                            </button>
-                        </div>
-                    )}
 
                     <form onSubmit={handleSubmit} className="space-y-5">
                         {/* User Info Section */}
@@ -252,15 +176,72 @@ export default function MerchantRegister() {
                             </div>
                         </div>
 
-                        {/* Shop Info Section - Show if not claiming OR if claiming (to review/edit) */}
+                        {/* Shop Info Section */}
                         <div className="space-y-5 pt-2">
-                            <h3 className="text-lg font-semibold text-gray-900">Dettagli Negozio</h3>
-                            <InputField
-                                id="shopName" label="Nome Negozio" value={formData.shopName}
-                                onChange={(val: string) => setFormData({ ...formData, shopName: val })}
-                                focused={focusedField === 'shopName'} onFocus={() => setFocusedField('shopName')} onBlur={() => setFocusedField(null)}
-                                disabled={isClaiming && !!selectedShop}
-                            />
+                            <div className="flex items-center justify-between">
+                                <h3 className="text-lg font-semibold text-gray-900">Dettagli Negozio</h3>
+                                {formData.existingShopId && (
+                                    <button
+                                        type="button"
+                                        onClick={handleClearLinkedShop}
+                                        className="text-sm text-red-600 hover:text-red-800 font-medium transition-colors"
+                                    >
+                                        Scollega attività
+                                    </button>
+                                )}
+                            </div>
+
+                            <div className="relative">
+                                <InputField
+                                    id="shopName"
+                                    label={formData.existingShopId ? "Negozio Collegato" : "Nome Negozio (Inizia a digitare per cercare)"}
+                                    value={formData.shopName}
+                                    onChange={(val: string) => {
+                                        setFormData({ ...formData, shopName: val })
+                                        if (val.length < 3) setShowSuggestions(false)
+                                    }}
+                                    focused={focusedField === 'shopName'}
+                                    onFocus={() => setFocusedField('shopName')}
+                                    onBlur={() => {
+                                        setFocusedField(null)
+                                        // Delay hiding suggestions to allow clicking
+                                        setTimeout(() => setShowSuggestions(false), 200)
+                                    }}
+                                    disabled={!!formData.existingShopId}
+                                />
+
+                                {searching && (
+                                    <div className="absolute right-4 top-[2.4rem] transform -translate-y-1/2">
+                                        <div className="w-5 h-5 border-2 border-gray-300 border-t-gray-900 rounded-full animate-spin"></div>
+                                    </div>
+                                )}
+
+                                {showSuggestions && searchResults.length > 0 && !formData.existingShopId && (
+                                    <div className="absolute z-50 w-full mt-1 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden max-h-60 overflow-y-auto">
+                                        <div className="p-2 bg-gray-50 border-b border-gray-100 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                            Attività trovate
+                                        </div>
+                                        {searchResults.map((shop) => (
+                                            <button
+                                                key={shop.id}
+                                                type="button"
+                                                onClick={() => handleShopSelect(shop)}
+                                                className="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0"
+                                            >
+                                                <div className="font-semibold text-gray-900">{shop.name}</div>
+                                                <div className="text-sm text-gray-500">{shop.address}</div>
+                                            </button>
+                                        ))}
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowSuggestions(false)}
+                                            className="w-full text-center px-4 py-2 bg-gray-50 text-gray-500 text-sm hover:text-gray-900 hover:bg-gray-100 transition-colors"
+                                        >
+                                            Non è il tuo negozio? Continua a compilare
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
                             <InputField
                                 id="description" label="Descrizione (Opzionale)" value={formData.description}
                                 onChange={(val: string) => setFormData({ ...formData, description: val })}
@@ -270,17 +251,20 @@ export default function MerchantRegister() {
                                 id="address" label="Indirizzo" value={formData.address}
                                 onChange={(val: string) => setFormData({ ...formData, address: val })}
                                 focused={focusedField === 'address'} onFocus={() => setFocusedField('address')} onBlur={() => setFocusedField(null)}
+                                disabled={!!formData.existingShopId}
                             />
                             <div className="grid grid-cols-2 gap-5">
                                 <InputField
                                     id="city" label="Città" value={formData.city}
                                     onChange={(val: string) => setFormData({ ...formData, city: val })}
                                     focused={focusedField === 'city'} onFocus={() => setFocusedField('city')} onBlur={() => setFocusedField(null)}
+                                    disabled={!!formData.existingShopId}
                                 />
                                 <InputField
                                     id="zipCode" label="CAP" value={formData.zipCode}
                                     onChange={(val: string) => setFormData({ ...formData, zipCode: val })}
                                     focused={focusedField === 'zipCode'} onFocus={() => setFocusedField('zipCode')} onBlur={() => setFocusedField(null)}
+                                    disabled={!!formData.existingShopId}
                                 />
                             </div>
                             <InputField
@@ -292,7 +276,7 @@ export default function MerchantRegister() {
 
                         <button
                             type="submit"
-                            disabled={loading || (isClaiming && !selectedShop)}
+                            disabled={loading}
                             className="group relative w-full py-4 px-4 bg-gray-900 text-white font-semibold rounded-xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 mt-6"
                         >
                             <span className="relative z-10 flex items-center justify-center gap-2">
