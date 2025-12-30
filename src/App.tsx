@@ -4,7 +4,7 @@ import ToastContainer from './components/ToastContainer'
 import Landing from './pages/Landing'
 import WaitingList from './pages/WaitingList'
 import MerchantLogin from './pages/MerchantLogin'
-import MerchantOnboarding from './pages/MerchantOnboarding'
+import MerchantRegister from './pages/MerchantRegister'
 import MerchantDashboard from './pages/MerchantDashboard'
 import MerchantInventory from './pages/MerchantInventory'
 import MerchantReservations from './pages/MerchantReservations'
@@ -31,7 +31,7 @@ function App() {
           <Route path="/api/sdk" element={<ApiSdk />} />
           {/* Hidden routes - accessible only via direct URL */}
           <Route path="/merchant/login" element={<MerchantLogin />} />
-          <Route path="/merchant/register" element={<MerchantOnboarding />} />
+          <Route path="/merchant/register" element={<MerchantRegister />} />
           <Route path="/merchant/dashboard" element={<MerchantDashboard />} />
           <Route path="/merchant/inventory" element={<MerchantInventory />} />
           <Route path="/merchant/reservations" element={<MerchantReservations />} />

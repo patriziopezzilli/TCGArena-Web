@@ -47,6 +47,11 @@ export const merchantService = {
     return response.data
   },
 
+  async searchUnverifiedShops(query: string): Promise<any[]> {
+    const response = await publicApiClient.get(`/shops/public/unverified/search?q=${query}`)
+    return response.data
+  },
+
   async login(username: string, password: string): Promise<{ token: string; user: any; refreshToken: string }> {
     const response = await apiClient.post('/auth/login', { username, password })
     return response.data

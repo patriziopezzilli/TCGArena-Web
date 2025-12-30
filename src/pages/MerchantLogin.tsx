@@ -147,19 +147,19 @@ export default function MerchantLogin() {
             </button>
           </form>
 
-          {/* Registration disabled for now */}
-          {/* <div className="mt-6 text-center">
+          {/* Registration link */}
+          <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
               Non hai un account?{' '}
-              <Link 
-                to="/merchant/register" 
+              <Link
+                to="/merchant/register"
                 className="font-semibold text-gray-900 hover:text-primary transition-colors duration-200 inline-flex items-center gap-1 group"
               >
                 Registrati
                 <span className="transform transition-transform duration-200 group-hover:translate-x-1">→</span>
               </Link>
             </p>
-          </div> */}
+          </div>
         </div>
 
         <div className="mt-8 text-center">
