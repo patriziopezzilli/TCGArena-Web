@@ -35,6 +35,7 @@ interface Tournament {
   organizerId: number
   isRanked?: boolean
   externalRegistrationUrl?: string
+  registrationCode?: string
 }
 
 interface TournamentLocation {
@@ -296,8 +297,8 @@ export default function MerchantTournaments({ embedded = false }: MerchantTourna
               key={tab.key}
               onClick={() => setStatusFilter(tab.key)}
               className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${statusFilter === tab.key
-                  ? 'bg-gray-900 text-white'
-                  : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+                ? 'bg-gray-900 text-white'
+                : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
                 }`}
             >
               {tab.label}
@@ -396,6 +397,24 @@ export default function MerchantTournaments({ embedded = false }: MerchantTourna
                     </p>
                     {tournament.prizePool && (
                       <p className="mt-1">🏆 {tournament.prizePool}</p>
+                    )}
+                    {tournament.registrationCode && (
+                      <p className="mt-2 inline-flex items-center gap-2 px-3 py-1.5 bg-amber-50 border border-amber-200 rounded-lg">
+                        <span className="text-amber-600 font-medium">🎟️ Codice Web:</span>
+                        <span className="font-mono font-bold text-gray-900 tracking-wider">{tournament.registrationCode}</span>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            navigator.clipboard.writeText(tournament.registrationCode!)
+                            showToast('Codice copiato!', 'success')
+                          }}
+                          className="text-gray-400 hover:text-gray-600 transition-colors"
+                          title="Copia codice"
+                        >
+                          📋
+                        </button>
+                      </p>
                     )}
                   </div>
                 </div>

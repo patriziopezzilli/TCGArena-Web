@@ -16,6 +16,14 @@ export default function Landing() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitSuccess, setSubmitSuccess] = useState(false)
   const [error, setError] = useState('')
+  // Tournament join modal state
+  const [showTournamentModal, setShowTournamentModal] = useState(false)
+  const [tournamentStep, setTournamentStep] = useState<'form' | 'details' | 'success'>('form')
+  const [tournamentCode, setTournamentCode] = useState('')
+  const [tournamentData, setTournamentData] = useState<any>(null)
+  const [guestData, setGuestData] = useState({ email: '', firstName: '', lastName: '' })
+  const [tournamentLoading, setTournamentLoading] = useState(false)
+  const [tournamentError, setTournamentError] = useState('')
   const [currentScreenshot, setCurrentScreenshot] = useState(0)
   const iosScreenshots = [
     '/images/ios/IMG_1980.PNG',
@@ -73,6 +81,56 @@ export default function Landing() {
     setShowModal(true)
   }
 
+  // Tournament join functions
+  const lookupTournament = async () => {
+    if (tournamentCode.length !== 5) {
+      setTournamentError('Il codice deve essere di 5 caratteri')
+      return
+    }
+    setTournamentLoading(true)
+    setTournamentError('')
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL || 'https://api.tcgarena.it'}/api/tournaments/code/${tournamentCode.toUpperCase()}`
+      )
+      setTournamentData(response.data)
+      setTournamentStep('details')
+    } catch (err: any) {
+      setTournamentError('Codice torneo non valido o torneo non trovato')
+    } finally {
+      setTournamentLoading(false)
+    }
+  }
+
+  const registerForTournament = async () => {
+    if (!guestData.email || !guestData.firstName || !guestData.lastName) {
+      setTournamentError('Compila tutti i campi')
+      return
+    }
+    setTournamentLoading(true)
+    setTournamentError('')
+    try {
+      await axios.post(
+        `${import.meta.env.VITE_API_URL || 'https://api.tcgarena.it'}/api/tournaments/code/${tournamentCode.toUpperCase()}/register`,
+        guestData
+      )
+      setTournamentStep('success')
+    } catch (err: any) {
+      setTournamentError(err.response?.data?.error || "Errore durante l'iscrizione")
+    } finally {
+      setTournamentLoading(false)
+    }
+  }
+
+  const closeTournamentModal = () => {
+    setShowTournamentModal(false)
+    setTournamentStep('form')
+    setTournamentCode('')
+    setTournamentData(null)
+    setGuestData({ email: '', firstName: '', lastName: '' })
+    setTournamentError('')
+  }
+
   // Choice View - Entry Point
   if (viewMode === 'choice') {
     return (
@@ -112,50 +170,75 @@ export default function Landing() {
             </p>
           </div>
 
-          {/* Choice Cards - smaller on mobile */}
-          <div className="grid grid-cols-2 gap-3 md:gap-6 max-w-4xl mx-auto mb-12 md:mb-20">
+          {/* Choice Cards - 3 horizontal rectangles */}
+          <div className="flex flex-col gap-3 md:gap-4 max-w-3xl mx-auto mb-12 md:mb-20">
             {/* Player Card */}
             <button
               onClick={() => setViewMode('player')}
-              className="group p-4 md:p-12 bg-white border-2 border-gray-100 rounded-xl md:rounded-2xl text-left 
-                hover:border-gray-900 hover:shadow-2xl hover:-translate-y-2
-                transition-all duration-500 ease-out
-                animate-fade-in-up animation-delay-200"
+              className="group p-4 md:p-6 bg-white border-2 border-gray-100 rounded-xl md:rounded-2xl text-left 
+                hover:border-gray-900 hover:shadow-xl hover:-translate-y-1
+                transition-all duration-300 ease-out
+                animate-fade-in-up animation-delay-200
+                flex items-center gap-4 md:gap-6"
             >
-              <div className="flex items-center justify-between mb-3 md:mb-6">
-                <div className="w-10 h-10 md:w-14 md:h-14 bg-gray-100 rounded-lg md:rounded-xl flex items-center justify-center 
-                  group-hover:bg-gray-900 group-hover:scale-110 group-hover:rotate-3
-                  transition-all duration-300">
-                  <PlayerIcon className="w-5 h-5 md:w-7 md:h-7 text-gray-600 group-hover:text-white transition-colors" />
-                </div>
-                <ArrowRightIcon className="w-4 h-4 md:w-5 md:h-5 text-gray-300 group-hover:text-gray-900 group-hover:translate-x-2 transition-all duration-300" />
+              <div className="w-12 h-12 md:w-16 md:h-16 bg-gray-100 rounded-lg md:rounded-xl flex items-center justify-center flex-shrink-0
+                group-hover:bg-gray-900 group-hover:scale-105
+                transition-all duration-300">
+                <PlayerIcon className="w-6 h-6 md:w-8 md:h-8 text-gray-600 group-hover:text-white transition-colors" />
               </div>
-              <h3 className="text-base md:text-2xl font-bold text-gray-900 mb-1 md:mb-2 group-hover:text-gray-900">Giocatore</h3>
-              <p className="text-gray-500 text-xs md:text-base hidden md:block group-hover:text-gray-600 transition-colors">
-                Cerca carte, prenota, partecipa a tornei e gestisci la tua collezione
-              </p>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-lg md:text-xl font-bold text-gray-900 group-hover:text-gray-900">Sei un Giocatore?</h3>
+                <p className="text-gray-500 text-sm md:text-base group-hover:text-gray-600 transition-colors truncate">
+                  Cerca carte, prenota, partecipa a tornei
+                </p>
+              </div>
+              <ArrowRightIcon className="w-5 h-5 md:w-6 md:h-6 text-gray-300 group-hover:text-gray-900 group-hover:translate-x-1 transition-all duration-300 flex-shrink-0" />
             </button>
 
             {/* Shop Card */}
             <button
               onClick={() => setViewMode('shop')}
-              className="group p-4 md:p-12 bg-white border-2 border-gray-100 rounded-xl md:rounded-2xl text-left 
-                hover:border-gray-900 hover:shadow-2xl hover:-translate-y-2
-                transition-all duration-500 ease-out
-                animate-fade-in-up animation-delay-300"
+              className="group p-4 md:p-6 bg-white border-2 border-gray-100 rounded-xl md:rounded-2xl text-left 
+                hover:border-gray-900 hover:shadow-xl hover:-translate-y-1
+                transition-all duration-300 ease-out
+                animate-fade-in-up animation-delay-300
+                flex items-center gap-4 md:gap-6"
             >
-              <div className="flex items-center justify-between mb-3 md:mb-6">
-                <div className="w-10 h-10 md:w-14 md:h-14 bg-gray-100 rounded-lg md:rounded-xl flex items-center justify-center 
-                  group-hover:bg-gray-900 group-hover:scale-110 group-hover:-rotate-3
-                  transition-all duration-300">
-                  <ShopIcon className="w-5 h-5 md:w-7 md:h-7 text-gray-600 group-hover:text-white transition-colors" />
-                </div>
-                <ArrowRightIcon className="w-4 h-4 md:w-5 md:h-5 text-gray-300 group-hover:text-gray-900 group-hover:translate-x-2 transition-all duration-300" />
+              <div className="w-12 h-12 md:w-16 md:h-16 bg-gray-100 rounded-lg md:rounded-xl flex items-center justify-center flex-shrink-0
+                group-hover:bg-gray-900 group-hover:scale-105
+                transition-all duration-300">
+                <ShopIcon className="w-6 h-6 md:w-8 md:h-8 text-gray-600 group-hover:text-white transition-colors" />
               </div>
-              <h3 className="text-base md:text-2xl font-bold text-gray-900 mb-1 md:mb-2 group-hover:text-gray-900">Negozio</h3>
-              <p className="text-gray-500 text-xs md:text-base hidden md:block group-hover:text-gray-600 transition-colors">
-                Digitalizza il tuo negozio e raggiungi nuovi clienti. Gratis.
-              </p>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-lg md:text-xl font-bold text-gray-900 group-hover:text-gray-900">Sei un Negozio?</h3>
+                <p className="text-gray-500 text-sm md:text-base group-hover:text-gray-600 transition-colors truncate">
+                  Digitalizza il tuo negozio. Gratis.
+                </p>
+              </div>
+              <ArrowRightIcon className="w-5 h-5 md:w-6 md:h-6 text-gray-300 group-hover:text-gray-900 group-hover:translate-x-1 transition-all duration-300 flex-shrink-0" />
+            </button>
+
+            {/* Tournament Join Card */}
+            <button
+              onClick={() => setShowTournamentModal(true)}
+              className="group p-4 md:p-6 bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-200 rounded-xl md:rounded-2xl text-left 
+                hover:border-amber-400 hover:shadow-xl hover:-translate-y-1
+                transition-all duration-300 ease-out
+                animate-fade-in-up animation-delay-400
+                flex items-center gap-4 md:gap-6"
+            >
+              <div className="w-12 h-12 md:w-16 md:h-16 bg-amber-100 rounded-lg md:rounded-xl flex items-center justify-center flex-shrink-0
+                group-hover:bg-amber-500 group-hover:scale-105
+                transition-all duration-300">
+                <TrophyIcon className="w-6 h-6 md:w-8 md:h-8 text-amber-600 group-hover:text-white transition-colors" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-lg md:text-xl font-bold text-gray-900 group-hover:text-gray-900">Partecipa ad un Torneo</h3>
+                <p className="text-gray-500 text-sm md:text-base group-hover:text-gray-600 transition-colors truncate">
+                  Hai un codice? Iscriviti senza app
+                </p>
+              </div>
+              <ArrowRightIcon className="w-5 h-5 md:w-6 md:h-6 text-amber-300 group-hover:text-amber-600 group-hover:translate-x-1 transition-all duration-300 flex-shrink-0" />
             </button>
           </div>
         </section>
@@ -321,6 +404,24 @@ export default function Landing() {
             <p>© 2025 TCG Arena. Tutti i diritti riservati.</p>
           </div>
         </footer>
+
+        {/* Tournament Join Modal */}
+        {showTournamentModal && (
+          <TournamentJoinModal
+            step={tournamentStep}
+            code={tournamentCode}
+            setCode={setTournamentCode}
+            tournamentData={tournamentData}
+            guestData={guestData}
+            setGuestData={setGuestData}
+            loading={tournamentLoading}
+            error={tournamentError}
+            onLookup={lookupTournament}
+            onRegister={registerForTournament}
+            onClose={closeTournamentModal}
+            onBack={() => setTournamentStep('form')}
+          />
+        )}
       </div>
     )
   }
@@ -1171,5 +1272,197 @@ function RadarIcon({ className = "w-5 h-5" }: { className?: string }) {
       <path strokeLinecap="round" strokeLinejoin="round" d="M12 8a4 4 0 100 8 4 4 0 000-8z" />
       <path strokeLinecap="round" strokeLinejoin="round" d="M12 2v2m0 16v2m10-10h-2M4 12H2m17.07-7.07l-1.414 1.414M6.343 17.657l-1.414 1.414M19.07 19.07l-1.414-1.414M6.343 6.343L4.93 4.93" />
     </svg>
+  )
+}
+
+// Tournament Join Modal Component
+interface TournamentJoinModalProps {
+  step: 'form' | 'details' | 'success'
+  code: string
+  setCode: (code: string) => void
+  tournamentData: any
+  guestData: { email: string; firstName: string; lastName: string }
+  setGuestData: (data: { email: string; firstName: string; lastName: string }) => void
+  loading: boolean
+  error: string
+  onLookup: () => void
+  onRegister: () => void
+  onClose: () => void
+  onBack: () => void
+}
+
+function TournamentJoinModal({
+  step, code, setCode, tournamentData, guestData, setGuestData,
+  loading, error, onLookup, onRegister, onClose, onBack
+}: TournamentJoinModalProps) {
+  const formatDate = (dateStr: string) => {
+    if (!dateStr) return ''
+    return new Date(dateStr).toLocaleString('it-IT', {
+      weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit'
+    })
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+      <div className="bg-white rounded-2xl max-w-md w-full p-6 relative shadow-xl animate-fade-in-up">
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+        >
+          <CloseIcon className="w-6 h-6" />
+        </button>
+
+        {step === 'form' && (
+          <>
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 bg-amber-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <TrophyIcon className="w-8 h-8 text-amber-600" />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900">Partecipa al Torneo</h2>
+              <p className="text-gray-500 mt-2">Inserisci i tuoi dati e il codice del torneo</p>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+                <input
+                  type="email"
+                  value={guestData.email}
+                  onChange={(e) => setGuestData({ ...guestData, email: e.target.value })}
+                  placeholder="La tua email"
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none transition-all"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Nome *</label>
+                  <input
+                    type="text"
+                    value={guestData.firstName}
+                    onChange={(e) => setGuestData({ ...guestData, firstName: e.target.value })}
+                    placeholder="Nome"
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Cognome *</label>
+                  <input
+                    type="text"
+                    value={guestData.lastName}
+                    onChange={(e) => setGuestData({ ...guestData, lastName: e.target.value })}
+                    placeholder="Cognome"
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none transition-all"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Codice Torneo *</label>
+                <input
+                  type="text"
+                  value={code}
+                  onChange={(e) => setCode(e.target.value.toUpperCase().slice(0, 5))}
+                  placeholder="Es: ABC12"
+                  maxLength={5}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none transition-all text-center text-2xl font-mono tracking-widest uppercase"
+                />
+              </div>
+            </div>
+
+            {error && (
+              <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm text-center">
+                {error}
+              </div>
+            )}
+
+            <button
+              onClick={onLookup}
+              disabled={loading || code.length !== 5 || !guestData.email || !guestData.firstName || !guestData.lastName}
+              className="w-full mt-6 py-4 bg-amber-500 text-white font-semibold rounded-xl hover:bg-amber-600 disabled:bg-gray-200 disabled:text-gray-400 transition-colors"
+            >
+              {loading ? 'Caricamento...' : 'Cerca Torneo'}
+            </button>
+          </>
+        )}
+
+        {step === 'details' && tournamentData && (
+          <>
+            <button
+              onClick={onBack}
+              className="flex items-center gap-2 text-gray-500 hover:text-gray-700 mb-4 transition-colors"
+            >
+              <ArrowLeftIcon className="w-4 h-4" />
+              <span className="text-sm">Indietro</span>
+            </button>
+
+            <div className="text-center mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">{tournamentData.title}</h2>
+              <p className="text-amber-600 font-semibold mt-1">{tournamentData.tcgType}</p>
+            </div>
+
+            <div className="space-y-3 bg-gray-50 rounded-xl p-4 mb-6">
+              <div className="flex justify-between">
+                <span className="text-gray-500">📅 Data</span>
+                <span className="font-medium">{formatDate(tournamentData.startDate)}</span>
+              </div>
+              {tournamentData.location && (
+                <div className="flex justify-between">
+                  <span className="text-gray-500">📍 Luogo</span>
+                  <span className="font-medium">{tournamentData.location.name || tournamentData.location.address}</span>
+                </div>
+              )}
+              <div className="flex justify-between">
+                <span className="text-gray-500">👥 Posti</span>
+                <span className="font-medium">{tournamentData.currentParticipants || 0} / {tournamentData.maxParticipants}</span>
+              </div>
+              {tournamentData.entryFee > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-gray-500">💰 Quota</span>
+                  <span className="font-medium">€{tournamentData.entryFee}</span>
+                </div>
+              )}
+            </div>
+
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
+              <p className="text-sm text-amber-800">
+                <strong>Stai per iscriverti come:</strong><br />
+                {guestData.firstName} {guestData.lastName} ({guestData.email})
+              </p>
+            </div>
+
+            {error && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm text-center">
+                {error}
+              </div>
+            )}
+
+            <button
+              onClick={onRegister}
+              disabled={loading}
+              className="w-full py-4 bg-amber-500 text-white font-semibold rounded-xl hover:bg-amber-600 disabled:bg-gray-200 disabled:text-gray-400 transition-colors"
+            >
+              {loading ? 'Iscrizione in corso...' : 'Conferma Iscrizione'}
+            </button>
+          </>
+        )}
+
+        {step === 'success' && (
+          <div className="text-center py-8">
+            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <CheckIcon className="w-10 h-10 text-green-600" />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Iscrizione Completata!</h2>
+            <p className="text-gray-500 mb-6">
+              Ti abbiamo inviato una email di conferma con i dettagli del torneo.
+            </p>
+            <button
+              onClick={onClose}
+              className="px-8 py-3 bg-gray-900 text-white font-semibold rounded-xl hover:bg-gray-800 transition-colors"
+            >
+              Chiudi
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
   )
 }
