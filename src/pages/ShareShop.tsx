@@ -15,6 +15,7 @@ interface Shop {
     instagramUrl: string | null
     facebookUrl: string | null
     photoBase64: string | null
+    photoUrl: string | null
     type: string
     isVerified: boolean
     active: boolean | null
@@ -124,17 +125,21 @@ export default function ShareShop() {
                 <div className="max-w-3xl mx-auto">
                     {/* Shop Header */}
                     <div className="text-center mb-8 pt-8">
-                        {shop.photoBase64 ? (
+                        {(shop.photoUrl || shop.photoBase64) ? (
                             <img
-                                src={`data:image/jpeg;base64,${shop.photoBase64}`}
+                                src={shop.photoUrl || `data:image/jpeg;base64,${shop.photoBase64}`}
                                 alt={shop.name}
                                 className="w-32 h-32 rounded-2xl mx-auto mb-6 object-cover shadow-lg"
+                                onError={(e) => {
+                                    // If image fails to load, replace with placeholder
+                                    e.currentTarget.style.display = 'none'
+                                    e.currentTarget.parentElement?.querySelector('.placeholder-icon')?.classList.remove('hidden')
+                                }}
                             />
-                        ) : (
-                            <div className="w-32 h-32 rounded-2xl mx-auto mb-6 bg-gray-100 flex items-center justify-center">
-                                <span className="text-4xl">🏪</span>
-                            </div>
-                        )}
+                        ) : null}
+                        <div className={`w-32 h-32 rounded-2xl mx-auto mb-6 bg-gray-100 flex items-center justify-center placeholder-icon ${(shop.photoUrl || shop.photoBase64) ? 'hidden' : ''}`}>
+                            <span className="text-4xl">🏪</span>
+                        </div>
 
                         <div className="flex items-center justify-center gap-2 mb-2">
                             <h1 className="text-3xl font-bold text-gray-900">{shop.name}</h1>
