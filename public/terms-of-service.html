@@ -4,198 +4,175 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Termini di Servizio - TCG Arena</title>
-    <link rel="stylesheet" href="/style.css">
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 40px 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0066FF',
+                        secondary: '#F59E0B',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
         }
-        .container {
-            background: white;
-            padding: 40px;
-            border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-        }
-        h1 {
-            color: #667eea;
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            font-weight: 800;
-        }
-        h2 {
-            color: #764ba2;
-            font-size: 1.8em;
-            margin-top: 30px;
-            margin-bottom: 15px;
-            font-weight: 700;
-        }
-        h3 {
-            color: #667eea;
-            font-size: 1.3em;
-            margin-top: 20px;
-            margin-bottom: 10px;
-        }
-        .last-updated {
-            color: #666;
-            font-size: 0.9em;
-            margin-bottom: 30px;
-        }
-        p {
-            margin-bottom: 15px;
-        }
-        ul {
-            margin-bottom: 15px;
-            padding-left: 25px;
-        }
-        li {
-            margin-bottom: 8px;
-        }
-        .section {
-            margin-bottom: 35px;
-        }
-        a {
-            color: #667eea;
-            text-decoration: none;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
-        .lang-switch {
-            text-align: right;
-            margin-bottom: 20px;
-        }
-        .lang-switch a {
-            color: #667eea;
-            font-weight: 600;
-            margin-left: 15px;
-        }
-    </style>
+    </script>
 </head>
-<body>
-    <div class="container">
-        <div class="lang-switch">
-            <a href="/terms-of-service.html">🇮🇹 Italiano</a>
-            <a href="/terms-of-service-en.html">🇬🇧 English</a>
+<body class="bg-white text-gray-900 font-sans antialiased">
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full bg-white/90 backdrop-blur-sm border-b border-gray-100 z-50">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <span class="text-xl font-bold text-gray-900">TCG Arena</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <a href="/terms-of-service.html" class="text-sm font-medium text-gray-900 border-b-2 border-gray-900 pb-1">🇮🇹 Italiano</a>
+                <a href="/terms-of-service-en.html" class="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">🇬🇧 English</a>
+            </div>
         </div>
+    </nav>
 
-        <h1>Termini di Servizio</h1>
-        <p class="last-updated">Ultimo aggiornamento: 2 Gennaio 2026</p>
+    <!-- Content -->
+    <div class="pt-24 pb-20 px-6">
+        <div class="max-w-4xl mx-auto">
+            <!-- Header -->
+            <div class="mb-12">
+                <h1 class="text-5xl md:text-6xl font-bold text-gray-900 mb-4">Termini di Servizio</h1>
+                <p class="text-gray-500">Ultimo aggiornamento: 2 Gennaio 2026</p>
+            </div>
 
-        <div class="section">
-            <h2>1. Accettazione dei Termini</h2>
-            <p>Utilizzando TCG Arena ("l'App"), accetti di essere vincolato da questi Termini di Servizio. Se non accetti questi termini, non utilizzare l'App.</p>
-        </div>
+            <!-- Content Sections -->
+            <div class="prose prose-lg max-w-none">
+                <section class="mb-12">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-4">1. Accettazione dei Termini</h2>
+                    <p class="text-gray-600 leading-relaxed">Utilizzando TCG Arena ("l'App"), accetti di essere vincolato da questi Termini di Servizio. Se non accetti questi termini, non utilizzare l'App.</p>
+                </section>
 
-        <div class="section">
-            <h2>2. Descrizione del Servizio</h2>
-            <p>TCG Arena è una piattaforma mobile per collezionisti e giocatori di Trading Card Games (TCG) che offre:</p>
-            <ul>
-                <li>Gestione digitale della collezione di carte</li>
-                <li>Creazione e condivisione di deck</li>
-                <li>Sistema di scambio tra utenti</li>
-                <li>Ricerca e prenotazione presso negozi partner</li>
-                <li>Partecipazione a tornei ed eventi</li>
-                <li>Community e social features</li>
-            </ul>
-        </div>
+                <section class="mb-12">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-4">2. Descrizione del Servizio</h2>
+                    <p class="text-gray-600 leading-relaxed mb-4">TCG Arena è una piattaforma mobile per collezionisti e giocatori di Trading Card Games (TCG) che offre:</p>
+                    <ul class="space-y-2 text-gray-600">
+                        <li class="flex items-start"><span class="mr-2">•</span><span>Gestione digitale della collezione di carte</span></li>
+                        <li class="flex items-start"><span class="mr-2">•</span><span>Creazione e condivisione di deck</span></li>
+                        <li class="flex items-start"><span class="mr-2">•</span><span>Sistema di scambio tra utenti</span></li>
+                        <li class="flex items-start"><span class="mr-2">•</span><span>Ricerca e prenotazione presso negozi partner</span></li>
+                        <li class="flex items-start"><span class="mr-2">•</span><span>Partecipazione a tornei ed eventi</span></li>
+                        <li class="flex items-start"><span class="mr-2">•</span><span>Community e social features</span></li>
+                    </ul>
+                </section>
 
-        <div class="section">
-            <h2>3. Requisiti dell'Account</h2>
-            <h3>3.1 Registrazione</h3>
-            <p>Per utilizzare l'App, devi creare un account fornendo informazioni accurate e complete. Sei responsabile della sicurezza del tuo account e di tutte le attività svolte con esso.</p>
-            
-            <h3>3.2 Età Minima</h3>
-            <p>Devi avere almeno 13 anni per utilizzare l'App. Gli utenti tra 13 e 18 anni devono ottenere il consenso dei genitori o tutori legali.</p>
-            
-            <h3>3.3 Sospensione e Chiusura</h3>
-            <p>Ci riserviamo il diritto di sospendere o chiudere il tuo account in caso di violazione di questi termini.</p>
-        </div>
+                <section class="mb-12">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-4">3. Requisiti dell'Account</h2>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-3 mt-6">3.1 Registrazione</h3>
+                    <p class="text-gray-600 leading-relaxed">Per utilizzare l'App, devi creare un account fornendo informazioni accurate e complete. Sei responsabile della sicurezza del tuo account e di tutte le attività svolte con esso.</p>
+                    
+                    <h3 class="text-xl font-semibold text-gray-900 mb-3 mt-6">3.2 Età Minima</h3>
+                    <p class="text-gray-600 leading-relaxed">Devi avere almeno 13 anni per utilizzare l'App. Gli utenti tra 13 e 18 anni devono ottenere il consenso dei genitori o tutori legali.</p>
+                    
+                    <h3 class="text-xl font-semibold text-gray-900 mb-3 mt-6">3.3 Sospensione e Chiusura</h3>
+                    <p class="text-gray-600 leading-relaxed">Ci riserviamo il diritto di sospendere o chiudere il tuo account in caso di violazione di questi termini.</p>
+                </section>
 
-        <div class="section">
-            <h2>4. Uso Accettabile</h2>
-            <h3>4.1 Comportamento dell'Utente</h3>
-            <p>Ti impegni a:</p>
-            <ul>
-                <li>Utilizzare l'App in modo legale e rispettoso</li>
-                <li>Non pubblicare contenuti offensivi, diffamatori o illegali</li>
-                <li>Non impersonare altre persone o entità</li>
-                <li>Non utilizzare l'App per attività fraudolente</li>
-                <li>Rispettare i diritti di proprietà intellettuale di terzi</li>
-                <li>Non tentare di accedere a sistemi non autorizzati</li>
-            </ul>
-            
-            <h3>4.2 Contenuti Generati dagli Utenti</h3>
-            <p>Sei responsabile dei contenuti che pubblichi. Ci riserviamo il diritto di rimuovere contenuti che violano questi termini senza preavviso.</p>
-        </div>
+                <section class="mb-12">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-4">4. Uso Accettabile</h2>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-3 mt-6">4.1 Comportamento dell'Utente</h3>
+                    <p class="text-gray-600 leading-relaxed mb-4">Ti impegni a:</p>
+                    <ul class="space-y-2 text-gray-600">
+                        <li class="flex items-start"><span class="mr-2">•</span><span>Utilizzare l'App in modo legale e rispettoso</span></li>
+                        <li class="flex items-start"><span class="mr-2">•</span><span>Non pubblicare contenuti offensivi, diffamatori o illegali</span></li>
+                        <li class="flex items-start"><span class="mr-2">•</span><span>Non impersonare altre persone o entità</span></li>
+                        <li class="flex items-start"><span class="mr-2">•</span><span>Non utilizzare l'App per attività fraudolente</span></li>
+                        <li class="flex items-start"><span class="mr-2">•</span><span>Rispettare i diritti di proprietà intellettuale di terzi</span></li>
+                        <li class="flex items-start"><span class="mr-2">•</span><span>Non tentare di accedere a sistemi non autorizzati</span></li>
+                    </ul>
+                    
+                    <h3 class="text-xl font-semibold text-gray-900 mb-3 mt-6">4.2 Contenuti Generati dagli Utenti</h3>
+                    <p class="text-gray-600 leading-relaxed">Sei responsabile dei contenuti che pubblichi. Ci riserviamo il diritto di rimuovere contenuti che violano questi termini senza preavviso.</p>
+                </section>
 
-        <div class="section">
-            <h2>5. Proprietà Intellettuale</h2>
-            <p>L'App, inclusi design, codice, loghi e contenuti, è di proprietà di TCG Arena o dei suoi licenziatari. Non puoi copiare, modificare o distribuire l'App senza autorizzazione scritta.</p>
-            <p>I nomi, loghi e immagini dei TCG (Pokémon, Magic: The Gathering, Yu-Gi-Oh!, ecc.) sono proprietà dei rispettivi detentori e sono utilizzati esclusivamente per scopi informativi.</p>
-        </div>
+                <section class="mb-12">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-4">5. Proprietà Intellettuale</h2>
+                    <p class="text-gray-600 leading-relaxed mb-4">L'App, inclusi design, codice, loghi e contenuti, è di proprietà di TCG Arena o dei suoi licenziatari. Non puoi copiare, modificare o distribuire l'App senza autorizzazione scritta.</p>
+                    <p class="text-gray-600 leading-relaxed">I nomi, loghi e immagini dei TCG (Pokémon, Magic: The Gathering, Yu-Gi-Oh!, ecc.) sono proprietà dei rispettivi detentori e sono utilizzati esclusivamente per scopi informativi.</p>
+                </section>
 
-        <div class="section">
-            <h2>6. Scambi e Transazioni</h2>
-            <h3>6.1 Responsabilità</h3>
-            <p>TCG Arena facilita gli scambi tra utenti ma non è parte delle transazioni. Sei responsabile della negoziazione, valutazione e completamento degli scambi.</p>
-            
-            <h3>6.2 Valutazione delle Carte</h3>
-            <p>I prezzi e le valutazioni fornite sono solo indicativi. Verifica sempre il valore di mercato attuale prima di completare uno scambio.</p>
-            
-            <h3>6.3 Dispute</h3>
-            <p>Le dispute tra utenti devono essere risolte direttamente tra le parti. TCG Arena può fornire assistenza ma non è responsabile per transazioni fallite o contenziosi.</p>
-        </div>
+                <section class="mb-12">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-4">6. Scambi e Transazioni</h2>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-3 mt-6">6.1 Responsabilità</h3>
+                    <p class="text-gray-600 leading-relaxed">TCG Arena facilita gli scambi tra utenti ma non è parte delle transazioni. Sei responsabile della negoziazione, valutazione e completamento degli scambi.</p>
+                    
+                    <h3 class="text-xl font-semibold text-gray-900 mb-3 mt-6">6.2 Valutazione delle Carte</h3>
+                    <p class="text-gray-600 leading-relaxed">I prezzi e le valutazioni fornite sono solo indicativi. Verifica sempre il valore di mercato attuale prima di completare uno scambio.</p>
+                    
+                    <h3 class="text-xl font-semibold text-gray-900 mb-3 mt-6">6.3 Dispute</h3>
+                    <p class="text-gray-600 leading-relaxed">Le dispute tra utenti devono essere risolte direttamente tra le parti. TCG Arena può fornire assistenza ma non è responsabile per transazioni fallite o contenziosi.</p>
+                </section>
 
-        <div class="section">
-            <h2>7. Tornei ed Eventi</h2>
-            <ul>
-                <li>Le regole specifiche di tornei ed eventi sono stabilite dagli organizzatori</li>
-                <li>Le prenotazioni sono soggette a disponibilità</li>
-                <li>Gli organizzatori possono cancellare o modificare eventi</li>
-                <li>TCG Arena non è responsabile per problemi durante eventi di terze parti</li>
-            </ul>
-        </div>
+                <section class="mb-12">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-4">7. Tornei ed Eventi</h2>
+                    <ul class="space-y-2 text-gray-600">
+                        <li class="flex items-start"><span class="mr-2">•</span><span>Le regole specifiche di tornei ed eventi sono stabilite dagli organizzatori</span></li>
+                        <li class="flex items-start"><span class="mr-2">•</span><span>Le prenotazioni sono soggette a disponibilità</span></li>
+                        <li class="flex items-start"><span class="mr-2">•</span><span>Gli organizzatori possono cancellare o modificare eventi</span></li>
+                        <li class="flex items-start"><span class="mr-2">•</span><span>TCG Arena non è responsabile per problemi durante eventi di terze parti</span></li>
+                    </ul>
+                </section>
 
-        <div class="section">
-            <h2>8. Limitazione di Responsabilità</h2>
-            <p>L'App è fornita "così com'è" senza garanzie di alcun tipo. TCG Arena non è responsabile per:</p>
-            <ul>
-                <li>Perdita di dati o interruzioni del servizio</li>
-                <li>Danni derivanti dall'uso o impossibilità di utilizzo dell'App</li>
-                <li>Contenuti generati da utenti o terze parti</li>
-                <li>Transazioni tra utenti</li>
-                <li>Decisioni prese basandosi sulle informazioni dell'App</li>
-            </ul>
-        </div>
+                <section class="mb-12">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-4">8. Limitazione di Responsabilità</h2>
+                    <p class="text-gray-600 leading-relaxed mb-4">L'App è fornita "così com'è" senza garanzie di alcun tipo. TCG Arena non è responsabile per:</p>
+                    <ul class="space-y-2 text-gray-600">
+                        <li class="flex items-start"><span class="mr-2">•</span><span>Perdita di dati o interruzioni del servizio</span></li>
+                        <li class="flex items-start"><span class="mr-2">•</span><span>Danni derivanti dall'uso o impossibilità di utilizzo dell'App</span></li>
+                        <li class="flex items-start"><span class="mr-2">•</span><span>Contenuti generati da utenti o terze parti</span></li>
+                        <li class="flex items-start"><span class="mr-2">•</span><span>Transazioni tra utenti</span></li>
+                        <li class="flex items-start"><span class="mr-2">•</span><span>Decisioni prese basandosi sulle informazioni dell'App</span></li>
+                    </ul>
+                </section>
 
-        <div class="section">
-            <h2>9. Modifiche ai Termini</h2>
-            <p>Ci riserviamo il diritto di modificare questi termini in qualsiasi momento. Ti informeremo delle modifiche tramite notifica nell'App o via email. L'utilizzo continuato dell'App dopo le modifiche costituisce accettazione dei nuovi termini.</p>
-        </div>
+                <section class="mb-12">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-4">9. Modifiche ai Termini</h2>
+                    <p class="text-gray-600 leading-relaxed">Ci riserviamo il diritto di modificare questi termini in qualsiasi momento. Ti informeremo delle modifiche tramite notifica nell'App o via email. L'utilizzo continuato dell'App dopo le modifiche costituisce accettazione dei nuovi termini.</p>
+                </section>
 
-        <div class="section">
-            <h2>10. Privacy</h2>
-            <p>Il trattamento dei tuoi dati personali è regolato dalla nostra <a href="/privacy-policy.html">Privacy Policy</a>, che costituisce parte integrante di questi termini.</p>
-        </div>
+                <section class="mb-12">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-4">10. Privacy</h2>
+                    <p class="text-gray-600 leading-relaxed">Il trattamento dei tuoi dati personali è regolato dalla nostra <a href="/privacy-policy.html" class="text-blue-600 hover:text-blue-700 underline">Privacy Policy</a>, che costituisce parte integrante di questi termini.</p>
+                </section>
 
-        <div class="section">
-            <h2>11. Legge Applicabile</h2>
-            <p>Questi termini sono regolati dalla legge italiana. Eventuali controversie saranno sottoposte alla giurisdizione esclusiva dei tribunali italiani.</p>
-        </div>
+                <section class="mb-12">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-4">11. Legge Applicabile</h2>
+                    <p class="text-gray-600 leading-relaxed">Questi termini sono regolati dalla legge italiana. Eventuali controversie saranno sottoposte alla giurisdizione esclusiva dei tribunali italiani.</p>
+                </section>
 
-        <div class="section">
-            <h2>12. Contatti</h2>
-            <p>Per domande su questi Termini di Servizio:</p>
-            <ul>
-                <li>Email: <a href="mailto:legal@tcgarena.com">legal@tcgarena.com</a></li>
-                <li>Email supporto: <a href="mailto:support@tcgarena.com">support@tcgarena.com</a></li>
-            </ul>
+                <section class="mb-12">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-4">12. Contatti</h2>
+                    <p class="text-gray-600 leading-relaxed mb-4">Per domande su questi Termini di Servizio:</p>
+                    <ul class="space-y-2 text-gray-600">
+                        <li>Email: <a href="mailto:legal@tcgarena.com" class="text-blue-600 hover:text-blue-700 underline">legal@tcgarena.com</a></li>
+                        <li>Supporto: <a href="mailto:support@tcgarena.com" class="text-blue-600 hover:text-blue-700 underline">support@tcgarena.com</a></li>
+                    </ul>
+                </section>
+            </div>
         </div>
     </div>
+
+    <!-- Footer -->
+    <footer class="border-t border-gray-100 bg-gray-50 py-8">
+        <div class="max-w-4xl mx-auto px-6 text-center">
+            <p class="text-sm text-gray-500">© 2026 TCG Arena. Tutti i diritti riservati.</p>
+            <div class="mt-4 flex items-center justify-center gap-6">
+                <a href="/privacy-policy.html" class="text-sm text-gray-600 hover:text-gray-900">Privacy Policy</a>
+                <a href="/terms-of-service.html" class="text-sm text-gray-600 hover:text-gray-900">Termini di Servizio</a>
+            </div>
+        </div>
+    </footer>
 </body>
 </html>

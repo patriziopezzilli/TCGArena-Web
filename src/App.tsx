@@ -19,6 +19,11 @@ import AdminDashboard from './pages/AdminDashboard'
 import ShopSuggestions from './components/admin/ShopSuggestions'
 import QrCodeLanding from './pages/QrCodeLanding'
 import ApiSdk from './pages/ApiSdk'
+// Share pages
+import ShareShop from './pages/ShareShop'
+import ShareTournament from './pages/ShareTournament'
+import ShareEvent from './pages/ShareEvent'
+import ShareCard from './pages/ShareCard'
 
 function App() {
   return (
@@ -47,6 +52,11 @@ function App() {
           <Route path="/admin/shop-suggestions" element={<ShopSuggestions />} />
           {/* Landing pages */}
           <Route path="/qr-code" element={<QrCodeLanding />} />
+          {/* Share pages - public, no auth required */}
+          <Route path="/share/shop/:id" element={<ShareShop />} />
+          <Route path="/share/tournament/:id" element={<ShareTournament />} />
+          <Route path="/share/event/:id" element={<ShareEvent />} />
+          <Route path="/share/card/:id" element={<ShareCard />} />
         </Routes>
         <ToastContainer />
       </BrowserRouter>
