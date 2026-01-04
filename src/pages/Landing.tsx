@@ -26,11 +26,12 @@ export default function Landing() {
   const [tournamentError, setTournamentError] = useState('')
   const [currentScreenshot, setCurrentScreenshot] = useState(0)
   const iosScreenshots = [
-    '/images/ios/IMG_1980.PNG',
-    '/images/ios/IMG_1981.PNG',
-    '/images/ios/IMG_1982.PNG',
-    '/images/ios/IMG_1983.PNG',
-    '/images/ios/IMG_1984.PNG'
+    '/images/ios/app_screen_1.png',
+    '/images/ios/app_screen_2.png',
+    '/images/ios/app_screen_3.png',
+    '/images/ios/app_screen_4.png',
+    '/images/ios/app_screen_5.png',
+    '/images/ios/app_screen_6.png'
   ]
   const desktopScreenshots = [
     '/images/desktop/Screenshot 2025-12-18 alle 21.48.15.png',
@@ -318,6 +319,41 @@ export default function Landing() {
           </div>
         </section>
 
+        {/* App Showcase Section */}
+        <section className="py-20 px-6 bg-gray-900 overflow-hidden">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-16">
+              <span className="inline-block px-4 py-2 rounded-full bg-gray-800 text-gray-300 text-sm font-medium mb-6 border border-gray-700">
+                Anteprima App
+              </span>
+              <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
+                Scopri l'esperienza completa
+              </h2>
+              <p className="text-gray-400 max-w-2xl mx-auto text-lg">
+                Un'interfaccia moderna e intuitiva progettata per mettere tutto ciò che ti serve a portata di mano.
+              </p>
+            </div>
+
+            {/* Screenshots Grid / Slider */}
+            <div className="flex overflow-x-auto snap-x snap-mandatory pb-4 md:grid md:grid-cols-3 lg:grid-cols-6 md:pb-0 gap-4 md:gap-6 no-scrollbar">
+              {iosScreenshots.map((src, index) => (
+                <div
+                  key={index}
+                  className="snap-center flex-shrink-0 w-[80vw] sm:w-[40vw] md:w-auto group relative aspect-[9/19.5] rounded-2xl overflow-hidden bg-gray-800 border-4 border-gray-800 shadow-2xl transition-all duration-500 hover:-translate-y-2 hover:border-gray-700"
+                >
+                  <img
+                    src={src}
+                    alt={`App Screenshot ${index + 1}`}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* Stats Section */}
         <section className="py-16 px-6">
           <div className="max-w-6xl mx-auto">
@@ -397,6 +433,8 @@ export default function Landing() {
             </div>
           </div>
         </section>
+
+
 
         {/* Footer */}
         <footer className="border-t border-gray-100 py-8 px-6">
