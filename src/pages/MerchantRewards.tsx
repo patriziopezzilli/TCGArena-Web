@@ -174,7 +174,7 @@ export default function MerchantRewards({ embedded = false }: MerchantRewardsPro
         isPercentage: formData.type === 'DISCOUNT' ? formData.isPercentage : null,
         productName: ['BOOSTER_PACK', 'ETB', 'PRODUCT'].includes(formData.type) ? formData.productName : null,
         stockQuantity: formData.stockQuantity,
-        expiresAt: formData.expiresAt || null,
+        expiresAt: formData.expiresAt ? `${formData.expiresAt}T23:59:59` : null,
       }
 
       if (editingReward) {
