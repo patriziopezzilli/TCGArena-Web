@@ -359,11 +359,11 @@ export default function Landing() {
           <div className="max-w-6xl mx-auto">
             <div className="grid md:grid-cols-3 gap-8 text-center">
               <div className="p-6">
-                <p className="text-4xl md:text-5xl font-bold text-gray-900 mb-2">100+</p>
+                <p className="text-4xl md:text-5xl font-bold text-gray-900 mb-2">2000+</p>
                 <p className="text-gray-500">Negozi sulla piattaforma</p>
               </div>
               <div className="p-6">
-                <p className="text-4xl md:text-5xl font-bold text-gray-900 mb-2">5K+</p>
+                <p className="text-4xl md:text-5xl font-bold text-gray-900 mb-2">400K+</p>
                 <p className="text-gray-500">Carte disponibili</p>
               </div>
               <div className="p-6">
