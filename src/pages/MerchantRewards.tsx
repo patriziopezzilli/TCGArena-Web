@@ -1,8 +1,25 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useToast } from '../contexts/ToastContext'
+import axios from 'axios'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://api.tcgarena.it/api'
+
+// Create axios instance with auth interceptor
+const apiClient = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+})
+
+apiClient.interceptors.request.use((config) => {
+  const token = localStorage.getItem('merchant_token')
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
+  }
+  return config
+})
 
 // Types
 interface ShopReward {
@@ -106,14 +123,6 @@ export default function MerchantRewards({ embedded = false }: MerchantRewardsPro
     notes: '',
   })
 
-  const getAuthHeaders = () => {
-    const token = localStorage.getItem('merchant_token')
-    return {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    }
-  }
-
   useEffect(() => {
     if (!embedded) {
       const token = localStorage.getItem('merchant_token')
@@ -138,13 +147,8 @@ export default function MerchantRewards({ embedded = false }: MerchantRewardsPro
 
   const loadRewards = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/merchant/rewards`, {
-        headers: getAuthHeaders(),
-      })
-      if (response.ok) {
-        const data = await response.json()
-        setRewards(data)
-      }
+      const response = await apiClient.get('/merchant/rewards')
+      setRewards(response.data)
     } catch (err) {
       console.error('Error loading rewards:', err)
     }
@@ -152,13 +156,8 @@ export default function MerchantRewards({ embedded = false }: MerchantRewardsPro
 
   const loadRedemptions = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/merchant/redemptions`, {
-        headers: getAuthHeaders(),
-      })
-      if (response.ok) {
-        const data = await response.json()
-        setRedemptions(data)
-      }
+      const response = await apiClient.get('/merchant/redemptions')
+      setRedemptions(response.data)
     } catch (err) {
       console.error('Error loading redemptions:', err)
     }
@@ -178,41 +177,26 @@ export default function MerchantRewards({ embedded = false }: MerchantRewardsPro
         expiresAt: formData.expiresAt || null,
       }
 
-      const url = editingReward ? `${API_BASE_URL}/merchant/rewards/${editingReward.id}` : `${API_BASE_URL}/merchant/rewards`
-      const method = editingReward ? 'PUT' : 'POST'
-
-      const response = await fetch(url, {
-        method,
-        headers: getAuthHeaders(),
-        body: JSON.stringify(payload),
-      })
-
-      if (response.ok) {
-        showToast(editingReward ? 'Premio aggiornato!' : 'Premio creato! Il tuo negozio è ora Partner.', 'success')
-        setShowCreateModal(false)
-        resetForm()
-        loadRewards()
+      if (editingReward) {
+        await apiClient.put(`/merchant/rewards/${editingReward.id}`, payload)
       } else {
-        const error = await response.json()
-        showToast(error.error || 'Errore', 'error')
+        await apiClient.post('/merchant/rewards', payload)
       }
-    } catch (err) {
-      showToast('Errore di connessione', 'error')
+
+      showToast(editingReward ? 'Premio aggiornato!' : 'Premio creato! Il tuo negozio è ora Partner.', 'success')
+      setShowCreateModal(false)
+      resetForm()
+      loadRewards()
+    } catch (err: any) {
+      showToast(err.response?.data?.error || 'Errore di connessione', 'error')
     }
   }
 
   const handleToggleActive = async (reward: ShopReward) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/merchant/rewards/${reward.id}/toggle`, {
-        method: 'PATCH',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({ active: !reward.isActive }),
-      })
-
-      if (response.ok) {
-        showToast(reward.isActive ? 'Premio disattivato' : 'Premio attivato', 'success')
-        loadRewards()
-      }
+      await apiClient.patch(`/merchant/rewards/${reward.id}/toggle`, { active: !reward.isActive })
+      showToast(reward.isActive ? 'Premio disattivato' : 'Premio attivato', 'success')
+      loadRewards()
     } catch (err) {
       showToast('Errore', 'error')
     }
@@ -222,15 +206,9 @@ export default function MerchantRewards({ embedded = false }: MerchantRewardsPro
     if (!confirm('Sei sicuro di voler eliminare questo premio?')) return
 
     try {
-      const response = await fetch(`${API_BASE_URL}/merchant/rewards/${rewardId}`, {
-        method: 'DELETE',
-        headers: getAuthHeaders(),
-      })
-
-      if (response.ok) {
-        showToast('Premio eliminato', 'success')
-        loadRewards()
-      }
+      await apiClient.delete(`/merchant/rewards/${rewardId}`)
+      showToast('Premio eliminato', 'success')
+      loadRewards()
     } catch (err) {
       showToast('Errore', 'error')
     }
@@ -240,24 +218,14 @@ export default function MerchantRewards({ embedded = false }: MerchantRewardsPro
     if (!selectedRedemption) return
 
     try {
-      const response = await fetch(`${API_BASE_URL}/merchant/redemptions/${selectedRedemption.id}/fulfill`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify(fulfillData),
-      })
-
-      if (response.ok) {
-        showToast('Riscatto completato!', 'success')
-        setShowFulfillModal(false)
-        setSelectedRedemption(null)
-        setFulfillData({ voucherCode: '', trackingCode: '', notes: '' })
-        loadRedemptions()
-      } else {
-        const error = await response.json()
-        showToast(error.error || 'Errore', 'error')
-      }
-    } catch (err) {
-      showToast('Errore di connessione', 'error')
+      await apiClient.post(`/merchant/redemptions/${selectedRedemption.id}/fulfill`, fulfillData)
+      showToast('Riscatto completato!', 'success')
+      setShowFulfillModal(false)
+      setSelectedRedemption(null)
+      setFulfillData({ voucherCode: '', trackingCode: '', notes: '' })
+      loadRedemptions()
+    } catch (err: any) {
+      showToast(err.response?.data?.error || 'Errore di connessione', 'error')
     }
   }
 
@@ -265,15 +233,9 @@ export default function MerchantRewards({ embedded = false }: MerchantRewardsPro
     if (!confirm('Sei sicuro? I punti verranno rimborsati all\'utente.')) return
 
     try {
-      const response = await fetch(`${API_BASE_URL}/merchant/redemptions/${redemptionId}/cancel`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-      })
-
-      if (response.ok) {
-        showToast('Riscatto annullato e punti rimborsati', 'success')
-        loadRedemptions()
-      }
+      await apiClient.post(`/merchant/redemptions/${redemptionId}/cancel`)
+      showToast('Riscatto annullato e punti rimborsati', 'success')
+      loadRedemptions()
     } catch (err) {
       showToast('Errore', 'error')
     }
