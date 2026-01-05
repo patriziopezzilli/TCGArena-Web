@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useToast } from '../contexts/ToastContext'
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://api.tcgarena.it/api'
+
 // Types
 interface ShopReward {
   id: number
@@ -136,7 +138,7 @@ export default function MerchantRewards({ embedded = false }: MerchantRewardsPro
 
   const loadRewards = async () => {
     try {
-      const response = await fetch('/api/merchant/rewards', {
+      const response = await fetch(`${API_BASE_URL}/merchant/rewards`, {
         headers: getAuthHeaders(),
       })
       if (response.ok) {
@@ -150,7 +152,7 @@ export default function MerchantRewards({ embedded = false }: MerchantRewardsPro
 
   const loadRedemptions = async () => {
     try {
-      const response = await fetch('/api/merchant/redemptions', {
+      const response = await fetch(`${API_BASE_URL}/merchant/redemptions`, {
         headers: getAuthHeaders(),
       })
       if (response.ok) {
@@ -176,7 +178,7 @@ export default function MerchantRewards({ embedded = false }: MerchantRewardsPro
         expiresAt: formData.expiresAt || null,
       }
 
-      const url = editingReward ? `/api/merchant/rewards/${editingReward.id}` : '/api/merchant/rewards'
+      const url = editingReward ? `${API_BASE_URL}/merchant/rewards/${editingReward.id}` : `${API_BASE_URL}/merchant/rewards`
       const method = editingReward ? 'PUT' : 'POST'
 
       const response = await fetch(url, {
@@ -201,7 +203,7 @@ export default function MerchantRewards({ embedded = false }: MerchantRewardsPro
 
   const handleToggleActive = async (reward: ShopReward) => {
     try {
-      const response = await fetch(`/api/merchant/rewards/${reward.id}/toggle`, {
+      const response = await fetch(`${API_BASE_URL}/merchant/rewards/${reward.id}/toggle`, {
         method: 'PATCH',
         headers: getAuthHeaders(),
         body: JSON.stringify({ active: !reward.isActive }),
@@ -220,7 +222,7 @@ export default function MerchantRewards({ embedded = false }: MerchantRewardsPro
     if (!confirm('Sei sicuro di voler eliminare questo premio?')) return
 
     try {
-      const response = await fetch(`/api/merchant/rewards/${rewardId}`, {
+      const response = await fetch(`${API_BASE_URL}/merchant/rewards/${rewardId}`, {
         method: 'DELETE',
         headers: getAuthHeaders(),
       })
@@ -238,7 +240,7 @@ export default function MerchantRewards({ embedded = false }: MerchantRewardsPro
     if (!selectedRedemption) return
 
     try {
-      const response = await fetch(`/api/merchant/redemptions/${selectedRedemption.id}/fulfill`, {
+      const response = await fetch(`${API_BASE_URL}/merchant/redemptions/${selectedRedemption.id}/fulfill`, {
         method: 'POST',
         headers: getAuthHeaders(),
         body: JSON.stringify(fulfillData),
@@ -263,7 +265,7 @@ export default function MerchantRewards({ embedded = false }: MerchantRewardsPro
     if (!confirm('Sei sicuro? I punti verranno rimborsati all\'utente.')) return
 
     try {
-      const response = await fetch(`/api/merchant/redemptions/${redemptionId}/cancel`, {
+      const response = await fetch(`${API_BASE_URL}/merchant/redemptions/${redemptionId}/cancel`, {
         method: 'POST',
         headers: getAuthHeaders(),
       })
