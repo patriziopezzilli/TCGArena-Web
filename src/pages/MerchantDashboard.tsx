@@ -11,6 +11,7 @@ import ShopNews from './ShopNews'
 import TournamentRequests from './TournamentRequests'
 import MerchantSettings from './MerchantSettings'
 import MerchantInventory from './MerchantInventory'
+import MerchantRewards from './MerchantRewards'
 import {
   DashboardIcon,
   InventoryIcon,
@@ -21,7 +22,8 @@ import {
   BellIcon,
   NewsIcon,
   SettingsIcon,
-  ArrowRightIcon
+  ArrowRightIcon,
+  GiftIcon
 } from '../components/Icons'
 
 // Merchant menu items with SVG icons
@@ -34,6 +36,7 @@ const merchantMenuItems = [
   { id: 'requests', label: 'Richieste Clienti', icon: <ChatIcon /> },
   { id: 'subscribers', label: 'Iscritti', icon: <BellIcon /> },
   { id: 'news', label: 'Notizie', icon: <NewsIcon /> },
+  { id: 'rewards', label: 'Premi Partner', icon: <GiftIcon /> },
   { id: 'settings', label: 'Impostazioni', icon: <SettingsIcon /> },
 ]
 
@@ -154,6 +157,7 @@ export default function MerchantDashboard() {
       case 'requests': return 'Richieste Clienti'
       case 'subscribers': return 'Iscritti'
       case 'news': return 'Notizie'
+      case 'rewards': return 'Premi Partner'
       case 'settings': return 'Impostazioni'
       default: return 'Dashboard'
     }
@@ -182,6 +186,8 @@ export default function MerchantDashboard() {
         return <MerchantSubscribers embedded />
       case 'news':
         return <ShopNews embedded />
+      case 'rewards':
+        return <MerchantRewards embedded />
       case 'settings':
         return <MerchantSettings embedded />
       default:

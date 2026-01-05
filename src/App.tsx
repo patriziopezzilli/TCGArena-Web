@@ -13,6 +13,7 @@ import TournamentParticipants from './pages/TournamentParticipants'
 import MerchantRequests from './pages/MerchantRequests'
 import MerchantSettings from './pages/MerchantSettings'
 import MerchantSubscribers from './pages/MerchantSubscribers'
+import MerchantRewards from './pages/MerchantRewards'
 import ShopNews from './pages/ShopNews'
 import TournamentRequests from './pages/TournamentRequests'
 import AdminDashboard from './pages/AdminDashboard'
@@ -47,6 +48,7 @@ function App() {
           <Route path="/merchant/settings" element={<MerchantSettings />} />
           <Route path="/merchant/subscribers" element={<MerchantSubscribers />} />
           <Route path="/merchant/news" element={<ShopNews />} />
+          <Route path="/merchant/rewards" element={<MerchantRewards />} />
           {/* Admin routes */}
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/shop-suggestions" element={<ShopSuggestions />} />
