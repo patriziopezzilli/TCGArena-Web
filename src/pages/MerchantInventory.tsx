@@ -106,6 +106,9 @@ export default function MerchantInventory({ embedded = false }: MerchantInventor
   })
   const [bulkLoading, setBulkLoading] = useState(false)
 
+  // Search debounce timer
+  const [searchTimer, setSearchTimer] = useState<NodeJS.Timeout | null>(null)
+
   // Filter options
   const [tcgTypes, setTcgTypes] = useState<string[]>([])
   const [rarities, setRarities] = useState<string[]>([])
@@ -160,6 +163,28 @@ export default function MerchantInventory({ embedded = false }: MerchantInventor
       }
     }
   }, [])
+
+  // Debounce search query for inventory
+  useEffect(() => {
+    if (!shopId) return
+
+    // Clear previous timer
+    if (searchTimer) {
+      clearTimeout(searchTimer)
+    }
+
+    // Set new timer to call backend after 500ms of no typing
+    const timer = setTimeout(() => {
+      loadInventory(shopId, inventoryFilters)
+    }, 500)
+
+    setSearchTimer(timer)
+
+    // Cleanup
+    return () => {
+      if (timer) clearTimeout(timer)
+    }
+  }, [inventoryFilters.searchQuery])
 
   const loadFilterOptions = async () => {
     try {
