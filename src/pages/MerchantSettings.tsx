@@ -256,7 +256,6 @@ export default function MerchantSettings({ embedded = false }: MerchantSettingsP
       showToast('Errore nel salvataggio: ' + (error.response?.data?.message || error.message), 'error')
     } finally {
       setSaving(false)
-        ```
     }
   }
 
@@ -299,11 +298,10 @@ export default function MerchantSettings({ embedded = false }: MerchantSettingsP
               key={tab.id}
               type="button"
               onClick={() => setActiveTab(tab.id)}
-              className={`px-4 py-2.5 rounded-lg font-medium text-sm whitespace-nowrap transition-all flex-1 text-center min-w-0 ${
-        activeTab === tab.id
-          ? 'bg-gray-900 text-white shadow-sm'
-          : 'text-gray-600 hover:bg-gray-100'
-      } `}
+              className={`px-4 py-2.5 rounded-lg font-medium text-sm whitespace-nowrap transition-all flex-1 text-center min-w-0 ${activeTab === tab.id
+                  ? 'bg-gray-900 text-white shadow-sm'
+                  : 'text-gray-600 hover:bg-gray-100'
+                } `}
             >
               {tab.label}
             </button>
@@ -351,11 +349,10 @@ export default function MerchantSettings({ embedded = false }: MerchantSettingsP
         <button
           type="submit"
           disabled={saving}
-          className={`flex-1 px-6 py-3 rounded-xl font-medium transition-colors ${
-        saving
-          ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-          : 'bg-gray-900 text-white hover:bg-gray-800'
-      } `}
+          className={`flex-1 px-6 py-3 rounded-xl font-medium transition-colors ${saving
+              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              : 'bg-gray-900 text-white hover:bg-gray-800'
+            } `}
         >
           {saving ? 'Salvataggio...' : 'Salva Modifiche'}
         </button>
@@ -497,14 +494,13 @@ const ServicesTab = ({ formData, setFormData }: any) => (
                   : [...formData.tcgTypes, tcg.value]
                 setFormData({ ...formData, tcgTypes: newTypes })
               }}
-              className={`flex items-center gap-2 p-3 rounded-lg border-2 transition-all text-left ${
-        isSelected
-          ? `${tcg.color} border-current`
-          : 'bg-gray-50 border-gray-200 hover:border-gray-300'
-      } `}
+              className={`flex items-center gap-2 p-3 rounded-lg border-2 transition-all text-left ${isSelected
+                  ? `${tcg.color} border-current`
+                  : 'bg-gray-50 border-gray-200 hover:border-gray-300'
+                } `}
             >
               <span className="text-gray-600 flex-shrink-0">{tcg.icon}</span>
-              <span className={`font-medium text-sm truncate ${ isSelected ? '' : 'text-gray-700' } `}>
+              <span className={`font-medium text-sm truncate ${isSelected ? '' : 'text-gray-700'} `}>
                 {tcg.label}
               </span>
               {isSelected && (
@@ -535,11 +531,10 @@ const ServicesTab = ({ formData, setFormData }: any) => (
                   : [...formData.services, service.value]
                 setFormData({ ...formData, services: newServices })
               }}
-              className={`flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 text-center transition-all ${
-        isSelected
-          ? 'bg-gray-900 border-gray-900 text-white'
-          : 'bg-gray-50 border-gray-200 hover:border-gray-300 text-gray-700'
-      } `}
+              className={`flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 text-center transition-all ${isSelected
+                  ? 'bg-gray-900 border-gray-900 text-white'
+                  : 'bg-gray-50 border-gray-200 hover:border-gray-300 text-gray-700'
+                } `}
             >
               <span className={isSelected ? 'text-white' : 'text-gray-500'}>{service.icon}</span>
               <span className="font-medium text-xs">{service.label}</span>
@@ -711,11 +706,10 @@ const SettingsTab = ({ formData, handleInputChange, reservationSettings, setRese
           type="button"
           onClick={handleReservationSettingsSubmit}
           disabled={saving}
-          className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
-        saving
-          ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-      } `}
+          className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${saving
+              ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            } `}
         >
           {saving ? 'Salvataggio...' : 'Salva Prenotazioni'}
         </button>
