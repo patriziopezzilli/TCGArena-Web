@@ -103,6 +103,58 @@ export default function ShareShop() {
 
     const { shop } = data
 
+    const getIsOpenStatus = (shop: Shop) => {
+        const now = new Date()
+        const currentTimeMinutes = now.getHours() * 60 + now.getMinutes()
+        const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
+
+        if (shop.openingHoursStructured) {
+            const dayName = days[now.getDay()]
+            const schedule = shop.openingHoursStructured[dayName]
+
+            if (!schedule || schedule.closed) {
+                return { isOpen: false, status: 'Chiuso', todayHours: 'Chiuso' }
+            }
+
+            const [openH, openM] = schedule.open.split(':').map(Number)
+            const [closeH, closeM] = schedule.close.split(':').map(Number)
+            const openTime = openH * 60 + openM
+            const closeTime = closeH * 60 + closeM
+
+            const isOpen = currentTimeMinutes >= openTime && currentTimeMinutes <= closeTime
+            return {
+                isOpen,
+                status: isOpen ? 'Aperto ora' : 'Chiuso',
+                todayHours: `${schedule.open} - ${schedule.close}`
+            }
+        }
+
+        if (shop.openingHours) {
+            const hoursMatch = shop.openingHours.match(/(\d{1,2}:\d{2})\s*-\s*(\d{1,2}:\d{2})/)
+            if (hoursMatch) {
+                const [_, openStr, closeStr] = hoursMatch
+                const [openH, openM] = openStr.split(':').map(Number)
+                const [closeH, closeM] = closeStr.split(':').map(Number)
+                const openTime = openH * 60 + openM
+                const closeTime = closeH * 60 + closeM
+
+                const isOpen = currentTimeMinutes >= openTime && currentTimeMinutes <= closeTime
+                return {
+                    isOpen,
+                    status: isOpen ? 'Aperto ora' : 'Chiuso',
+                    todayHours: shop.openingHours
+                }
+            }
+            return { isOpen: true, status: 'Aperto', todayHours: shop.openingHours }
+        }
+
+        return { isOpen: true, status: 'Orari non disponibili', todayHours: 'Non specificato' }
+    }
+
+    const status = getIsOpenStatus(shop)
+    const itDays = ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato', 'Domenica']
+    const enDays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
+
     return (
         <div className="min-h-screen bg-white">
             {/* Header */}
@@ -212,15 +264,52 @@ export default function ShareShop() {
                     )}
 
                     {/* Opening Hours */}
-                    {shop.openingHours && (
-                        <div className="mb-8">
-                            <h2 className="text-lg font-semibold text-gray-900 mb-2">Orari</h2>
-                            <p className="text-gray-600">{shop.openingHours}</p>
-                            {shop.openingDays && (
-                                <p className="text-gray-500 text-sm mt-1">{shop.openingDays}</p>
+                    <div className="mb-8">
+                        <div className="flex items-center justify-between mb-3">
+                            <h2 className="text-lg font-semibold text-gray-900">Orari di Apertura</h2>
+                            <div className={`px-2.5 py-1 rounded-full text-xs font-bold ${status.isOpen ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'}`}>
+                                {status.status}
+                            </div>
+                        </div>
+
+                        <div className="bg-gray-50 rounded-2xl p-5">
+                            <div className="flex items-center justify-between mb-4 pb-4 border-b border-gray-100">
+                                <div className="flex items-center gap-2">
+                                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <span className="text-sm font-medium text-gray-900">Oggi</span>
+                                </div>
+                                <span className={`text-sm font-semibold ${status.isOpen ? 'text-gray-900' : 'text-orange-600'}`}>
+                                    {status.todayHours}
+                                </span>
+                            </div>
+
+                            {shop.openingHoursStructured ? (
+                                <div className="space-y-3">
+                                    {enDays.map((day, index) => {
+                                        const schedule = shop.openingHoursStructured[day];
+                                        if (!schedule) return null;
+                                        return (
+                                            <div key={day} className="flex items-center justify-between text-sm">
+                                                <span className="text-gray-500">{itDays[index]}</span>
+                                                <span className={schedule.closed ? 'text-orange-400' : 'text-gray-700'}>
+                                                    {schedule.closed ? 'Chiuso' : `${schedule.open} - ${schedule.close}`}
+                                                </span>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            ) : (
+                                shop.openingHours && (
+                                    <div className="text-sm text-gray-600">
+                                        <p>{shop.openingHours}</p>
+                                        {shop.openingDays && <p className="text-xs text-gray-400 mt-1">{shop.openingDays}</p>}
+                                    </div>
+                                )
                             )}
                         </div>
-                    )}
+                    </div>
 
                     {/* Contact */}
                     <div className="mb-8">

@@ -4,19 +4,21 @@ import apiClient from '../services/api'
 import { useToast } from '../contexts/ToastContext'
 import type { Expansion, TCGSet, TCGStats } from '../types/api'
 
+type ExpansionWithDate = Expansion & { releaseDate?: string }
+
 type ViewMode = 'list' | 'cards'
 type ModalType = 'expansion' | 'set'
 
 export default function ExpansionsAndSetsManagement() {
   const [viewMode, setViewMode] = useState<ViewMode>('list')
-  const [expansions, setExpansions] = useState<Expansion[]>([])
+  const [expansions, setExpansions] = useState<ExpansionWithDate[]>([])
   const [stats, setStats] = useState<TCGStats[]>([])
   const [loading, setLoading] = useState(true)
   const [syncing, setSyncing] = useState(false)
   const [showModal, setShowModal] = useState(false)
   const [modalType, setModalType] = useState<ModalType>('expansion')
-  const [editingItem, setEditingItem] = useState<Expansion | TCGSet | null>(null)
-  const [selectedExpansion, setSelectedExpansion] = useState<Expansion | null>(null)
+  const [editingItem, setEditingItem] = useState<ExpansionWithDate | TCGSet | null>(null)
+  const [selectedExpansion, setSelectedExpansion] = useState<ExpansionWithDate | null>(null)
   const [expandedExpansions, setExpandedExpansions] = useState<Set<number>>(new Set())
   const [tcgFilter, setTcgFilter] = useState<string>('ALL')
   const [formData, setFormData] = useState({
@@ -86,7 +88,7 @@ export default function ExpansionsAndSetsManagement() {
     setShowModal(true)
   }
 
-  const handleEdit = (item: Expansion | TCGSet, expansion?: Expansion) => {
+  const handleEdit = (item: ExpansionWithDate | TCGSet, expansion?: ExpansionWithDate) => {
     setEditingItem(item)
     if ('title' in item && 'tcgType' in item) {
       // È un'espansione
@@ -98,7 +100,7 @@ export default function ExpansionsAndSetsManagement() {
         name: '',
         setCode: '',
         description: '',
-        releaseDate: '',
+        releaseDate: item.releaseDate ? new Date(item.releaseDate).toISOString().split('T')[0] : '',
         cardCount: 0,
       })
     } else {
@@ -127,6 +129,7 @@ export default function ExpansionsAndSetsManagement() {
           title: formData.title,
           tcgType: formData.tcgType,
           imageUrl: formData.imageUrl || undefined,
+          releaseDate: formData.releaseDate ? `${formData.releaseDate}T00:00:00` : undefined,
         }
         if (editingItem) {
           await adminService.updateExpansion(editingItem.id, expansionData)
@@ -144,7 +147,7 @@ export default function ExpansionsAndSetsManagement() {
           name: formData.name,
           setCode: formData.setCode || undefined,
           description: formData.description || undefined,
-          releaseDate: formData.releaseDate || undefined,
+          releaseDate: formData.releaseDate ? `${formData.releaseDate}T00:00:00` : undefined,
           imageUrl: formData.imageUrl || undefined,
           cardCount: formData.cardCount || undefined,
           expansionId: selectedExpansion.id,
@@ -434,7 +437,12 @@ export default function ExpansionsAndSetsManagement() {
                         </span>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-500">
-                        Espansione
+                        <div>Espansione</div>
+                        {expansion.releaseDate && (
+                          <div className="text-xs text-gray-400 mt-1">
+                            Rilascio: {new Date(expansion.releaseDate).toLocaleDateString('it-IT')}
+                          </div>
+                        )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {expansion.imageUrl ? (
@@ -562,6 +570,11 @@ export default function ExpansionsAndSetsManagement() {
                   <span className="px-3 py-1 text-xs font-medium bg-green-500/20 text-green-100 rounded-full">
                     {expansion.sets.length} set
                   </span>
+                  {expansion.releaseDate && (
+                    <span className="px-3 py-1 text-xs font-medium bg-white/20 text-white rounded-full">
+                      {new Date(expansion.releaseDate).toLocaleDateString('it-IT')}
+                    </span>
+                  )}
                 </div>
                 {expansion.imageUrl && (
                   <div className="text-xs text-white/80 truncate" title={expansion.imageUrl}>
@@ -699,6 +712,17 @@ export default function ExpansionsAndSetsManagement() {
                       <option value="ONE_PIECE">One Piece</option>
                       <option value="OTHER">Altro</option>
                     </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Data Rilascio
+                    </label>
+                    <input
+                      type="date"
+                      value={formData.releaseDate}
+                      onChange={(e) => setFormData({ ...formData, releaseDate: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    />
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">

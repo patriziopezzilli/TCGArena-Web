@@ -180,20 +180,20 @@ export default function Landing() {
                 hover:border-gray-900 hover:shadow-xl hover:-translate-y-1
                 transition-all duration-300 ease-out
                 animate-fade-in-up animation-delay-200
-                flex items-center gap-4 md:gap-6"
+                flex items-center gap-3 md:gap-6"
             >
-              <div className="w-12 h-12 md:w-16 md:h-16 bg-gray-100 rounded-lg md:rounded-xl flex items-center justify-center flex-shrink-0
+              <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 bg-gray-100 rounded-lg md:rounded-xl flex items-center justify-center flex-shrink-0
                 group-hover:bg-gray-900 group-hover:scale-105
                 transition-all duration-300">
-                <PlayerIcon className="w-6 h-6 md:w-8 md:h-8 text-gray-600 group-hover:text-white transition-colors" />
+                <PlayerIcon className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 text-gray-600 group-hover:text-white transition-colors" />
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="text-lg md:text-xl font-bold text-gray-900 group-hover:text-gray-900">Sei un Giocatore?</h3>
-                <p className="text-gray-500 text-sm md:text-base group-hover:text-gray-600 transition-colors truncate">
+                <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 group-hover:text-gray-900">Sei un Giocatore?</h3>
+                <p className="text-gray-500 text-xs sm:text-sm md:text-base group-hover:text-gray-600 transition-colors">
                   Cerca carte, prenota, partecipa a tornei
                 </p>
               </div>
-              <ArrowRightIcon className="w-5 h-5 md:w-6 md:h-6 text-gray-300 group-hover:text-gray-900 group-hover:translate-x-1 transition-all duration-300 flex-shrink-0" />
+              <ArrowRightIcon className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-gray-300 group-hover:text-gray-900 group-hover:translate-x-1 transition-all duration-300 flex-shrink-0" />
             </button>
 
             {/* Shop Card */}
@@ -203,20 +203,20 @@ export default function Landing() {
                 hover:border-gray-900 hover:shadow-xl hover:-translate-y-1
                 transition-all duration-300 ease-out
                 animate-fade-in-up animation-delay-300
-                flex items-center gap-4 md:gap-6"
+                flex items-center gap-3 md:gap-6"
             >
-              <div className="w-12 h-12 md:w-16 md:h-16 bg-gray-100 rounded-lg md:rounded-xl flex items-center justify-center flex-shrink-0
+              <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 bg-gray-100 rounded-lg md:rounded-xl flex items-center justify-center flex-shrink-0
                 group-hover:bg-gray-900 group-hover:scale-105
                 transition-all duration-300">
-                <ShopIcon className="w-6 h-6 md:w-8 md:h-8 text-gray-600 group-hover:text-white transition-colors" />
+                <ShopIcon className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 text-gray-600 group-hover:text-white transition-colors" />
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="text-lg md:text-xl font-bold text-gray-900 group-hover:text-gray-900">Sei un Negozio?</h3>
-                <p className="text-gray-500 text-sm md:text-base group-hover:text-gray-600 transition-colors truncate">
+                <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 group-hover:text-gray-900">Sei un Negozio?</h3>
+                <p className="text-gray-500 text-xs sm:text-sm md:text-base group-hover:text-gray-600 transition-colors">
                   Digitalizza il tuo negozio. Gratis.
                 </p>
               </div>
-              <ArrowRightIcon className="w-5 h-5 md:w-6 md:h-6 text-gray-300 group-hover:text-gray-900 group-hover:translate-x-1 transition-all duration-300 flex-shrink-0" />
+              <ArrowRightIcon className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-gray-300 group-hover:text-gray-900 group-hover:translate-x-1 transition-all duration-300 flex-shrink-0" />
             </button>
 
             {/* Tournament Join Card */}
@@ -226,20 +226,20 @@ export default function Landing() {
                 hover:border-amber-400 hover:shadow-xl hover:-translate-y-1
                 transition-all duration-300 ease-out
                 animate-fade-in-up animation-delay-400
-                flex items-center gap-4 md:gap-6"
+                flex items-center gap-3 md:gap-6"
             >
-              <div className="w-12 h-12 md:w-16 md:h-16 bg-amber-100 rounded-lg md:rounded-xl flex items-center justify-center flex-shrink-0
+              <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 bg-amber-100 rounded-lg md:rounded-xl flex items-center justify-center flex-shrink-0
                 group-hover:bg-amber-500 group-hover:scale-105
                 transition-all duration-300">
-                <TrophyIcon className="w-6 h-6 md:w-8 md:h-8 text-amber-600 group-hover:text-white transition-colors" />
+                <TrophyIcon className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 text-amber-600 group-hover:text-white transition-colors" />
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="text-lg md:text-xl font-bold text-gray-900 group-hover:text-gray-900">Partecipa ad un Torneo</h3>
-                <p className="text-gray-500 text-sm md:text-base group-hover:text-gray-600 transition-colors truncate">
+                <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 group-hover:text-gray-900">Partecipa ad un Torneo</h3>
+                <p className="text-gray-500 text-xs sm:text-sm md:text-base group-hover:text-gray-600 transition-colors">
                   Hai un codice? Iscriviti senza app
                 </p>
               </div>
-              <ArrowRightIcon className="w-5 h-5 md:w-6 md:h-6 text-amber-300 group-hover:text-amber-600 group-hover:translate-x-1 transition-all duration-300 flex-shrink-0" />
+              <ArrowRightIcon className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-amber-300 group-hover:text-amber-600 group-hover:translate-x-1 transition-all duration-300 flex-shrink-0" />
             </button>
           </div>
         </section>

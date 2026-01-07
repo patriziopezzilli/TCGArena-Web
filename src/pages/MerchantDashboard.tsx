@@ -139,7 +139,12 @@ export default function MerchantDashboard() {
     )
   }
 
-  const menuWithBadges = merchantMenuItems.map(item => ({
+  // Filter menu items based on shop status
+  const visibleMenuItems = shopStatus?.active
+    ? merchantMenuItems
+    : merchantMenuItems.filter(item => item.id === 'dashboard')
+
+  const menuWithBadges = visibleMenuItems.map(item => ({
     ...item,
     badge: item.id === 'reservations' ? dashboardStats?.activeReservations :
       item.id === 'requests' ? dashboardStats?.pendingRequests :

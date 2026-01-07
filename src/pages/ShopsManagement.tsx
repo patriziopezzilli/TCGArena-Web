@@ -10,7 +10,20 @@ const ShopsManagement: React.FC = () => {
   const [editingShop, setEditingShop] = useState<Shop | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [formData, setFormData] = useState<Partial<Shop>>({});
+  const [filter, setFilter] = useState<'ALL' | 'VERIFIED' | 'UNVERIFIED'>('ALL');
   const geocodingTimeoutRef = useRef<number | null>(null);
+
+  const stats = {
+    total: shops.length,
+    verified: shops.filter(s => s.isVerified).length,
+    unverified: shops.filter(s => !s.isVerified).length,
+  };
+
+  const filteredShops = shops.filter(shop => {
+    if (filter === 'VERIFIED') return shop.isVerified;
+    if (filter === 'UNVERIFIED') return !shop.isVerified;
+    return true;
+  });
 
   useEffect(() => {
     fetchShops();
@@ -85,7 +98,7 @@ const ShopsManagement: React.FC = () => {
       // Check if address seems complete (has comma or number)
       const hasComma = value.includes(',');
       const hasNumber = /\d+/.test(value);
-      
+
       if (hasComma || hasNumber) {
         if (geocodingTimeoutRef.current) {
           clearTimeout(geocodingTimeoutRef.current);
@@ -138,28 +151,63 @@ const ShopsManagement: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <h2 className="text-2xl font-semibold text-gray-900">Gestione Negozi</h2>
-        <div className="text-sm text-gray-600">
-          Totale negozi: {shops.length}
+
+        <div className="flex p-1 bg-gray-100 rounded-xl w-fit">
+          <button
+            onClick={() => setFilter('ALL')}
+            className={`px-4 py-2 text-sm font-medium rounded-lg transition-all ${filter === 'ALL'
+                ? 'bg-white text-gray-900 shadow-sm'
+                : 'text-gray-500 hover:text-gray-700'
+              }`}
+          >
+            Tutti ({stats.total})
+          </button>
+          <button
+            onClick={() => setFilter('VERIFIED')}
+            className={`px-4 py-2 text-sm font-medium rounded-lg transition-all ${filter === 'VERIFIED'
+                ? 'bg-white text-blue-600 shadow-sm'
+                : 'text-gray-500 hover:text-gray-700'
+              }`}
+          >
+            Verificati ({stats.verified})
+          </button>
+          <button
+            onClick={() => setFilter('UNVERIFIED')}
+            className={`px-4 py-2 text-sm font-medium rounded-lg transition-all ${filter === 'UNVERIFIED'
+                ? 'bg-white text-amber-600 shadow-sm'
+                : 'text-gray-500 hover:text-gray-700'
+              }`}
+          >
+            Non Verificati ({stats.unverified})
+          </button>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {shops.map((shop) => (
+        {filteredShops.map((shop) => (
           <div
             key={shop.id}
             className="group bg-white border border-gray-200 rounded-2xl overflow-hidden hover:shadow-2xl hover:shadow-gray-200/50 transition-all duration-300 hover:-translate-y-1"
           >
             {/* Shop Header with Photo */}
             <div className="relative h-32 bg-gray-100 flex items-center justify-center">
-              <h3 className="text-2xl font-bold text-gray-900 text-center px-4">{shop.name}</h3>
+              <div className="flex items-center gap-2">
+                <h3 className="text-2xl font-bold text-gray-900 text-center px-4">{shop.name}</h3>
+                {shop.isVerified && (
+                  <div className="text-blue-500" title="Verificato">
+                    <svg className="w-6 h-6 fill-current" viewBox="0 0 20 20">
+                      <path d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" />
+                    </svg>
+                  </div>
+                )}
+              </div>
               <div className="absolute top-4 right-4 flex gap-2">
-                <span className={`px-3 py-1 text-xs font-semibold rounded-full ${
-                  shop.active 
-                    ? 'bg-green-500 text-white' 
+                <span className={`px-3 py-1 text-xs font-semibold rounded-full ${shop.active
+                    ? 'bg-green-500 text-white'
                     : 'bg-amber-500 text-white'
-                }`}>
+                  }`}>
                   {shop.active ? '✓ Attivo' : '⏳ In Attesa'}
                 </span>
               </div>
@@ -261,9 +309,9 @@ const ShopsManagement: React.FC = () => {
         ))}
       </div>
 
-      {shops.length === 0 && (
-        <div className="text-center py-12 text-gray-500">
-          Nessun negozio trovato
+      {filteredShops.length === 0 && (
+        <div className="text-center py-12 text-gray-500 bg-white rounded-2xl border border-dashed border-gray-300">
+          Nessun negozio trovato in questa categoria
         </div>
       )}
 

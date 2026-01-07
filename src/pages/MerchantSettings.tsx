@@ -18,6 +18,7 @@ const TCG_TYPES = [
   { value: 'ONE_PIECE', label: 'One Piece', icon: <FireIcon className="w-5 h-5" />, color: 'bg-red-100 text-red-800 border-red-300' },
   { value: 'DIGIMON', label: 'Digimon', icon: <CpuChipIcon className="w-5 h-5" />, color: 'bg-orange-100 text-orange-800 border-orange-300' },
   { value: 'RIFTBOUND', label: 'Riftbound: League of Legends', icon: <StarIcon className="w-5 h-5" />, color: 'bg-teal-100 text-teal-800 border-teal-300' },
+  { value: 'LORCANA', label: 'Disney Lorcana', icon: <SparklesIcon className="w-5 h-5" />, color: 'bg-indigo-100 text-indigo-800 border-indigo-300' },
 ]
 
 const SERVICES = [
@@ -255,351 +256,11 @@ export default function MerchantSettings({ embedded = false }: MerchantSettingsP
       showToast('Errore nel salvataggio: ' + (error.response?.data?.message || error.message), 'error')
     } finally {
       setSaving(false)
+        ```
     }
   }
 
   const userData = getMerchantUserData()
-
-  // ========== TAB CONTENT COMPONENTS ==========
-
-  const ProfileTab = () => (
-    <div className="space-y-6">
-      {/* Basic Info */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
-        <h3 className="text-base font-semibold text-gray-900 mb-4">Informazioni di Base</h3>
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Nome Negozio *</label>
-            <input
-              type="text"
-              required
-              value={formData.name}
-              onChange={(e) => handleInputChange('name', e.target.value)}
-              className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 transition-shadow"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Descrizione</label>
-            <textarea
-              rows={3}
-              value={formData.description}
-              onChange={(e) => handleInputChange('description', e.target.value)}
-              className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 transition-shadow resize-none"
-              placeholder="Descrivi brevemente il tuo negozio..."
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Tipo Negozio *</label>
-            <select
-              required
-              value={formData.type}
-              onChange={(e) => handleInputChange('type', e.target.value)}
-              className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 transition-shadow"
-            >
-              <option value="PHYSICAL_STORE">Negozio Fisico</option>
-              <option value="ONLINE_STORE">Negozio Online</option>
-              <option value="HYBRID">Ibrido (Fisico + Online)</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      {/* Shop Photo */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
-        <h3 className="text-base font-semibold text-gray-900 mb-4">Foto del Negozio</h3>
-        <div className="flex flex-col sm:flex-row items-start gap-4">
-          <div className="flex-shrink-0">
-            {photoPreview ? (
-              <img
-                src={photoPreview}
-                alt="Foto negozio"
-                className="w-28 h-28 object-cover rounded-xl border border-gray-200 shadow-sm"
-              />
-            ) : (
-              <div className="w-28 h-28 bg-gray-100 rounded-xl border border-gray-200 flex items-center justify-center">
-                <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-              </div>
-            )}
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm text-gray-600 mb-3">
-              Questa foto verrà mostrata agli utenti nell'app.
-            </p>
-            <div className="flex flex-wrap gap-2">
-              <label className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 cursor-pointer transition-colors">
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                </svg>
-                {uploadingPhoto ? 'Caricamento...' : 'Carica'}
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  className="hidden"
-                  disabled={uploadingPhoto}
-                />
-              </label>
-              {photoPreview && (
-                <button
-                  type="button"
-                  onClick={() => setPhotoPreview(null)}
-                  className="inline-flex items-center px-4 py-2 border border-red-300 rounded-lg text-sm font-medium text-red-700 bg-white hover:bg-red-50 transition-colors"
-                >
-                  Rimuovi
-                </button>
-              )}
-            </div>
-            <p className="text-xs text-gray-500 mt-2">JPG, PNG, GIF • Max 5MB</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-
-  const ServicesTab = () => (
-    <div className="space-y-6">
-      {/* TCG Types */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
-        <h3 className="text-base font-semibold text-gray-900 mb-1">Giochi Supportati</h3>
-        <p className="text-sm text-gray-500 mb-4">Seleziona i TCG che tratti nel tuo negozio</p>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-          {TCG_TYPES.map((tcg) => {
-            const isSelected = formData.tcgTypes.includes(tcg.value)
-            return (
-              <button
-                key={tcg.value}
-                type="button"
-                onClick={() => {
-                  const newTypes = isSelected
-                    ? formData.tcgTypes.filter(t => t !== tcg.value)
-                    : [...formData.tcgTypes, tcg.value]
-                  setFormData({ ...formData, tcgTypes: newTypes })
-                }}
-                className={`flex items-center gap-2 p-3 rounded-lg border-2 transition-all text-left ${isSelected
-                  ? `${tcg.color} border-current`
-                  : 'bg-gray-50 border-gray-200 hover:border-gray-300'
-                  }`}
-              >
-                <span className="text-gray-600 flex-shrink-0">{tcg.icon}</span>
-                <span className={`font-medium text-sm truncate ${isSelected ? '' : 'text-gray-700'}`}>
-                  {tcg.label}
-                </span>
-                {isSelected && (
-                  <svg className="w-4 h-4 ml-auto flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                  </svg>
-                )}
-              </button>
-            )
-          })}
-        </div>
-      </div>
-
-      {/* Services */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
-        <h3 className="text-base font-semibold text-gray-900 mb-1">Servizi Offerti</h3>
-        <p className="text-sm text-gray-500 mb-4">Indica quali servizi offri ai tuoi clienti</p>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
-          {SERVICES.map((service) => {
-            const isSelected = formData.services.includes(service.value)
-            return (
-              <button
-                key={service.value}
-                type="button"
-                onClick={() => {
-                  const newServices = isSelected
-                    ? formData.services.filter(s => s !== service.value)
-                    : [...formData.services, service.value]
-                  setFormData({ ...formData, services: newServices })
-                }}
-                className={`flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 text-center transition-all ${isSelected
-                  ? 'bg-gray-900 border-gray-900 text-white'
-                  : 'bg-gray-50 border-gray-200 hover:border-gray-300 text-gray-700'
-                  }`}
-              >
-                <span className={isSelected ? 'text-white' : 'text-gray-500'}>{service.icon}</span>
-                <span className="font-medium text-xs">{service.label}</span>
-              </button>
-            )
-          })}
-        </div>
-      </div>
-    </div>
-  )
-
-  const LocationTab = () => (
-    <div className="space-y-6">
-      {/* Address */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
-        <h3 className="text-base font-semibold text-gray-900 mb-4">Indirizzo</h3>
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Indirizzo Completo *</label>
-            <input
-              type="text"
-              required
-              value={formData.address}
-              onChange={(e) => handleInputChange('address', e.target.value)}
-              className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 transition-shadow"
-              placeholder="Via Roma 123, Milano"
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Lat</label>
-              <input
-                type="number"
-                step="any"
-                value={formData.latitude || ''}
-                readOnly
-                className="w-full px-3 py-2.5 border border-gray-200 rounded-lg bg-gray-50 text-gray-500 text-sm"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Long</label>
-              <input
-                type="number"
-                step="any"
-                value={formData.longitude || ''}
-                readOnly
-                className="w-full px-3 py-2.5 border border-gray-200 rounded-lg bg-gray-50 text-gray-500 text-sm"
-              />
-            </div>
-          </div>
-          <div className="flex items-start gap-2 text-sm text-gray-600 bg-gray-50 rounded-lg p-3">
-            <svg className="w-4 h-4 text-gray-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span>Le coordinate vengono calcolate automaticamente dall'indirizzo.</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Opening Hours */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
-        <OpeningHoursForm
-          value={formData.openingHoursStructured!}
-          onChange={(hours) => handleInputChange('openingHoursStructured', hours)}
-        />
-      </div>
-    </div>
-  )
-
-  const SettingsTab = () => (
-    <div className="space-y-6">
-      {/* Contacts */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
-        <h3 className="text-base font-semibold text-gray-900 mb-4">Contatti</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Telefono</label>
-            <input
-              type="tel"
-              value={formData.phoneNumber}
-              onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
-              className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
-              placeholder="+39 ..."
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-            <input
-              type="email"
-              value={formData.email}
-              onChange={(e) => handleInputChange('email', e.target.value)}
-              className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
-              placeholder="negozio@example.com"
-            />
-          </div>
-          <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Sito Web</label>
-            <input
-              type="url"
-              value={formData.websiteUrl}
-              onChange={(e) => handleInputChange('websiteUrl', e.target.value)}
-              className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
-              placeholder="https://..."
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Social Media */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
-        <h3 className="text-base font-semibold text-gray-900 mb-4">Social Media</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Instagram</label>
-            <input
-              type="url"
-              value={formData.instagramUrl}
-              onChange={(e) => handleInputChange('instagramUrl', e.target.value)}
-              className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
-              placeholder="@username"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Facebook</label>
-            <input
-              type="url"
-              value={formData.facebookUrl}
-              onChange={(e) => handleInputChange('facebookUrl', e.target.value)}
-              className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
-              placeholder="pagina"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Twitter / X</label>
-            <input
-              type="url"
-              value={formData.twitterUrl}
-              onChange={(e) => handleInputChange('twitterUrl', e.target.value)}
-              className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
-              placeholder="@username"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Reservation Settings */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
-        <h3 className="text-base font-semibold text-gray-900 mb-1">Prenotazioni</h3>
-        <p className="text-sm text-gray-500 mb-4">Configura la durata delle prenotazioni carte</p>
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Durata (minuti)</label>
-            <input
-              type="number"
-              min="1"
-              max="1440"
-              value={reservationSettings.reservationDurationMinutes}
-              onChange={(e) => setReservationSettings(prev => ({
-                ...prev,
-                reservationDurationMinutes: parseInt(e.target.value) || 30
-              }))}
-              className="w-full max-w-xs px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
-            />
-            <p className="text-xs text-gray-500 mt-1">
-              Tempo per completare il ritiro (default: {reservationSettings.defaultDurationMinutes} min)
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={handleReservationSettingsSubmit}
-            disabled={saving}
-            className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${saving
-              ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-          >
-            {saving ? 'Salvataggio...' : 'Salva Prenotazioni'}
-          </button>
-        </div>
-      </div>
-    </div>
-  )
 
   // ========== LOADING STATE ==========
 
@@ -638,10 +299,11 @@ export default function MerchantSettings({ embedded = false }: MerchantSettingsP
               key={tab.id}
               type="button"
               onClick={() => setActiveTab(tab.id)}
-              className={`px-4 py-2.5 rounded-lg font-medium text-sm whitespace-nowrap transition-all flex-1 text-center min-w-0 ${activeTab === tab.id
-                ? 'bg-gray-900 text-white shadow-sm'
-                : 'text-gray-600 hover:bg-gray-100'
-                }`}
+              className={`px-4 py-2.5 rounded-lg font-medium text-sm whitespace-nowrap transition-all flex-1 text-center min-w-0 ${
+        activeTab === tab.id
+          ? 'bg-gray-900 text-white shadow-sm'
+          : 'text-gray-600 hover:bg-gray-100'
+      } `}
             >
               {tab.label}
             </button>
@@ -651,10 +313,30 @@ export default function MerchantSettings({ embedded = false }: MerchantSettingsP
 
       {/* Tab Content */}
       <div className="min-h-[400px]">
-        {activeTab === 'profile' && <ProfileTab />}
-        {activeTab === 'services' && <ServicesTab />}
-        {activeTab === 'location' && <LocationTab />}
-        {activeTab === 'settings' && <SettingsTab />}
+        {activeTab === 'profile' && <ProfileTab
+          formData={formData}
+          handleInputChange={handleInputChange}
+          photoPreview={photoPreview}
+          uploadingPhoto={uploadingPhoto}
+          handleFileChange={handleFileChange}
+          setPhotoPreview={setPhotoPreview}
+        />}
+        {activeTab === 'services' && <ServicesTab
+          formData={formData}
+          setFormData={setFormData}
+        />}
+        {activeTab === 'location' && <LocationTab
+          formData={formData}
+          handleInputChange={handleInputChange}
+        />}
+        {activeTab === 'settings' && <SettingsTab
+          formData={formData}
+          handleInputChange={handleInputChange}
+          reservationSettings={reservationSettings}
+          setReservationSettings={setReservationSettings}
+          handleReservationSettingsSubmit={handleReservationSettingsSubmit}
+          saving={saving}
+        />}
       </div>
 
       {/* Action Buttons */}
@@ -669,10 +351,11 @@ export default function MerchantSettings({ embedded = false }: MerchantSettingsP
         <button
           type="submit"
           disabled={saving}
-          className={`flex-1 px-6 py-3 rounded-xl font-medium transition-colors ${saving
-            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-            : 'bg-gray-900 text-white hover:bg-gray-800'
-            }`}
+          className={`flex-1 px-6 py-3 rounded-xl font-medium transition-colors ${
+        saving
+          ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+          : 'bg-gray-900 text-white hover:bg-gray-800'
+      } `}
         >
           {saving ? 'Salvataggio...' : 'Salva Modifiche'}
         </button>
@@ -696,3 +379,347 @@ export default function MerchantSettings({ embedded = false }: MerchantSettingsP
     </DashboardLayout>
   )
 }
+
+// ========== EXTRACTED TAB COMPONENTS ==========
+
+const ProfileTab = ({ formData, handleInputChange, photoPreview, uploadingPhoto, handleFileChange, setPhotoPreview }: any) => (
+  <div className="space-y-6">
+    {/* Basic Info */}
+    <div className="bg-white rounded-xl border border-gray-200 p-6">
+      <h3 className="text-base font-semibold text-gray-900 mb-4">Informazioni di Base</h3>
+      <div className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Nome Negozio *</label>
+          <input
+            type="text"
+            required
+            value={formData.name}
+            onChange={(e) => handleInputChange('name', e.target.value)}
+            className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 transition-shadow"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Descrizione</label>
+          <textarea
+            rows={3}
+            value={formData.description}
+            onChange={(e) => handleInputChange('description', e.target.value)}
+            className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 transition-shadow resize-none"
+            placeholder="Descrivi brevemente il tuo negozio..."
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Tipo Negozio *</label>
+          <select
+            required
+            value={formData.type}
+            onChange={(e) => handleInputChange('type', e.target.value)}
+            className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 transition-shadow"
+          >
+            <option value="PHYSICAL_STORE">Negozio Fisico</option>
+            <option value="ONLINE_STORE">Negozio Online</option>
+            <option value="HYBRID">Ibrido (Fisico + Online)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    {/* Shop Photo */}
+    <div className="bg-white rounded-xl border border-gray-200 p-6">
+      <h3 className="text-base font-semibold text-gray-900 mb-4">Foto del Negozio</h3>
+      <div className="flex flex-col sm:flex-row items-start gap-4">
+        <div className="flex-shrink-0">
+          {photoPreview ? (
+            <img
+              src={photoPreview}
+              alt="Foto negozio"
+              className="w-28 h-28 object-cover rounded-xl border border-gray-200 shadow-sm"
+            />
+          ) : (
+            <div className="w-28 h-28 bg-gray-100 rounded-xl border border-gray-200 flex items-center justify-center">
+              <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </div>
+          )}
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm text-gray-600 mb-3">
+            Questa foto verrà mostrata agli utenti nell'app.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <label className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 cursor-pointer transition-colors">
+              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+              </svg>
+              {uploadingPhoto ? 'Caricamento...' : 'Carica'}
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="hidden"
+                disabled={uploadingPhoto}
+              />
+            </label>
+            {photoPreview && (
+              <button
+                type="button"
+                onClick={() => setPhotoPreview(null)}
+                className="inline-flex items-center px-4 py-2 border border-red-300 rounded-lg text-sm font-medium text-red-700 bg-white hover:bg-red-50 transition-colors"
+              >
+                Rimuovi
+              </button>
+            )}
+          </div>
+          <p className="text-xs text-gray-500 mt-2">JPG, PNG, GIF • Max 5MB</p>
+        </div>
+      </div>
+    </div>
+  </div>
+)
+
+const ServicesTab = ({ formData, setFormData }: any) => (
+  <div className="space-y-6">
+    {/* TCG Types */}
+    <div className="bg-white rounded-xl border border-gray-200 p-6">
+      <h3 className="text-base font-semibold text-gray-900 mb-1">Giochi Supportati</h3>
+      <p className="text-sm text-gray-500 mb-4">Seleziona i TCG che tratti nel tuo negozio</p>
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+        {TCG_TYPES.map((tcg) => {
+          const isSelected = formData.tcgTypes.includes(tcg.value)
+          return (
+            <button
+              key={tcg.value}
+              type="button"
+              onClick={() => {
+                const newTypes = isSelected
+                  ? formData.tcgTypes.filter((t: string) => t !== tcg.value)
+                  : [...formData.tcgTypes, tcg.value]
+                setFormData({ ...formData, tcgTypes: newTypes })
+              }}
+              className={`flex items-center gap-2 p-3 rounded-lg border-2 transition-all text-left ${
+        isSelected
+          ? `${tcg.color} border-current`
+          : 'bg-gray-50 border-gray-200 hover:border-gray-300'
+      } `}
+            >
+              <span className="text-gray-600 flex-shrink-0">{tcg.icon}</span>
+              <span className={`font-medium text-sm truncate ${ isSelected ? '' : 'text-gray-700' } `}>
+                {tcg.label}
+              </span>
+              {isSelected && (
+                <svg className="w-4 h-4 ml-auto flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+              )}
+            </button>
+          )
+        })}
+      </div>
+    </div>
+
+    {/* Services */}
+    <div className="bg-white rounded-xl border border-gray-200 p-6">
+      <h3 className="text-base font-semibold text-gray-900 mb-1">Servizi Offerti</h3>
+      <p className="text-sm text-gray-500 mb-4">Indica quali servizi offri ai tuoi clienti</p>
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
+        {SERVICES.map((service) => {
+          const isSelected = formData.services.includes(service.value)
+          return (
+            <button
+              key={service.value}
+              type="button"
+              onClick={() => {
+                const newServices = isSelected
+                  ? formData.services.filter(s => s !== service.value)
+                  : [...formData.services, service.value]
+                setFormData({ ...formData, services: newServices })
+              }}
+              className={`flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 text-center transition-all ${
+        isSelected
+          ? 'bg-gray-900 border-gray-900 text-white'
+          : 'bg-gray-50 border-gray-200 hover:border-gray-300 text-gray-700'
+      } `}
+            >
+              <span className={isSelected ? 'text-white' : 'text-gray-500'}>{service.icon}</span>
+              <span className="font-medium text-xs">{service.label}</span>
+            </button>
+          )
+        })}
+      </div>
+    </div>
+  </div>
+)
+
+const LocationTab = ({ formData, handleInputChange }: any) => (
+  <div className="space-y-6">
+    {/* Address */}
+    <div className="bg-white rounded-xl border border-gray-200 p-6">
+      <h3 className="text-base font-semibold text-gray-900 mb-4">Indirizzo</h3>
+      <div className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Indirizzo Completo *</label>
+          <input
+            type="text"
+            required
+            value={formData.address}
+            onChange={(e) => handleInputChange('address', e.target.value)}
+            className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 transition-shadow"
+            placeholder="Via Roma 123, Milano"
+          />
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Lat</label>
+            <input
+              type="number"
+              step="any"
+              value={formData.latitude || ''}
+              readOnly
+              className="w-full px-3 py-2.5 border border-gray-200 rounded-lg bg-gray-50 text-gray-500 text-sm"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Long</label>
+            <input
+              type="number"
+              step="any"
+              value={formData.longitude || ''}
+              readOnly
+              className="w-full px-3 py-2.5 border border-gray-200 rounded-lg bg-gray-50 text-gray-500 text-sm"
+            />
+          </div>
+        </div>
+        <div className="flex items-start gap-2 text-sm text-gray-600 bg-gray-50 rounded-lg p-3">
+          <svg className="w-4 h-4 text-gray-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>Le coordinate vengono calcolate automaticamente dall'indirizzo.</span>
+        </div>
+      </div>
+    </div>
+
+    {/* Opening Hours */}
+    <div className="bg-white rounded-xl border border-gray-200 p-6">
+      <OpeningHoursForm
+        value={formData.openingHoursStructured!}
+        onChange={(hours: any) => handleInputChange('openingHoursStructured', hours)}
+      />
+    </div>
+  </div>
+)
+
+const SettingsTab = ({ formData, handleInputChange, reservationSettings, setReservationSettings, handleReservationSettingsSubmit, saving }: any) => (
+  <div className="space-y-6">
+    {/* Contacts */}
+    <div className="bg-white rounded-xl border border-gray-200 p-6">
+      <h3 className="text-base font-semibold text-gray-900 mb-4">Contatti</h3>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Telefono</label>
+          <input
+            type="tel"
+            value={formData.phoneNumber}
+            onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
+            className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
+            placeholder="+39 ..."
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+          <input
+            type="email"
+            value={formData.email}
+            onChange={(e) => handleInputChange('email', e.target.value)}
+            className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
+            placeholder="negozio@example.com"
+          />
+        </div>
+        <div className="sm:col-span-2">
+          <label className="block text-sm font-medium text-gray-700 mb-1">Sito Web</label>
+          <input
+            type="url"
+            value={formData.websiteUrl}
+            onChange={(e) => handleInputChange('websiteUrl', e.target.value)}
+            className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
+            placeholder="https://..."
+          />
+        </div>
+      </div>
+    </div>
+
+    {/* Social Media */}
+    <div className="bg-white rounded-xl border border-gray-200 p-6">
+      <h3 className="text-base font-semibold text-gray-900 mb-4">Social Media</h3>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Instagram</label>
+          <input
+            type="url"
+            value={formData.instagramUrl}
+            onChange={(e) => handleInputChange('instagramUrl', e.target.value)}
+            className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
+            placeholder="@username"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Facebook</label>
+          <input
+            type="url"
+            value={formData.facebookUrl}
+            onChange={(e) => handleInputChange('facebookUrl', e.target.value)}
+            className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
+            placeholder="pagina"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Twitter / X</label>
+          <input
+            type="url"
+            value={formData.twitterUrl}
+            onChange={(e) => handleInputChange('twitterUrl', e.target.value)}
+            className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
+            placeholder="@username"
+          />
+        </div>
+      </div>
+    </div>
+
+    {/* Reservation Settings */}
+    <div className="bg-white rounded-xl border border-gray-200 p-6">
+      <h3 className="text-base font-semibold text-gray-900 mb-1">Prenotazioni</h3>
+      <p className="text-sm text-gray-500 mb-4">Configura la durata delle prenotazioni carte</p>
+      <div className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Durata (minuti)</label>
+          <input
+            type="number"
+            min="1"
+            max="1440"
+            value={reservationSettings.reservationDurationMinutes}
+            onChange={(e) => setReservationSettings((prev: any) => ({
+              ...prev,
+              reservationDurationMinutes: parseInt(e.target.value) || 30
+            }))}
+            className="w-full max-w-xs px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            Tempo per completare il ritiro (default: {reservationSettings.defaultDurationMinutes} min)
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={handleReservationSettingsSubmit}
+          disabled={saving}
+          className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
+        saving
+          ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+      } `}
+        >
+          {saving ? 'Salvataggio...' : 'Salva Prenotazioni'}
+        </button>
+      </div>
+    </div>
+  </div>
+)

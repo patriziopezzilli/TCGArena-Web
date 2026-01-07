@@ -614,14 +614,6 @@ export const adminService = {
   },
 
   // ========== BATCH IMPORT ==========
-  async triggerBatchImport(tcgType: string, startIndex: number = -99, endIndex: number = -99): Promise<any> {
-    const params = new URLSearchParams()
-    if (startIndex !== -99) params.append('startIndex', startIndex.toString())
-    if (endIndex !== -99) params.append('endIndex', endIndex.toString())
-    const response = await apiClient.post(`/batch/import/${tcgType}?${params}`)
-    return response.data
-  },
-
   async triggerJustTCGImport(tcgType: string): Promise<{
     success: boolean
     message: string
