@@ -463,7 +463,7 @@ export default function MerchantInventory({ embedded = false }: MerchantInventor
                 value={templateFilters.expansionId || ''}
                 onChange={(e) => setTemplateFilters({ ...templateFilters, expansionId: e.target.value ? Number(e.target.value) : undefined })}
               >
-                <option value="">Tutte le Espansioni</option>
+                <option value="">Tutte le Serie</option>
                 {expansions.map(expansion => (
                   <option key={expansion.id} value={expansion.id}>{expansion.title}</option>
                 ))}

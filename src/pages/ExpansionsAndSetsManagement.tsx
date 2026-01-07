@@ -133,10 +133,10 @@ export default function ExpansionsAndSetsManagement() {
         }
         if (editingItem) {
           await adminService.updateExpansion(editingItem.id, expansionData)
-          showToast('Espansione aggiornata con successo', 'success')
+          showToast('Serie aggiornata con successo', 'success')
         } else {
           await adminService.createExpansion(expansionData)
-          showToast('Espansione creata con successo', 'success')
+          showToast('Serie creata con successo', 'success')
         }
       } else {
         if (!selectedExpansion) {
@@ -191,7 +191,7 @@ export default function ExpansionsAndSetsManagement() {
           }
           return
         }
-        showToast('Espansione eliminata con successo', 'success')
+        showToast('Serie eliminata con successo', 'success')
       } else {
         const response = await adminService.deleteSet(item.id, force)
         // Check if response indicates cascade confirmation needed
@@ -306,7 +306,7 @@ export default function ExpansionsAndSetsManagement() {
               <div className="text-sm font-medium text-gray-600 mb-2">{stat.tcgType}</div>
               <div className="space-y-1">
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">Espansioni:</span>
+                  <span className="text-gray-500">Serie:</span>
                   <span className="font-semibold text-blue-600">{stat.expansions}</span>
                 </div>
                 <div className="flex justify-between text-sm">
@@ -328,9 +328,9 @@ export default function ExpansionsAndSetsManagement() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Gestione Espansioni e Set TCG</h2>
+          <h2 className="text-2xl font-bold text-gray-900">Gestione Serie e Set TCG</h2>
           <p className="text-gray-600 mt-1">
-            {expansions.length} espansioni, {expansions.reduce((sum, exp) => sum + exp.sets.length, 0)} set totali nel sistema
+            {expansions.length} serie, {expansions.reduce((sum, exp) => sum + exp.sets.length, 0)} set totali nel sistema
           </p>
         </div>
         <div className="flex gap-3">
@@ -343,7 +343,11 @@ export default function ExpansionsAndSetsManagement() {
             <option value="ALL">Tutti i TCG</option>
             <option value="POKEMON">Pokémon</option>
             <option value="MAGIC">Magic: The Gathering</option>
+            <option value="YUGIOH">Yu-Gi-Oh!</option>
             <option value="ONE_PIECE">One Piece</option>
+            <option value="DIGIMON">Digimon</option>
+            <option value="LORCANA">Disney Lorcana</option>
+            <option value="RIFTBOUND">Riftbound</option>
             <option value="OTHER">Altro</option>
           </select>
           <button
@@ -352,7 +356,7 @@ export default function ExpansionsAndSetsManagement() {
           >
             <span className="flex items-center gap-2">
               <span className="text-lg">➕</span>
-              Aggiungi Espansione
+              Aggiungi Serie
               <span className="transform hover:translate-x-1 transition-transform duration-300">→</span>
             </span>
           </button>
@@ -396,7 +400,7 @@ export default function ExpansionsAndSetsManagement() {
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Espansione / Set
+                    Serie / Set
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Tipo TCG
@@ -437,7 +441,7 @@ export default function ExpansionsAndSetsManagement() {
                         </span>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-500">
-                        <div>Espansione</div>
+                        <div>Serie</div>
                         {expansion.releaseDate && (
                           <div className="text-xs text-gray-400 mt-1">
                             Rilascio: {new Date(expansion.releaseDate).toLocaleDateString('it-IT')}
@@ -666,7 +670,7 @@ export default function ExpansionsAndSetsManagement() {
           <div className="bg-gray-100 rounded-xl border-2 border-dashed border-gray-300 hover:border-gray-400 transition-colors cursor-pointer flex items-center justify-center min-h-[300px]" onClick={handleCreateExpansion}>
             <div className="text-center">
               <div className="text-gray-400 text-6xl mb-4">➕</div>
-              <div className="text-gray-600 font-medium">Aggiungi Espansione</div>
+              <div className="text-gray-600 font-medium">Aggiungi Serie</div>
               <div className="text-gray-400 text-sm mt-1">Crea una nuova espansione TCG</div>
             </div>
           </div>
@@ -678,7 +682,7 @@ export default function ExpansionsAndSetsManagement() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
             <h3 className="text-xl font-bold mb-6 text-gray-900">
-              {editingItem ? 'Modifica' : 'Aggiungi'} {modalType === 'expansion' ? 'Espansione' : 'Set TCG'}
+              {editingItem ? 'Modifica' : 'Aggiungi'} {modalType === 'expansion' ? 'Serie' : 'Set TCG'}
             </h3>
 
             <form onSubmit={handleSubmit} className="space-y-5">
@@ -709,7 +713,11 @@ export default function ExpansionsAndSetsManagement() {
                     >
                       <option value="POKEMON">Pokémon</option>
                       <option value="MAGIC">Magic: The Gathering</option>
+                      <option value="YUGIOH">Yu-Gi-Oh!</option>
                       <option value="ONE_PIECE">One Piece</option>
+                      <option value="DIGIMON">Digimon</option>
+                      <option value="LORCANA">Disney Lorcana</option>
+                      <option value="RIFTBOUND">Riftbound</option>
                       <option value="OTHER">Altro</option>
                     </select>
                   </div>
@@ -742,7 +750,7 @@ export default function ExpansionsAndSetsManagement() {
                   {selectedExpansion && (
                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
                       <div className="text-sm text-blue-800">
-                        <strong>Espansione:</strong> {selectedExpansion.title}
+                        <strong>Serie:</strong> {selectedExpansion.title}
                       </div>
                     </div>
                   )}

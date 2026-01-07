@@ -133,7 +133,7 @@ export default function AdminDashboard() {
     { id: 'fulfillment', label: 'Fulfillment', icon: <TruckIcon /> },
     { id: 'achievements', label: 'Achievements', icon: <AwardIcon /> },
     { id: 'batch-import', label: 'Batch Import', icon: <ImportIcon /> },
-    { id: 'expansions-sets', label: 'Espansioni & Sets', icon: <CardsIcon /> },
+    { id: 'expansions-sets', label: 'Serie & Set', icon: <CardsIcon /> },
     { id: 'broadcast', label: 'Broadcast', icon: <MegaphoneIcon /> },
     { id: 'shop-suggestions', label: 'Suggerimenti Negozi', icon: <MapPinIcon /> },
     { id: 'user-suggestions', label: 'Feedback Utenti', icon: <MegaphoneIcon /> },
