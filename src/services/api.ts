@@ -614,13 +614,13 @@ export const adminService = {
   },
 
   // ========== BATCH IMPORT ==========
-  async triggerJustTCGImport(tcgType: string): Promise<{
+  async triggerTCGImport(tcgType: string): Promise<{
     success: boolean
     message: string
     tcgType: string
     jobId: string
   }> {
-    const response = await apiClient.post(`/batch/justtcg/${tcgType}`)
+    const response = await apiClient.post(`/batch/tcg/${tcgType}`)
     return response.data
   },
 
@@ -629,8 +629,8 @@ export const adminService = {
     return response.data
   },
 
-  async getJustTCGSupportedTypes(): Promise<{ supportedTypes: string[], count: number }> {
-    const response = await apiClient.get('/batch/justtcg/supported')
+  async getTCGSupportedTypes(): Promise<{ supportedTypes: string[], count: number }> {
+    const response = await apiClient.get('/batch/tcg/supported')
     return response.data
   },
 

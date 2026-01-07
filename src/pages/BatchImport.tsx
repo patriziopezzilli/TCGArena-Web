@@ -8,8 +8,8 @@ import {
 
 type TCGType = 'POKEMON' | 'MAGIC' | 'YUGIOH' | 'ONE_PIECE' | 'DIGIMON' | 'LORCANA' | 'RIFTBOUND'
 
-// JustTCG supported types
-const JUSTTCG_TYPES: { value: TCGType; label: string; color: string }[] = [
+// TCG supported types
+const TCG_TYPES: { value: TCGType; label: string; color: string }[] = [
   { value: 'POKEMON', label: 'Pokémon', color: 'bg-yellow-500' },
   { value: 'MAGIC', label: 'Magic: The Gathering', color: 'bg-purple-500' },
   { value: 'YUGIOH', label: 'Yu-Gi-Oh!', color: 'bg-blue-500' },
@@ -24,13 +24,13 @@ interface ImportHistory {
   timestamp: string
   status: 'success' | 'running' | 'error'
   message: string
-  source: 'justtcg'
+  source: 'tcg'
 }
 
 export default function BatchImport() {
   const { showToast } = useToast()
-  const [selectedJustTCG, setSelectedJustTCG] = useState<TCGType>('POKEMON')
-  const [importingJustTCG, setImportingJustTCG] = useState(false)
+  const [selectedTCG, setSelectedTCG] = useState<TCGType>('POKEMON')
+  const [importingTCG, setImportingTCG] = useState(false)
   const [activeJob, setActiveJob] = useState<ImportJob | null>(null)
   const [history, setHistory] = useState<ImportHistory[]>([])
   const [cardTemplateCounts, setCardTemplateCounts] = useState<Record<string, number>>({})
@@ -59,7 +59,7 @@ export default function BatchImport() {
           setActiveJob(updatedJob)
 
           if (updatedJob.status === 'COMPLETED') {
-            setImportingJustTCG(false)
+            setImportingTCG(false)
             showToast('Import completato con successo! 🎉', 'success')
             // Add to history
             const newEntry: ImportHistory = {
@@ -67,20 +67,20 @@ export default function BatchImport() {
               timestamp: new Date().toISOString(),
               status: 'success',
               message: updatedJob.message,
-              source: 'justtcg'
+              source: 'tcg'
             }
             setHistory(prev => [newEntry, ...prev])
             // Clean up active job after a delay to show 100%
             setTimeout(() => setActiveJob(null), 5000)
           } else if (updatedJob.status === 'FAILED') {
-            setImportingJustTCG(false)
+            setImportingTCG(false)
             showToast('Import fallito: ' + updatedJob.message, 'error')
             const errorEntry: ImportHistory = {
               tcgType: updatedJob.tcgType as TCGType,
               timestamp: new Date().toISOString(),
               status: 'error',
               message: updatedJob.message,
-              source: 'justtcg'
+              source: 'tcg'
             }
             setHistory(prev => [errorEntry, ...prev])
             setActiveJob(null)
@@ -97,18 +97,18 @@ export default function BatchImport() {
     }
   }, [activeJob, showToast])
 
-  const handleJustTCGImport = async () => {
-    if (!confirm(`Sei sicuro di voler avviare l'import JustTCG per ${selectedJustTCG}? Include prezzi real-time!`)) return
+  const handleTCGImport = async () => {
+    if (!confirm(`Sei sicuro di voler avviare l'import TCG per ${selectedTCG}? Include prezzi real-time!`)) return
 
-    setImportingJustTCG(true)
+    setImportingTCG(true)
 
     try {
-      const result = await adminService.triggerJustTCGImport(selectedJustTCG)
+      const result = await adminService.triggerTCGImport(selectedTCG)
 
       // Initialize job for polling
       setActiveJob({
         id: result.jobId,
-        tcgType: selectedJustTCG,
+        tcgType: selectedTCG,
         status: 'PENDING',
         progressPercent: 0,
         totalItems: 0,
@@ -117,19 +117,19 @@ export default function BatchImport() {
         startTime: new Date().toISOString()
       })
 
-      showToast('JustTCG import avviato in background!', 'success')
+      showToast('TCG import avviato in background!', 'success')
     } catch (err: any) {
       const errorEntry: ImportHistory = {
-        tcgType: selectedJustTCG,
+        tcgType: selectedTCG,
         timestamp: new Date().toISOString(),
         status: 'error',
-        message: err.response?.data?.message || err.message || 'Errore durante avvio JustTCG import',
-        source: 'justtcg',
+        message: err.response?.data?.message || err.message || 'Errore durante avvio TCG import',
+        source: 'tcg',
       }
 
       setHistory([errorEntry, ...history])
       showToast('Errore: ' + errorEntry.message, 'error')
-      setImportingJustTCG(false)
+      setImportingTCG(false)
     }
   }
 
@@ -143,27 +143,27 @@ export default function BatchImport() {
         </p>
       </div>
 
-      {/* JustTCG Import Section */}
+      {/* TCG Import Section */}
       <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6">
         <div className="flex items-center gap-3 mb-4">
           <div className="bg-gray-100 p-2 rounded-lg">
             <BanknotesIcon className="w-6 h-6 text-gray-700" />
           </div>
           <div>
-            <h3 className="font-semibold text-gray-900">JustTCG Import (Prezzi Real-Time)</h3>
-            <p className="text-sm text-gray-600">Import cards con prezzi aggiornati da JustTCG API</p>
+            <h3 className="font-semibold text-gray-900">TCG Import (Prezzi Real-Time)</h3>
+            <p className="text-sm text-gray-600">Import cards con prezzi aggiornati da TCG API</p>
           </div>
         </div>
 
-        {/* JustTCG Type Selection */}
+        {/* TCG Type Selection */}
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-3">Seleziona TCG Type</label>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-            {JUSTTCG_TYPES.map((tcg) => (
+            {TCG_TYPES.map((tcg) => (
               <div
                 key={tcg.value}
-                onClick={() => setSelectedJustTCG(tcg.value)}
-                className={`p-3 rounded-lg border-2 transition-all cursor-pointer ${selectedJustTCG === tcg.value
+                onClick={() => setSelectedTCG(tcg.value)}
+                className={`p-3 rounded-lg border-2 transition-all cursor-pointer ${selectedTCG === tcg.value
                   ? 'border-blue-600 bg-blue-50'
                   : 'border-gray-200 hover:border-blue-300 bg-white'
                   }`}
@@ -182,7 +182,7 @@ export default function BatchImport() {
         <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 mb-4 flex gap-3">
           <SparklesIcon className="w-5 h-5 text-blue-600 flex-shrink-0" />
           <p className="text-sm text-blue-900">
-            <strong>JustTCG API:</strong> Importa cards con prezzi Near Mint aggiornati in tempo reale.
+            <strong>TCG API:</strong> Importa cards con prezzi Near Mint aggiornati in tempo reale.
             Supporta: Pokémon, MTG, Yu-Gi-Oh!, One Piece, Digimon, Lorcana.
           </p>
         </div>
@@ -190,14 +190,14 @@ export default function BatchImport() {
         {/* Submit Button or Progress UI */}
         {!activeJob ? (
           <button
-            onClick={handleJustTCGImport}
-            disabled={importingJustTCG}
-            className={`w-full px-6 py-3 rounded-lg font-medium transition-colors ${importingJustTCG
+            onClick={handleTCGImport}
+            disabled={importingTCG}
+            className={`w-full px-6 py-3 rounded-lg font-medium transition-colors ${importingTCG
               ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
               : 'bg-blue-600 text-white hover:bg-blue-700'
               }`}
           >
-            {importingJustTCG ? (
+            {importingTCG ? (
               <span className="flex items-center justify-center">
                 <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -208,7 +208,7 @@ export default function BatchImport() {
             ) : (
               <span className="flex items-center justify-center gap-2">
                 <RocketLaunchIcon className="w-5 h-5" />
-                Avvia JustTCG Import - {selectedJustTCG}
+                Avvia TCG Import - {selectedTCG}
               </span>
             )}
           </button>
@@ -265,7 +265,7 @@ export default function BatchImport() {
                   <div className="flex items-center gap-2">
                     <span className="px-2 py-1 text-xs font-medium rounded bg-blue-100 text-blue-800">
                       <span className="flex items-center gap-1">
-                        <BanknotesIcon className="w-3 h-3" /> JustTCG
+                        <BanknotesIcon className="w-3 h-3" /> TCG
                       </span>
                     </span>
                     <span

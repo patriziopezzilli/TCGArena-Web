@@ -247,9 +247,9 @@ export default function ExpansionsAndSetsManagement() {
     })
   }
 
-  // Sync release dates from JustTCG API
+  // Sync release dates from TCG API
   const handleSyncReleaseDates = async () => {
-    if (!confirm('Vuoi sincronizzare le date di rilascio di tutti i set da JustTCG? Questa operazione può richiedere diversi minuti.')) return
+    if (!confirm('Vuoi sincronizzare le date di rilascio di tutti i set da TCG? Questa operazione può richiedere diversi minuti.')) return
 
     setSyncing(true)
     try {
@@ -373,7 +373,7 @@ export default function ExpansionsAndSetsManagement() {
             onClick={handleSyncReleaseDates}
             disabled={syncing}
             className="px-4 py-2 bg-amber-600 text-white rounded-lg font-semibold hover:bg-amber-700 transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
-            title="Sincronizza date di rilascio da JustTCG API"
+            title="Sincronizza date di rilascio da TCG API"
           >
             <span className="flex items-center gap-2">
               {syncing ? (
