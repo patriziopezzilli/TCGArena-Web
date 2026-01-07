@@ -634,6 +634,11 @@ export const adminService = {
     return response.data
   },
 
+  async getCardTemplateCounts(): Promise<Record<string, number>> {
+    const response = await apiClient.get('/admin/card-templates/counts')
+    return response.data
+  },
+
   // ========== EXPANSIONS MANAGEMENT ==========
   async getAllExpansions(): Promise<Expansion[]> {
     const response = await publicApiClient.get('/expansions')

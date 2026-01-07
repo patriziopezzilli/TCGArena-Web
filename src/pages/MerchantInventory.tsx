@@ -107,7 +107,7 @@ export default function MerchantInventory({ embedded = false }: MerchantInventor
   const [bulkLoading, setBulkLoading] = useState(false)
 
   // Search debounce timer
-  const [searchTimer, setSearchTimer] = useState<NodeJS.Timeout | null>(null)
+  const [searchTimer, setSearchTimer] = useState<number | null>(null)
 
   // Filter options
   const [tcgTypes, setTcgTypes] = useState<string[]>([])

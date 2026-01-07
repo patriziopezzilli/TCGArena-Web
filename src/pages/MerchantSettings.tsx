@@ -527,7 +527,7 @@ const ServicesTab = ({ formData, setFormData }: any) => (
               type="button"
               onClick={() => {
                 const newServices = isSelected
-                  ? formData.services.filter(s => s !== service.value)
+                  ? formData.services.filter((s: string) => s !== service.value)
                   : [...formData.services, service.value]
                 setFormData({ ...formData, services: newServices })
               }}

@@ -33,6 +33,20 @@ export default function BatchImport() {
   const [importingJustTCG, setImportingJustTCG] = useState(false)
   const [activeJob, setActiveJob] = useState<ImportJob | null>(null)
   const [history, setHistory] = useState<ImportHistory[]>([])
+  const [cardTemplateCounts, setCardTemplateCounts] = useState<Record<string, number>>({})
+
+  // Fetch card template counts on mount
+  useEffect(() => {
+    const fetchCounts = async () => {
+      try {
+        const counts = await adminService.getCardTemplateCounts()
+        setCardTemplateCounts(counts)
+      } catch (error) {
+        console.error('Error fetching card template counts:', error)
+      }
+    }
+    fetchCounts()
+  }, [])
 
   // Polling effect for active job
   useEffect(() => {
@@ -146,17 +160,20 @@ export default function BatchImport() {
           <label className="block text-sm font-medium text-gray-700 mb-3">Seleziona TCG Type</label>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
             {JUSTTCG_TYPES.map((tcg) => (
-              <button
+              <div
                 key={tcg.value}
                 onClick={() => setSelectedJustTCG(tcg.value)}
-                className={`p-3 rounded-lg border-2 transition-all ${selectedJustTCG === tcg.value
+                className={`p-3 rounded-lg border-2 transition-all cursor-pointer ${selectedJustTCG === tcg.value
                   ? 'border-blue-600 bg-blue-50'
                   : 'border-gray-200 hover:border-blue-300 bg-white'
                   }`}
               >
                 <div className={`w-3 h-3 rounded-full ${tcg.color} mb-2`}></div>
                 <p className="text-xs font-medium text-gray-900">{tcg.label}</p>
-              </button>
+                <p className="text-xs text-gray-500 mt-1">
+                  {cardTemplateCounts[tcg.value] !== undefined ? `${cardTemplateCounts[tcg.value].toLocaleString()} cards` : 'Loading...'}
+                </p>
+              </div>
             ))}
           </div>
         </div>

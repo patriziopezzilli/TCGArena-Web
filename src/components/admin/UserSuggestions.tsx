@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import apiClient from '../../services/api'
-import { CheckCircleIcon, MapPinIcon } from '../Icons'
+import { CheckCircleIcon } from '../Icons'
 
 interface Suggestion {
     id: number
