@@ -26,6 +26,9 @@ import {
   GiftIcon
 } from '../components/Icons'
 
+// Feature flag per GRAAD partnership
+const graadEnabled = true
+
 // Merchant menu items with SVG icons
 const merchantMenuItems = [
   { id: 'dashboard', label: 'Dashboard', icon: <DashboardIcon /> },
@@ -308,6 +311,9 @@ export default function MerchantDashboard() {
           />
         </div>
 
+        {/* GRAAD Partner Info Box */}
+        {graadEnabled && <GraadPartnerInfoBox />}
+
         {/* Quick Actions Grid */}
         <div>
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Azioni Rapide</h3>
@@ -444,5 +450,106 @@ function QuickActionCard({ title, description, icon, onClick, delay }: QuickActi
         </span>
       </div>
     </button>
+  )
+}
+
+// GRAAD Partner Info Box Component
+function GraadPartnerInfoBox() {
+  return (
+    <div className="relative overflow-hidden bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 rounded-2xl p-6 shadow-lg animate-fadeIn">
+      {/* Background decoration */}
+      <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+      <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
+
+      <div className="relative z-10">
+        <div className="flex flex-col lg:flex-row lg:items-center gap-6">
+          {/* Left: Icon and Badge */}
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center border border-white/20">
+              <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+            </div>
+            <div className="px-3 py-1 bg-amber-400/90 text-amber-900 rounded-full text-xs font-bold uppercase tracking-wide">
+              Novità Q1 2026
+            </div>
+          </div>
+
+          {/* Center: Content */}
+          <div className="flex-1">
+            <div className="flex items-center gap-3 mb-2">
+              <h3 className="text-xl font-bold text-white">
+                Servizio Grading con GRAAD
+              </h3>
+              <img
+                src="https://s3-eu-west-1.amazonaws.com/tpd/logos/615adb52d7cbf7001d84eaaf/0x0.png"
+                alt="GRAAD Logo"
+                className="h-6 object-contain"
+              />
+            </div>
+            <p className="text-blue-100 text-sm leading-relaxed max-w-2xl">
+              Nel primo trimestre 2026, TCG Arena introdurrà un meccanismo rivoluzionario che permetterà ai tuoi clienti
+              di richiedere la <span className="font-semibold text-white">gradazione delle carte</span> in pochi semplici step,
+              direttamente dal tuo negozio. Unisciti alla famiglia GRAAD per essere tra i primi in Italia a offrire questo
+              servizio esclusivo e ampliare il tuo bacino di utenza!
+            </p>
+          </div>
+
+          {/* Right: CTA */}
+          <div className="flex flex-col gap-3">
+            <a
+              href="https://www.graad.eu/it/diventa-partner"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white text-indigo-700 rounded-xl font-semibold hover:bg-gray-50 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+            >
+              <span>Diventa Partner GRAAD</span>
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+            </a>
+            <a
+              href="https://www.graad.eu/it/servizi-e-prezzi"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 px-6 py-2 bg-white/10 text-white rounded-xl font-medium hover:bg-white/20 transition-all duration-200 border border-white/20"
+            >
+              <span>Scopri i servizi</span>
+              <ArrowRightIcon className="w-4 h-4" />
+            </a>
+          </div>
+        </div>
+
+        {/* Bottom: Features */}
+        <div className="mt-6 pt-5 border-t border-white/10">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="flex items-center gap-2 text-white/90 text-sm">
+              <svg className="w-5 h-5 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              <span>Richieste in-app</span>
+            </div>
+            <div className="flex items-center gap-2 text-white/90 text-sm">
+              <svg className="w-5 h-5 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              <span>Tracking completo</span>
+            </div>
+            <div className="flex items-center gap-2 text-white/90 text-sm">
+              <svg className="w-5 h-5 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              <span>Nuovi clienti</span>
+            </div>
+            <div className="flex items-center gap-2 text-white/90 text-sm">
+              <svg className="w-5 h-5 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              <span>Primo in Italia</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   )
 }
