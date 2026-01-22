@@ -1,21 +1,11 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import axios from 'axios'
 
 type ViewMode = 'choice' | 'player' | 'shop'
 
 export default function Landing() {
   const navigate = useNavigate()
   const [viewMode, setViewMode] = useState<ViewMode>('choice')
-  const [showModal, setShowModal] = useState(false)
-  const [formData, setFormData] = useState({
-    email: '',
-    city: '',
-    userType: 'PLAYER' as 'PLAYER' | 'MERCHANT'
-  })
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [submitSuccess, setSubmitSuccess] = useState(false)
-  const [error, setError] = useState('')
   // Tournament join modal state
   const [showTournamentModal, setShowTournamentModal] = useState(false)
   const [tournamentStep, setTournamentStep] = useState<'form' | 'details' | 'success'>('form')
@@ -57,30 +47,6 @@ export default function Landing() {
     return () => clearInterval(interval)
   }, [viewMode, desktopScreenshots.length])
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
-    setError('')
-
-    try {
-      await axios.post(`${import.meta.env.VITE_API_URL || 'https://api.tcgarena.it/api'}/waiting-list/join`, formData)
-      setSubmitSuccess(true)
-      setTimeout(() => {
-        setShowModal(false)
-        setSubmitSuccess(false)
-        setFormData({ email: '', city: '', userType: 'PLAYER' })
-      }, 2000)
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Errore durante l\'iscrizione. Riprova.')
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
-
-  const openWaitlistModal = (userType: 'PLAYER' | 'MERCHANT') => {
-    setFormData({ ...formData, userType })
-    setShowModal(true)
-  }
 
   // Tournament join functions
   const lookupTournament = async () => {
@@ -481,12 +447,15 @@ export default function Landing() {
             <div className="flex items-center gap-2">
               <span className="text-xl font-bold text-gray-900">TCG Arena</span>
             </div>
-            <button
-              onClick={() => openWaitlistModal('PLAYER')}
-              className="px-5 py-2.5 text-sm font-medium text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors"
+            <a
+              href="https://apps.apple.com/it/app/tcg-arena/id6757301894"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-5 py-2.5 text-sm font-medium text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-2"
             >
-              Lista d'attesa
-            </button>
+              <AppleIcon className="w-4 h-4" />
+              Scarica l'App
+            </a>
           </div>
         </nav>
 
@@ -510,16 +479,22 @@ export default function Landing() {
                   e gestisci la tua collezione. Tutto da un'unica app.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4">
-                  <button
-                    onClick={() => openWaitlistModal('PLAYER')}
-                    className="px-8 py-4 text-base font-medium text-white bg-gray-900 rounded-xl hover:bg-gray-800 transition-colors"
+                  <a
+                    href="https://apps.apple.com/it/app/tcg-arena/id6757301894"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-8 py-4 text-base font-medium text-white bg-gray-900 rounded-xl hover:bg-gray-800 transition-colors inline-flex items-center justify-center gap-3"
                   >
-                    Unisciti alla lista d'attesa
-                  </button>
+                    <AppleIcon className="w-5 h-5" />
+                    Scarica su App Store
+                  </a>
                   <div className="flex items-center gap-2 text-sm text-gray-400">
-                    <span>iOS e Android</span>
+                    <span className="flex items-center gap-1.5">
+                      <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                      Disponibile ora su iOS
+                    </span>
                     <span className="w-1 h-1 bg-gray-300 rounded-full"></span>
-                    <span>Lancio 2026</span>
+                    <span>Play Store in primavera</span>
                   </div>
                 </div>
               </div>
@@ -562,7 +537,7 @@ export default function Landing() {
                   ))}
                 </div>
                 {/* Caption */}
-                <p className="text-center text-gray-400 text-sm mt-4">Disponibile su iOS e Android</p>
+                <p className="text-center text-gray-400 text-sm mt-4">Disponibile ora su iOS • Play Store in primavera</p>
               </div>
             </div>
           </div>
@@ -688,17 +663,21 @@ export default function Landing() {
         <section className="py-20 px-6">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Pronto a unirti?
+              Pronto a iniziare?
             </h2>
             <p className="text-lg text-gray-500 mb-8">
-              Iscriviti alla lista d'attesa e ricevi aggiornamenti esclusivi
+              Scarica l'app e scopri tutti i negozi e le carte vicino a te
             </p>
-            <button
-              onClick={() => openWaitlistModal('PLAYER')}
-              className="px-10 py-4 text-base font-medium text-white bg-gray-900 rounded-xl hover:bg-gray-800 transition-colors"
+            <a
+              href="https://apps.apple.com/it/app/tcg-arena/id6757301894"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-3 px-10 py-4 text-base font-medium text-white bg-gray-900 rounded-xl hover:bg-gray-800 transition-colors"
             >
-              Iscriviti Ora
-            </button>
+              <AppleIcon className="w-5 h-5" />
+              Scarica su App Store
+            </a>
+            <p className="text-sm text-gray-400 mt-4">Play Store in arrivo in primavera</p>
           </div>
         </section>
 
@@ -708,17 +687,6 @@ export default function Landing() {
             <p>© 2025 TCG Arena. Tutti i diritti riservati.</p>
           </div>
         </footer>
-
-        {/* Modal */}
-        {showModal && <WaitlistModal
-          formData={formData}
-          setFormData={setFormData}
-          handleSubmit={handleSubmit}
-          isSubmitting={isSubmitting}
-          submitSuccess={submitSuccess}
-          error={error}
-          onClose={() => setShowModal(false)}
-        />}
       </div>
     )
   }
@@ -748,7 +716,7 @@ export default function Landing() {
               Accedi
             </button>
             <button
-              onClick={() => openWaitlistModal('MERCHANT')}
+              onClick={() => navigate('/merchant/register')}
               className="px-5 py-2.5 text-sm font-medium text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors"
             >
               Registrati Gratis
@@ -778,8 +746,8 @@ export default function Landing() {
               </p>
               <div className="flex flex-col sm:flex-row gap-4 mb-8">
                 <button
-                  onClick={() => openWaitlistModal('MERCHANT')}
-                  className="px-8 py-4 text-base font-medium text-white bg-gray-900 rounded-xl 
+                  onClick={() => navigate('/merchant/register')}
+                  className="px-8 py-4 text-base font-medium text-white bg-gray-900 rounded-xl
                     hover:bg-gray-800 hover:shadow-lg hover:-translate-y-0.5
                     transition-all duration-300"
                 >
@@ -787,7 +755,7 @@ export default function Landing() {
                 </button>
                 <button
                   onClick={() => navigate('/merchant/login')}
-                  className="px-8 py-4 text-base font-medium text-gray-700 border border-gray-200 rounded-xl 
+                  className="px-8 py-4 text-base font-medium text-gray-700 border border-gray-200 rounded-xl
                     hover:bg-gray-50 hover:border-gray-300
                     transition-all duration-300"
                 >
@@ -985,8 +953,8 @@ export default function Landing() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
-              onClick={() => openWaitlistModal('MERCHANT')}
-              className="px-10 py-4 text-base font-medium text-gray-900 bg-white rounded-xl 
+              onClick={() => navigate('/merchant/register')}
+              className="px-10 py-4 text-base font-medium text-gray-900 bg-white rounded-xl
                 hover:bg-gray-100 hover:shadow-lg
                 transition-all duration-300"
             >
@@ -994,7 +962,7 @@ export default function Landing() {
             </button>
             <button
               onClick={() => navigate('/merchant/login')}
-              className="px-10 py-4 text-base font-medium text-white border border-gray-600 rounded-xl 
+              className="px-10 py-4 text-base font-medium text-white border border-gray-600 rounded-xl
                 hover:bg-gray-800 hover:border-gray-500
                 transition-all duration-300"
             >
@@ -1002,7 +970,7 @@ export default function Landing() {
             </button>
           </div>
           <p className="mt-6 text-sm text-gray-500">
-            Ti contatteremo entro 24h per completare la registrazione
+            Registrati in pochi minuti e inizia subito
           </p>
         </div>
       </section>
@@ -1013,17 +981,6 @@ export default function Landing() {
           <p>© 2025 TCG Arena. Tutti i diritti riservati.</p>
         </div>
       </footer>
-
-      {/* Modal */}
-      {showModal && <WaitlistModal
-        formData={formData}
-        setFormData={setFormData}
-        handleSubmit={handleSubmit}
-        isSubmitting={isSubmitting}
-        submitSuccess={submitSuccess}
-        error={error}
-        onClose={() => setShowModal(false)}
-      />}
     </div>
   )
 }
@@ -1048,138 +1005,6 @@ function FeatureCard({ icon, title, description }: FeatureCardProps) {
   )
 }
 
-interface WaitlistModalProps {
-  formData: { email: string; city: string; userType: 'PLAYER' | 'MERCHANT' }
-  setFormData: (data: { email: string; city: string; userType: 'PLAYER' | 'MERCHANT' }) => void
-  handleSubmit: (e: React.FormEvent) => void
-  isSubmitting: boolean
-  submitSuccess: boolean
-  error: string
-  onClose: () => void
-}
-
-function WaitlistModal({ formData, setFormData, handleSubmit, isSubmitting, submitSuccess, error, onClose }: WaitlistModalProps) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-      <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl">
-        {/* Close Button */}
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 transition-colors"
-        >
-          <CloseIcon className="w-5 h-5" />
-        </button>
-
-        {/* Modal Content */}
-        <div className="p-8">
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
-              Lista d'Attesa
-            </h2>
-            <p className="text-gray-500 text-sm">
-              Ricevi aggiornamenti esclusivi sul lancio
-            </p>
-          </div>
-
-          {submitSuccess ? (
-            <div className="text-center py-8">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <CheckIcon className="w-8 h-8 text-green-600" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Sei nella lista!</h3>
-              <p className="text-gray-500">Ti contatteremo presto</p>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="space-y-5">
-              {/* Email Input */}
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1.5">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  required
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:border-gray-900 focus:ring-0 transition-colors"
-                  placeholder="tua.email@esempio.it"
-                />
-              </div>
-
-              {/* City Input */}
-              <div>
-                <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-1.5">
-                  Citta
-                </label>
-                <input
-                  type="text"
-                  id="city"
-                  required
-                  value={formData.city}
-                  onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:border-gray-900 focus:ring-0 transition-colors"
-                  placeholder="Milano"
-                />
-              </div>
-
-              {/* User Type Selection */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Tipo di utente
-                </label>
-                <div className="grid grid-cols-2 gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setFormData({ ...formData, userType: 'PLAYER' })}
-                    className={`p-4 rounded-xl border-2 transition-all text-center ${formData.userType === 'PLAYER'
-                      ? 'border-gray-900 bg-gray-50'
-                      : 'border-gray-200 hover:border-gray-300'
-                      }`}
-                  >
-                    <PlayerIcon className={`w-6 h-6 mx-auto mb-2 ${formData.userType === 'PLAYER' ? 'text-gray-900' : 'text-gray-400'}`} />
-                    <div className={`font-medium text-sm ${formData.userType === 'PLAYER' ? 'text-gray-900' : 'text-gray-500'}`}>Giocatore</div>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setFormData({ ...formData, userType: 'MERCHANT' })}
-                    className={`p-4 rounded-xl border-2 transition-all text-center ${formData.userType === 'MERCHANT'
-                      ? 'border-gray-900 bg-gray-50'
-                      : 'border-gray-200 hover:border-gray-300'
-                      }`}
-                  >
-                    <ShopIcon className={`w-6 h-6 mx-auto mb-2 ${formData.userType === 'MERCHANT' ? 'text-gray-900' : 'text-gray-400'}`} />
-                    <div className={`font-medium text-sm ${formData.userType === 'MERCHANT' ? 'text-gray-900' : 'text-gray-500'}`}>Negozio</div>
-                  </button>
-                </div>
-              </div>
-
-              {/* Error Message */}
-              {error && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                  <p className="text-red-600 text-sm">{error}</p>
-                </div>
-              )}
-
-              {/* Submit Button */}
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full py-3.5 bg-gray-900 text-white font-medium rounded-xl hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isSubmitting ? 'Invio in corso...' : 'Unisciti alla Lista'}
-              </button>
-
-              <p className="text-xs text-gray-400 text-center">
-                Nessuna email spam. Cancellazione in 1 click.
-              </p>
-            </form>
-          )}
-        </div>
-      </div>
-    </div>
-  )
-}
 
 // ============ Icons ============
 
@@ -1309,6 +1134,14 @@ function RadarIcon({ className = "w-5 h-5" }: { className?: string }) {
       <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
       <path strokeLinecap="round" strokeLinejoin="round" d="M12 8a4 4 0 100 8 4 4 0 000-8z" />
       <path strokeLinecap="round" strokeLinejoin="round" d="M12 2v2m0 16v2m10-10h-2M4 12H2m17.07-7.07l-1.414 1.414M6.343 17.657l-1.414 1.414M19.07 19.07l-1.414-1.414M6.343 6.343L4.93 4.93" />
+    </svg>
+  )
+}
+
+function AppleIcon({ className = "w-5 h-5" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
     </svg>
   )
 }
