@@ -2,7 +2,7 @@ import {
     TournamentIcon,
     MapPinIcon,
     GiftIcon,
-    CheckCircleIcon
+    GooglePlayIcon
 } from '../components/Icons'
 
 export default function QrCodeLanding() {
@@ -157,8 +157,18 @@ export default function QrCodeLanding() {
                                 Scarica su App Store
                             </a>
 
+                            <a
+                                href="https://play.google.com/store/apps/details?id=it.tcgarena.app"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-3 px-8 py-4 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 mt-4"
+                            >
+                                <GooglePlayIcon className="w-6 h-6" />
+                                Scarica su Google Play
+                            </a>
+
                             <p className="text-xs text-gray-400 mt-4">
-                                Play Store in arrivo in primavera
+                                Disponibile ora su iOS e Android
                             </p>
                         </div>
                     </div>

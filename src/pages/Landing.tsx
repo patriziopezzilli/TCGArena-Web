@@ -141,7 +141,7 @@ export default function Landing() {
             {/* App Store Badges - Text Only, Prominent & Uniform */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-10 md:mt-12 animate-fade-in-up animation-delay-100">
               <button
-                onClick={() => window.open('https://apps.apple.com/app/tcgarena', '_blank')}
+                onClick={() => window.open('https://apps.apple.com/it/app/tcg-arena/id6757301894', '_blank')}
                 className="w-full sm:w-auto min-w-[200px] h-28 flex flex-col items-center justify-center bg-gray-900 hover:bg-gray-800 text-white px-8 rounded-xl transition-all hover:scale-105 shadow-xl border-2 border-gray-900 group"
               >
                 <div className="text-[12px] font-medium text-gray-300 leading-none mb-1 text-center uppercase tracking-wider">Scarica su</div>
@@ -510,14 +510,21 @@ export default function Landing() {
                     <AppleIcon className="w-5 h-5" />
                     Scarica su App Store
                   </a>
-                  <div className="flex items-center gap-2 text-sm text-gray-400">
-                    <span className="flex items-center gap-1.5">
-                      <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                      Disponibile ora su iOS
-                    </span>
-                    <span className="w-1 h-1 bg-gray-300 rounded-full"></span>
-                    <span>Play Store in primavera</span>
-                  </div>
+                  <a
+                    href="https://play.google.com/store/apps/details?id=it.tcgarena.app"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-8 py-4 text-base font-medium text-white bg-green-600 rounded-xl hover:bg-green-700 transition-colors inline-flex items-center justify-center gap-3"
+                  >
+                    <GooglePlayIcon className="w-5 h-5" />
+                    Scarica su Google Play
+                  </a>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-gray-400 mt-4">
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                    Disponibile ora su iOS e Android
+                  </span>
                 </div>
               </div>
 
@@ -559,7 +566,7 @@ export default function Landing() {
                   ))}
                 </div>
                 {/* Caption */}
-                <p className="text-center text-gray-400 text-sm mt-4">Disponibile ora su iOS • Play Store in primavera</p>
+                <p className="text-center text-gray-400 text-sm mt-4">Disponibile ora su iOS e Android</p>
               </div>
             </div>
           </div>
@@ -699,7 +706,16 @@ export default function Landing() {
               <AppleIcon className="w-5 h-5" />
               Scarica su App Store
             </a>
-            <p className="text-sm text-gray-400 mt-4">Play Store in arrivo in primavera</p>
+            <a
+              href="https://play.google.com/store/apps/details?id=it.tcgarena.app"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-3 px-10 py-4 text-base font-medium text-white bg-green-600 rounded-xl hover:bg-green-700 transition-colors ml-4"
+            >
+              <GooglePlayIcon className="w-5 h-5" />
+              Scarica su Google Play
+            </a>
+            <p className="text-sm text-gray-400 mt-4">Disponibile ora su iOS e Android</p>
           </div>
         </section>
 

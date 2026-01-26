@@ -116,7 +116,7 @@ export default function ShareEvent() {
                             if (data.deepLink) {
                                 window.location.href = data.deepLink
                                 setTimeout(() => {
-                                    window.location.href = 'https://apps.apple.com/app/tcgarena'
+                                    window.location.href = 'https://apps.apple.com/it/app/tcg-arena/id6757301894'
                                 }, 1500)
                             }
                         }}
@@ -284,15 +284,17 @@ export default function ShareEvent() {
                                 </svg>
                                 Scarica su App Store
                             </a>
-                            <div className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gray-800 text-gray-400 rounded-xl font-medium border border-gray-700">
-                                <svg className="w-5 h-5 opacity-70" viewBox="0 0 24 24" fill="currentColor">
+                            <a
+                                href="https://play.google.com/store/apps/details?id=it.tcgarena.app"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-green-600 text-white rounded-xl font-medium hover:bg-green-700 transition-colors"
+                            >
+                                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M3.609 1.814L13.792 12 3.61 22.186a.996.996 0 01-.61-.92V2.734a1 1 0 01.609-.92zm10.89 10.893l2.302 2.302-10.937 6.333 8.635-8.635zm3.199-3.198l2.807 1.626a1 1 0 010 1.73l-2.808 1.626L15.206 12l2.492-2.491zM5.864 2.658L16.8 9.009l-2.302 2.302-8.634-8.653z" />
                                 </svg>
-                                <div className="text-left">
-                                    <div className="text-xs opacity-60">Play Store</div>
-                                    <div className="text-xs">Primavera 2026</div>
-                                </div>
-                            </div>
+                                Scarica su Google Play
+                            </a>
                         </div>
                     </div>
                 </div>
