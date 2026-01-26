@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
+import { AppleIcon, GooglePlayIcon } from '../components/Icons'
 
 type ViewMode = 'choice' | 'player' | 'shop'
 
@@ -169,6 +170,26 @@ export default function Landing() {
             <p className="text-xs md:text-xl text-gray-500 max-w-2xl mx-auto mt-3 md:mt-8 px-2 md:px-0">
               La prima piattaforma italiana che unisce giocatori e negozi TCG.
             </p>
+
+            {/* App Store Badges - Text Only, Prominent & Uniform */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-10 md:mt-12 animate-fade-in-up animation-delay-100">
+              <button
+                onClick={() => window.open('https://apps.apple.com/app/tcgarena', '_blank')}
+                className="w-full sm:w-auto min-w-[200px] h-28 flex flex-col items-center justify-center bg-gray-900 hover:bg-gray-800 text-white px-8 rounded-xl transition-all hover:scale-105 shadow-xl border-2 border-gray-900 group"
+              >
+                <div className="text-[12px] font-medium text-gray-300 leading-none mb-1 text-center uppercase tracking-wider">Scarica su</div>
+                <div className="text-xl font-bold leading-none text-center">App Store</div>
+              </button>
+
+              <button
+                disabled
+                className="w-full sm:w-auto min-w-[200px] h-28 flex flex-col items-center justify-center bg-gray-100 text-gray-400 px-8 rounded-xl border-2 border-gray-200 cursor-not-allowed opacity-80"
+              >
+                <div className="text-[12px] font-medium text-gray-400 leading-none mb-1 text-center uppercase tracking-wider">Disponibile su</div>
+                <div className="text-xl font-bold leading-none text-center">Google Play</div>
+                <span className="text-[10px] font-bold bg-gray-200 text-gray-500 px-2 py-0.5 rounded-full inline-block">Prossimamente</span>
+              </button>
+            </div>
           </div>
 
           {/* Choice Cards - 3 horizontal rectangles */}
