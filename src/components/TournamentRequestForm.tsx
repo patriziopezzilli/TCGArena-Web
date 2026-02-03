@@ -149,7 +149,11 @@ export default function TournamentRequestForm({ shopId, shopName, onSuccess }: T
                   <option value="YUGIOH">Yu-Gi-Oh!</option>
                   <option value="ONE_PIECE">One Piece</option>
                   <option value="DIGIMON">Digimon</option>
-                  <option value="DRAGON_BALL">Dragon Ball</option>
+                  <option value="LORCANA">Disney Lorcana</option>
+                  <option value="RIFTBOUND">Riftbound</option>
+                  <option value="DRAGON_BALL_SUPER_FUSION_WORLD">Dragon Ball Super Fusion World</option>
+                  <option value="FLESH_AND_BLOOD">Flesh and Blood</option>
+                  <option value="UNION_ARENA">Union Arena</option>
                 </select>
               </div>
 

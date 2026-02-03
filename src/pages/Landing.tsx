@@ -238,7 +238,7 @@ export default function Landing() {
             <h2 className="text-2xl md:text-3xl font-bold text-gray-900 text-center mb-12">
               I TCG piu popolari, tutti in un unico posto
             </h2>
-            <div className="grid grid-cols-3 md:grid-cols-6 gap-4 md:gap-6">
+            <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-6">
               {/* Pokemon */}
               <div className="group p-4 md:p-6 bg-white rounded-xl border border-gray-100 text-center
                 hover:border-yellow-400 hover:shadow-lg hover:-translate-y-1
@@ -277,12 +277,48 @@ export default function Landing() {
               </div>
               {/* Digimon */}
               <div className="group p-4 md:p-6 bg-white rounded-xl border border-gray-100 text-center
-                hover:border-blue-500 hover:shadow-lg hover:-translate-y-1
+                hover:border-cyan-500 hover:shadow-lg hover:-translate-y-1
                 transition-all duration-300">
                 <div className="w-12 h-12 md:w-16 md:h-16 mx-auto mb-2 md:mb-3 flex items-center justify-center">
                   <img src="/images/tcg/digimon.png" alt="Digimon" className="w-full h-full object-contain" />
                 </div>
                 <p className="font-medium text-gray-700 text-xs md:text-sm">Digimon</p>
+              </div>
+              {/* Dragon Ball Super Fusion World */}
+              <div className="group p-4 md:p-6 bg-white rounded-xl border border-gray-100 text-center
+                hover:border-orange-500 hover:shadow-lg hover:-translate-y-1
+                transition-all duration-300">
+                <div className="w-12 h-12 md:w-16 md:h-16 mx-auto mb-2 md:mb-3 flex items-center justify-center">
+                  <img src="/images/tcg/dragonball.png" alt="Dragon Ball Super Fusion World" className="w-full h-full object-contain" />
+                </div>
+                <p className="font-medium text-gray-700 text-xs md:text-sm">Dragon Ball</p>
+              </div>
+              {/* Lorcana */}
+              <div className="group p-4 md:p-6 bg-white rounded-xl border border-gray-100 text-center
+                hover:border-indigo-500 hover:shadow-lg hover:-translate-y-1
+                transition-all duration-300">
+                <div className="w-12 h-12 md:w-16 md:h-16 mx-auto mb-2 md:mb-3 flex items-center justify-center">
+                  <img src="/images/tcg/lorcana.png" alt="Lorcana" className="w-full h-full object-contain" />
+                </div>
+                <p className="font-medium text-gray-700 text-xs md:text-sm">Lorcana</p>
+              </div>
+              {/* Flesh and Blood */}
+              <div className="group p-4 md:p-6 bg-white rounded-xl border border-gray-100 text-center
+                hover:border-rose-500 hover:shadow-lg hover:-translate-y-1
+                transition-all duration-300">
+                <div className="w-12 h-12 md:w-16 md:h-16 mx-auto mb-2 md:mb-3 flex items-center justify-center">
+                  <img src="/images/tcg/flesh_and_blood.png" alt="Flesh and Blood" className="w-full h-full object-contain" />
+                </div>
+                <p className="font-medium text-gray-700 text-xs md:text-sm">Flesh & Blood</p>
+              </div>
+              {/* Union Arena */}
+              <div className="group p-4 md:p-6 bg-white rounded-xl border border-gray-100 text-center
+                hover:border-amber-500 hover:shadow-lg hover:-translate-y-1
+                transition-all duration-300">
+                <div className="w-12 h-12 md:w-16 md:h-16 mx-auto mb-2 md:mb-3 flex items-center justify-center">
+                  <img src="/images/tcg/union_arena.png" alt="Union Arena" className="w-full h-full object-contain" />
+                </div>
+                <p className="font-medium text-gray-700 text-xs md:text-sm">Union Arena</p>
               </div>
               {/* Riftbound */}
               <div className="group p-4 md:p-6 bg-white rounded-xl border border-gray-100 text-center

@@ -67,12 +67,15 @@ export default function Maintenance() {
                                 >
                                     <option value="">Tutti i TCG</option>
                                     <option value="POKEMON">Pokémon</option>
-                                    <option value="ONEPIECE">One Piece</option>
-                                    <option value="LORCANA">Lorcana</option>
-                                    <option value="MAGIC">Magic</option>
+                                    <option value="ONE_PIECE">One Piece</option>
+                                    <option value="MAGIC">Magic: The Gathering</option>
                                     <option value="YUGIOH">Yu-Gi-Oh!</option>
-                                    <option value="STARWARS">Star Wars</option>
-                                    <option value="DRAGONBALL">Dragon Ball</option>
+                                    <option value="DIGIMON">Digimon</option>
+                                    <option value="LORCANA">Disney Lorcana</option>
+                                    <option value="RIFTBOUND">Riftbound</option>
+                                    <option value="DRAGON_BALL_SUPER_FUSION_WORLD">Dragon Ball Super Fusion World</option>
+                                    <option value="FLESH_AND_BLOOD">Flesh and Blood</option>
+                                    <option value="UNION_ARENA">Union Arena</option>
                                 </select>
                                 <input
                                     type="number"

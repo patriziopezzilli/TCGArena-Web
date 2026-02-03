@@ -35,7 +35,10 @@ const TCG_DISPLAY_NAMES: Record<string, string> = {
     'YUGIOH': 'Yu-Gi-Oh!',
     'DIGIMON': 'Digimon',
     'LORCANA': 'Disney Lorcana',
-    'RIFTBOUND': 'Riftbound'
+    'RIFTBOUND': 'Riftbound',
+    'DRAGON_BALL_SUPER_FUSION_WORLD': 'Dragon Ball Super Fusion World',
+    'FLESH_AND_BLOOD': 'Flesh and Blood',
+    'UNION_ARENA': 'Union Arena'
 }
 
 export default function ShareEvent() {

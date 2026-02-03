@@ -515,9 +515,15 @@ export default function MerchantInventory({ embedded = false }: MerchantInventor
               >
                 <option value="">Tutti i TCG</option>
                 <option value="POKEMON">Pokémon</option>
-                <option value="ONEPIECE">One Piece</option>
-                <option value="MAGIC">Magic</option>
+                <option value="ONE_PIECE">One Piece</option>
+                <option value="MAGIC">Magic: The Gathering</option>
                 <option value="YUGIOH">Yu-Gi-Oh!</option>
+                <option value="DIGIMON">Digimon</option>
+                <option value="LORCANA">Disney Lorcana</option>
+                <option value="RIFTBOUND">Riftbound</option>
+                <option value="DRAGON_BALL_SUPER_FUSION_WORLD">Dragon Ball Super Fusion World</option>
+                <option value="FLESH_AND_BLOOD">Flesh and Blood</option>
+                <option value="UNION_ARENA">Union Arena</option>
               </select>
               <select
                 className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"

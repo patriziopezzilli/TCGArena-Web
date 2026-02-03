@@ -42,9 +42,9 @@ export default function QrCodeLanding() {
 
             {/* TCG Supported Section - Compact Version */}
             <section className="py-8 px-6 bg-white border-b border-gray-50">
-                <div className="max-w-md mx-auto">
+                <div className="max-w-lg mx-auto">
                     <p className="text-center text-sm font-medium text-gray-400 mb-6 uppercase tracking-wider">I tuoi giochi preferiti</p>
-                    <div className="flex justify-between items-center gap-4 opacity-80 grayscale hover:grayscale-0 transition-all duration-500">
+                    <div className="flex flex-wrap justify-center items-center gap-4 opacity-80 grayscale hover:grayscale-0 transition-all duration-500">
                         {/* Pokemon */}
                         <div className="w-10 h-10 object-contain">
                             <img src="/images/tcg/pokemon.png" alt="Pokemon" className="w-full h-full object-contain" />
@@ -64,6 +64,22 @@ export default function QrCodeLanding() {
                         {/* Digimon */}
                         <div className="w-10 h-10 object-contain">
                             <img src="/images/tcg/digimon.png" alt="Digimon" className="w-full h-full object-contain" />
+                        </div>
+                        {/* Dragon Ball Super Fusion World */}
+                        <div className="w-10 h-10 object-contain">
+                            <img src="/images/tcg/dragonball.png" alt="Dragon Ball" className="w-full h-full object-contain" />
+                        </div>
+                        {/* Lorcana */}
+                        <div className="w-10 h-10 object-contain">
+                            <img src="/images/tcg/lorcana.png" alt="Lorcana" className="w-full h-full object-contain" />
+                        </div>
+                        {/* Flesh and Blood */}
+                        <div className="w-10 h-10 object-contain">
+                            <img src="/images/tcg/flesh_and_blood.png" alt="Flesh and Blood" className="w-full h-full object-contain" />
+                        </div>
+                        {/* Union Arena */}
+                        <div className="w-10 h-10 object-contain">
+                            <img src="/images/tcg/union_arena.png" alt="Union Arena" className="w-full h-full object-contain" />
                         </div>
                         {/* Riftbound */}
                         <div className="w-10 h-10 object-contain">

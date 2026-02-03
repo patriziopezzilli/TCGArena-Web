@@ -78,7 +78,11 @@ const supportedGames = [
     { name: 'Yu-Gi-Oh!', id: 'yugioh', color: '#E53935' },
     { name: 'Disney Lorcana', id: 'lorcana', color: '#00B4D8' },
     { name: 'One Piece TCG', id: 'onepiece', color: '#F72585' },
-    { name: 'Digimon', id: 'digimon', color: '#4CC9F0' }
+    { name: 'Digimon', id: 'digimon', color: '#4CC9F0' },
+    { name: 'Dragon Ball Super Fusion World', id: 'dragonball', color: '#FF9800' },
+    { name: 'Flesh and Blood', id: 'fab', color: '#E11D48' },
+    { name: 'Union Arena', id: 'unionarena', color: '#F59E0B' },
+    { name: 'Riftbound', id: 'riftbound', color: '#14B8A6' }
 ]
 
 const endpoints = [

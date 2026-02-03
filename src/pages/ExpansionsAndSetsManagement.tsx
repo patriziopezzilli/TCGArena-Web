@@ -348,6 +348,9 @@ export default function ExpansionsAndSetsManagement() {
             <option value="DIGIMON">Digimon</option>
             <option value="LORCANA">Disney Lorcana</option>
             <option value="RIFTBOUND">Riftbound</option>
+            <option value="DRAGON_BALL_SUPER_FUSION_WORLD">Dragon Ball Super Fusion World</option>
+            <option value="FLESH_AND_BLOOD">Flesh and Blood</option>
+            <option value="UNION_ARENA">Union Arena</option>
             <option value="OTHER">Altro</option>
           </select>
           <button
@@ -718,6 +721,9 @@ export default function ExpansionsAndSetsManagement() {
                       <option value="DIGIMON">Digimon</option>
                       <option value="LORCANA">Disney Lorcana</option>
                       <option value="RIFTBOUND">Riftbound</option>
+                      <option value="DRAGON_BALL_SUPER_FUSION_WORLD">Dragon Ball Super Fusion World</option>
+                      <option value="FLESH_AND_BLOOD">Flesh and Blood</option>
+                      <option value="UNION_ARENA">Union Arena</option>
                       <option value="OTHER">Altro</option>
                     </select>
                   </div>

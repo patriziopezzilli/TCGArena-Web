@@ -19,6 +19,9 @@ const TCG_TYPES = [
   { value: 'DIGIMON', label: 'Digimon', icon: <CpuChipIcon className="w-5 h-5" />, color: 'bg-orange-100 text-orange-800 border-orange-300' },
   { value: 'RIFTBOUND', label: 'Riftbound: League of Legends', icon: <StarIcon className="w-5 h-5" />, color: 'bg-teal-100 text-teal-800 border-teal-300' },
   { value: 'LORCANA', label: 'Disney Lorcana', icon: <SparklesIcon className="w-5 h-5" />, color: 'bg-indigo-100 text-indigo-800 border-indigo-300' },
+  { value: 'DRAGON_BALL_SUPER_FUSION_WORLD', label: 'Dragon Ball Super Fusion World', icon: <FireIcon className="w-5 h-5" />, color: 'bg-orange-100 text-orange-800 border-orange-300' },
+  { value: 'FLESH_AND_BLOOD', label: 'Flesh and Blood', icon: <CardsIcon className="w-5 h-5" />, color: 'bg-rose-100 text-rose-800 border-rose-300' },
+  { value: 'UNION_ARENA', label: 'Union Arena', icon: <CardsIcon className="w-5 h-5" />, color: 'bg-amber-100 text-amber-800 border-amber-300' },
 ]
 
 const SERVICES = [

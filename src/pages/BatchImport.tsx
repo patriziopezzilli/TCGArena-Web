@@ -6,7 +6,7 @@ import {
   BanknotesIcon, SparklesIcon, RocketLaunchIcon
 } from '../components/Icons'
 
-type TCGType = 'POKEMON' | 'MAGIC' | 'YUGIOH' | 'ONE_PIECE' | 'DIGIMON' | 'LORCANA' | 'RIFTBOUND'
+type TCGType = 'POKEMON' | 'MAGIC' | 'YUGIOH' | 'ONE_PIECE' | 'DIGIMON' | 'LORCANA' | 'RIFTBOUND' | 'DRAGON_BALL_SUPER_FUSION_WORLD' | 'FLESH_AND_BLOOD' | 'UNION_ARENA'
 
 // TCG supported types
 const TCG_TYPES: { value: TCGType; label: string; color: string }[] = [
@@ -17,6 +17,9 @@ const TCG_TYPES: { value: TCGType; label: string; color: string }[] = [
   { value: 'DIGIMON', label: 'Digimon', color: 'bg-cyan-500' },
   { value: 'LORCANA', label: 'Lorcana', color: 'bg-indigo-500' },
   { value: 'RIFTBOUND', label: 'Riftbound: League of Legends', color: 'bg-teal-500' },
+  { value: 'DRAGON_BALL_SUPER_FUSION_WORLD', label: 'Dragon Ball Super Fusion World', color: 'bg-orange-500' },
+  { value: 'FLESH_AND_BLOOD', label: 'Flesh and Blood', color: 'bg-rose-500' },
+  { value: 'UNION_ARENA', label: 'Union Arena', color: 'bg-amber-500' },
 ]
 
 interface ImportHistory {
