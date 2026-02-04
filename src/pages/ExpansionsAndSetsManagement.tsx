@@ -310,6 +310,28 @@ export default function ExpansionsAndSetsManagement() {
     }
   }
 
+  // Complete reset of a specific set from JustTCG API (destructive)
+  const handleResetSet = async (set: TCGSet) => {
+    if (!confirm(`⚠️ ATTENZIONE: RESET COMPLETO!\n\nVuoi resettare completamente il set "${set.name}"?\n\nQuesta operazione:\n• ELIMINERÀ TUTTE le carte esistenti (${set.cardCount || 0} carte)\n• Ricaricherà tutto da JustTCG da zero\n\nQuesta azione è IRREVERSIBILE. Sei sicuro?`)) return
+
+    setReloadingSetId(set.id)
+    try {
+      const result = await adminService.resetSet(set.id)
+      
+      if (result.success) {
+        showToast(`Reset completato! ${result.deletedCards} carte eliminate, ${result.importedCards} carte ricaricate${result.errors > 0 ? `, ${result.errors} errori` : ''}`, 'success')
+        // Reload data to show updated card counts
+        await loadData()
+      } else {
+        showToast('Reset fallito', 'error')
+      }
+    } catch (err: any) {
+      showToast('Errore durante il reset: ' + (err.response?.data?.error || err.message), 'error')
+    } finally {
+      setReloadingSetId(null)
+    }
+  }
+
   // Filtra espansioni per TCG
   const filteredExpansions = expansions.filter(expansion =>
     tcgFilter === 'ALL' || expansion.tcgType === tcgFilter
@@ -563,6 +585,18 @@ export default function ExpansionsAndSetsManagement() {
                             )}
                           </button>
                           <button
+                            onClick={() => handleResetSet(set)}
+                            disabled={reloadingSetId === set.id}
+                            className="px-3 py-1 bg-red-700 text-white text-sm rounded-lg hover:bg-red-800 transition-all duration-300 hover:scale-105 mr-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                            title="Reset completo - elimina tutto e ricarica da zero"
+                          >
+                            {reloadingSetId === set.id ? (
+                              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin inline-block"></div>
+                            ) : (
+                              <span>💥</span>
+                            )}
+                          </button>
+                          <button
                             onClick={() => handleEdit(set, expansion)}
                             className="px-3 py-1 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-all duration-300 hover:scale-105 mr-2"
                           >
@@ -694,6 +728,18 @@ export default function ExpansionsAndSetsManagement() {
                                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                               ) : (
                                 <span>🔄</span>
+                              )}
+                            </button>
+                            <button
+                              onClick={() => handleResetSet(set)}
+                              disabled={reloadingSetId === set.id}
+                              className="p-2 bg-red-700 text-white rounded-lg hover:bg-red-800 transition-all duration-300 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
+                              title="Reset completo - elimina tutto e ricarica da zero"
+                            >
+                              {reloadingSetId === set.id ? (
+                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                              ) : (
+                                <span>💥</span>
                               )}
                             </button>
                             <button

@@ -705,6 +705,25 @@ export const adminService = {
     return response.data
   },
 
+  /**
+   * Complete reset of a set from JustTCG API.
+   * This will DELETE ALL existing card templates for the set and reload everything from scratch.
+   * This is a destructive operation that cannot be undone.
+   */
+  async resetSet(id: number): Promise<{
+    setId: number
+    setCode: string
+    setName: string
+    deletedCards: number
+    importedCards: number
+    errors: number
+    previousTotal: number
+    success: boolean
+  }> {
+    const response = await apiClient.post(`/sets/${id}/reset`)
+    return response.data
+  },
+
   // ========== IMAGE SYNC MANAGEMENT ==========
   async syncImages(filters?: { tcgType?: string; year?: number }): Promise<any> {
     const params = new URLSearchParams()
