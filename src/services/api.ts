@@ -686,6 +686,25 @@ export const adminService = {
     return response
   },
 
+  /**
+   * Force reload a set from JustTCG API (delta import).
+   * This will fetch cards from the API and only add missing ones.
+   * It does NOT delete any existing cards.
+   */
+  async reloadSet(id: number): Promise<{
+    setId: number
+    setCode: string
+    setName: string
+    newCards: number
+    skipped: number
+    errors: number
+    totalExisting: number
+    success: boolean
+  }> {
+    const response = await apiClient.post(`/sets/${id}/reload`)
+    return response.data
+  },
+
   // ========== IMAGE SYNC MANAGEMENT ==========
   async syncImages(filters?: { tcgType?: string; year?: number }): Promise<any> {
     const params = new URLSearchParams()

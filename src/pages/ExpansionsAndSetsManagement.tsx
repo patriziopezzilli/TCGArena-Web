@@ -15,6 +15,7 @@ export default function ExpansionsAndSetsManagement() {
   const [stats, setStats] = useState<TCGStats[]>([])
   const [loading, setLoading] = useState(true)
   const [syncing, setSyncing] = useState(false)
+  const [reloadingSetId, setReloadingSetId] = useState<number | null>(null)
   const [showModal, setShowModal] = useState(false)
   const [modalType, setModalType] = useState<ModalType>('expansion')
   const [editingItem, setEditingItem] = useState<ExpansionWithDate | TCGSet | null>(null)
@@ -283,6 +284,32 @@ export default function ExpansionsAndSetsManagement() {
     }
   }
 
+  // Reload a specific set from JustTCG API (delta import)
+  const handleReloadSet = async (set: TCGSet) => {
+    if (!confirm(`Vuoi ricaricare il set "${set.name}" da JustTCG?\n\nQuesta operazione aggiungerà solo le carte mancanti, senza eliminare quelle esistenti.`)) return
+
+    setReloadingSetId(set.id)
+    try {
+      const result = await adminService.reloadSet(set.id)
+      
+      if (result.success) {
+        if (result.newCards > 0) {
+          showToast(`Reload completato! ${result.newCards} nuove carte aggiunte, ${result.skipped} già presenti${result.errors > 0 ? `, ${result.errors} errori` : ''}`, 'success')
+        } else {
+          showToast(`Nessuna nuova carta trovata. ${result.skipped} carte già presenti.`, 'info')
+        }
+        // Reload data to show updated card counts
+        await loadData()
+      } else {
+        showToast('Reload fallito', 'error')
+      }
+    } catch (err: any) {
+      showToast('Errore durante il reload: ' + (err.response?.data?.error || err.message), 'error')
+    } finally {
+      setReloadingSetId(null)
+    }
+  }
+
   // Filtra espansioni per TCG
   const filteredExpansions = expansions.filter(expansion =>
     tcgFilter === 'ALL' || expansion.tcgType === tcgFilter
@@ -524,6 +551,18 @@ export default function ExpansionsAndSetsManagement() {
                         </td>
                         <td className="px-6 py-3 whitespace-nowrap text-right text-sm font-medium">
                           <button
+                            onClick={() => handleReloadSet(set)}
+                            disabled={reloadingSetId === set.id}
+                            className="px-3 py-1 bg-amber-600 text-white text-sm rounded-lg hover:bg-amber-700 transition-all duration-300 hover:scale-105 mr-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                            title="Ricarica carte mancanti da JustTCG"
+                          >
+                            {reloadingSetId === set.id ? (
+                              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin inline-block"></div>
+                            ) : (
+                              <span>🔄</span>
+                            )}
+                          </button>
+                          <button
                             onClick={() => handleEdit(set, expansion)}
                             className="px-3 py-1 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-all duration-300 hover:scale-105 mr-2"
                           >
@@ -645,6 +684,18 @@ export default function ExpansionsAndSetsManagement() {
                             )}
                           </div>
                           <div className="flex gap-1 ml-3">
+                            <button
+                              onClick={() => handleReloadSet(set)}
+                              disabled={reloadingSetId === set.id}
+                              className="p-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-all duration-300 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
+                              title="Ricarica carte mancanti da JustTCG"
+                            >
+                              {reloadingSetId === set.id ? (
+                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                              ) : (
+                                <span>🔄</span>
+                              )}
+                            </button>
                             <button
                               onClick={() => handleEdit(set, expansion)}
                               className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-300 hover:scale-110"
