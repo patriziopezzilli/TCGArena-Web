@@ -22,6 +22,7 @@ export default function ExpansionsAndSetsManagement() {
   const [selectedExpansion, setSelectedExpansion] = useState<ExpansionWithDate | null>(null)
   const [expandedExpansions, setExpandedExpansions] = useState<Set<number>>(new Set())
   const [tcgFilter, setTcgFilter] = useState<string>('ALL')
+  const [searchTerm, setSearchTerm] = useState('')
   const [formData, setFormData] = useState({
     // Expansion fields
     title: '',
@@ -291,7 +292,7 @@ export default function ExpansionsAndSetsManagement() {
     setReloadingSetId(set.id)
     try {
       const result = await adminService.reloadSet(set.id)
-      
+
       if (result.success) {
         if (result.newCards > 0) {
           showToast(`Reload completato! ${result.newCards} nuove carte aggiunte, ${result.skipped} già presenti${result.errors > 0 ? `, ${result.errors} errori` : ''}`, 'success')
@@ -320,7 +321,7 @@ export default function ExpansionsAndSetsManagement() {
     setReloadingSetId(set.id)
     try {
       const result = await adminService.resetSetFromTcgDex(set.id, setCode.trim())
-      
+
       if (result.success) {
         showToast(`Reset TCGDex completato! ${result.deletedCards} carte eliminate, ${result.importedCards} carte ricaricate${result.errors > 0 ? `, ${result.errors} errori` : ''}`, 'success')
         // Reload data to show updated card counts
@@ -335,412 +336,316 @@ export default function ExpansionsAndSetsManagement() {
     }
   }
 
-  // Filtra espansioni per TCG
-  const filteredExpansions = expansions.filter(expansion =>
-    tcgFilter === 'ALL' || expansion.tcgType === tcgFilter
-  )
+  // Complete reset of a specific set (destructive)
+  const handleResetSet = async (set: TCGSet) => {
+    if (!confirm(`⚠️ ATTENZIONE: RESET COMPLETO!\n\nVuoi resettare completamente il set "${set.name}"?\n\nQuesta operazione:\n• ELIMINERÀ TUTTE le carte esistenti (${set.cardCount || 0} carte)\n• Ricaricherà tutto da JustTCG API da zero\n\nQuesta azione è IRREVERSIBILE. Sei sicuro?`)) return
+
+    setReloadingSetId(set.id)
+    try {
+      const result = await adminService.resetSet(set.id)
+
+      if (result.success) {
+        showToast(`Reset completato! ${result.deletedCards} carte eliminate, ${result.importedCards} nuove carte ricaricate${result.errors > 0 ? `, ${result.errors} errori` : ''}`, 'success')
+        // Reload data to show updated card counts
+        await loadData()
+      } else {
+        showToast('Reset fallito', 'error')
+      }
+    } catch (err: any) {
+      showToast('Errore durante il reset: ' + (err.response?.data?.error || err.message), 'error')
+    } finally {
+      setReloadingSetId(null)
+    }
+  }
+
+  // Filtra espansioni per TCG e ricerca
+  const filteredExpansions = expansions.filter(expansion => {
+    const matchesTcg = tcgFilter === 'ALL' || expansion.tcgType === tcgFilter
+    const matchesSearch = searchTerm === '' ||
+      expansion.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      expansion.tcgType.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      expansion.sets.some(set =>
+        set.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (set.setCode && set.setCode.toLowerCase().includes(searchTerm.toLowerCase()))
+      )
+    return matchesTcg && matchesSearch
+  })
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="relative">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary"></div>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="h-8 w-8 bg-primary/20 rounded-full animate-pulse"></div>
+          </div>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="space-y-6">
-      {/* Statistiche TCG */}
-      <div className="relative">
-        <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-          {stats.map((stat) => (
-            <div key={stat.tcgType} className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow flex-shrink-0 w-64">
-              <div className="text-sm font-medium text-gray-600 mb-2">{stat.tcgType}</div>
-              <div className="space-y-1">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">Serie:</span>
-                  <span className="font-semibold text-blue-600">{stat.expansions}</span>
+    <div className="flex h-[calc(100vh-theme(spacing.16))] -m-6 overflow-hidden bg-gray-50/50">
+      {/* Sidebar Filtri TCG */}
+      <aside className="w-72 bg-white border-r border-gray-200 flex flex-col flex-shrink-0 animate-fade-in">
+        <div className="p-6 border-b border-gray-100">
+          <h2 className="text-xl font-extrabold text-gray-900 flex items-center gap-2">
+            <span className="text-primary italic">TCG</span>
+            <span>Arena</span>
+          </h2>
+          <p className="text-[10px] text-gray-400 mt-2 uppercase tracking-[0.2em] font-bold">Expansion Control</p>
+        </div>
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-1">
+          {[
+            { id: 'ALL', label: 'Tutti i TCG', icon: '🌐' },
+            { id: 'POKEMON', label: 'Pokémon', icon: '⚡' },
+            { id: 'MAGIC', label: 'Magic: The Gathering', icon: '🔥' },
+            { id: 'YUGIOH', label: 'Yu-Gi-Oh!', icon: '🔮' },
+            { id: 'ONE_PIECE', label: 'One Piece', icon: '🏴‍☠️' },
+            { id: 'DIGIMON', label: 'Digimon', icon: '👾' },
+            { id: 'LORCANA', label: 'Disney Lorcana', icon: '✨' },
+            { id: 'RIFTBOUND', label: 'Riftbound', icon: '💎' },
+            { id: 'DRAGON_BALL_SUPER_FUSION_WORLD', label: 'Dragon Ball Super', icon: '🐉' },
+            { id: 'FLESH_AND_BLOOD', label: 'Flesh and Blood', icon: '⚔️' },
+            { id: 'UNION_ARENA', label: 'Union Arena', icon: '🏟️' },
+            { id: 'OTHER', label: 'Altro', icon: '📦' },
+          ].map((tcg) => (
+            <button
+              key={tcg.id}
+              onClick={() => setTcgFilter(tcg.id)}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-300 ${tcgFilter === tcg.id
+                ? 'bg-primary text-white shadow-lg shadow-primary/30 scale-[1.02]'
+                : 'text-gray-500 hover:bg-gray-50 hover:text-primary active:scale-95'
+                }`}
+            >
+              <span className="text-lg">{tcg.icon}</span>
+              {tcg.label}
+              {tcgFilter === tcg.id && <span className="ml-auto animate-ping-slow">●</span>}
+            </button>
+          ))}
+        </div>
+        <div className="p-4 border-t border-gray-100 bg-gray-50/30">
+          <button
+            onClick={handleSyncReleaseDates}
+            disabled={syncing}
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-wider text-amber-600 bg-amber-50 hover:bg-amber-100 transition-all active:scale-95 disabled:opacity-50"
+          >
+            <span>{syncing ? '⌛' : '🔄'}</span>
+            {syncing ? 'Syncing...' : 'Sync Release Dates'}
+          </button>
+        </div>
+      </aside>
+
+      {/* Main Content Area */}
+      <main className="flex-1 overflow-y-auto custom-scrollbar p-8 bg-grid-pattern">
+        {/* Top Floating Header */}
+        <div className="glass-panel rounded-2xl p-4 mb-8 flex flex-col md:flex-row items-center justify-between gap-4 sticky top-0 z-20 premium-shadow">
+          <div className="flex-1 w-full flex items-center gap-4">
+            <div className="relative group flex-1">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors">🔍</span>
+              <input
+                type="text"
+                placeholder="Cerca serie o set..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-12 pr-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-primary focus:bg-white transition-all text-sm font-medium"
+              />
+            </div>
+            <div className="flex bg-gray-100/80 p-1 rounded-xl">
+              <button
+                onClick={() => setViewMode('list')}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${viewMode === 'list' ? 'bg-white text-primary shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                  }`}
+              >
+                📋 Lista
+              </button>
+              <button
+                onClick={() => setViewMode('cards')}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${viewMode === 'cards' ? 'bg-white text-primary shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                  }`}
+              >
+                🎴 Card
+              </button>
+            </div>
+          </div>
+
+          <button
+            onClick={handleCreateExpansion}
+            className="w-full md:w-auto px-8 py-3 bg-primary text-white rounded-xl font-bold hover:bg-blue-700 transition-all shadow-lg shadow-primary/20 hover:scale-[1.03] active:scale-95 flex items-center justify-center gap-2"
+          >
+            <span className="text-lg">✨</span> Nuova Serie
+          </button>
+        </div>
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 animate-slide-up">
+          {stats.filter(s => tcgFilter === 'ALL' || s.tcgType === tcgFilter).map((stat) => (
+            <div key={stat.tcgType} className="bg-white rounded-2xl p-6 border border-gray-100 premium-shadow group hover:border-primary/30 transition-colors">
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all duration-300">
+                  <span className="font-black">{stat.tcgType.charAt(0)}</span>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">Set:</span>
-                  <span className="font-semibold text-green-600">{stat.sets}</span>
+                <div className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">{stat.tcgType}</div>
+              </div>
+              <div className="space-y-4">
+                <div className="flex justify-between items-baseline">
+                  <span className="text-xs text-gray-500 font-bold uppercase tracking-wider">Serie</span>
+                  <span className="text-xl font-black text-gray-900">{stat.expansions}</span>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">Carte:</span>
-                  <span className="font-semibold text-purple-600">{stat.cards}</span>
+                <div className="flex justify-between items-baseline">
+                  <span className="text-xs text-gray-500 font-bold uppercase tracking-wider">Set</span>
+                  <span className="text-xl font-black text-gray-900">{stat.sets}</span>
+                </div>
+                <div className="pt-2 border-t border-gray-50">
+                  <div className="flex justify-between items-center mb-1.5">
+                    <span className="text-[10px] text-gray-400 font-black uppercase tracking-widest">Carte Caricate</span>
+                    <span className="text-xs font-black text-primary">{stat.cards.toLocaleString()}</span>
+                  </div>
+                  <div className="h-2 w-full bg-gray-50 rounded-full overflow-hidden">
+                    <div className="h-full bg-primary rounded-full animate-pulse transition-all duration-1000" style={{ width: '75%' }}></div>
+                  </div>
                 </div>
               </div>
             </div>
           ))}
         </div>
-        {/* Fade effect */}
-        <div className="absolute top-0 right-0 bottom-0 w-8 bg-gradient-to-l from-white to-transparent pointer-events-none"></div>
-      </div>
 
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">Gestione Serie e Set TCG</h2>
-          <p className="text-gray-600 mt-1">
-            {expansions.length} serie, {expansions.reduce((sum, exp) => sum + exp.sets.length, 0)} set totali nel sistema
-          </p>
-        </div>
-        <div className="flex gap-3">
-          {/* Filtro TCG */}
-          <select
-            value={tcgFilter}
-            onChange={(e) => setTcgFilter(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-          >
-            <option value="ALL">Tutti i TCG</option>
-            <option value="POKEMON">Pokémon</option>
-            <option value="MAGIC">Magic: The Gathering</option>
-            <option value="YUGIOH">Yu-Gi-Oh!</option>
-            <option value="ONE_PIECE">One Piece</option>
-            <option value="DIGIMON">Digimon</option>
-            <option value="LORCANA">Disney Lorcana</option>
-            <option value="RIFTBOUND">Riftbound</option>
-            <option value="DRAGON_BALL_SUPER_FUSION_WORLD">Dragon Ball Super Fusion World</option>
-            <option value="FLESH_AND_BLOOD">Flesh and Blood</option>
-            <option value="UNION_ARENA">Union Arena</option>
-            <option value="OTHER">Altro</option>
-          </select>
-          <button
-            onClick={handleCreateExpansion}
-            className="px-6 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-all duration-300 hover:scale-105"
-          >
-            <span className="flex items-center gap-2">
-              <span className="text-lg">➕</span>
-              Aggiungi Serie
-              <span className="transform hover:translate-x-1 transition-transform duration-300">→</span>
-            </span>
-          </button>
-          <button
-            onClick={() => setViewMode(viewMode === 'list' ? 'cards' : 'list')}
-            className="px-4 py-2 bg-gray-600 text-white rounded-lg font-semibold hover:bg-gray-700 transition-all duration-300 hover:scale-105"
-          >
-            <span className="flex items-center gap-2">
-              {viewMode === 'list' ? '📋 Vista Card' : '📝 Vista Lista'}
-              <span className="transform hover:translate-x-1 transition-transform duration-300">→</span>
-            </span>
-          </button>
-          <button
-            onClick={handleSyncReleaseDates}
-            disabled={syncing}
-            className="px-4 py-2 bg-amber-600 text-white rounded-lg font-semibold hover:bg-amber-700 transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
-            title="Sincronizza date di rilascio da TCG API"
-          >
-            <span className="flex items-center gap-2">
-              {syncing ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  Sync...
-                </>
-              ) : (
-                <>
-                  🔄 Sync Date
-                </>
-              )}
-            </span>
-          </button>
-        </div>
-      </div>
-
-      {/* Content */}
-      {viewMode === 'list' ? (
-        /* Vista Lista Gerarchica */
-        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-200">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Serie / Set
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Tipo TCG
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Dettagli
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    URL Immagine
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Azioni
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {filteredExpansions.map((expansion) => (
-                  <React.Fragment key={expansion.id}>
-                    {/* Riga Espansione */}
-                    <tr key={`expansion-${expansion.id}`} className="hover:bg-gray-50 bg-blue-50/30">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center gap-3">
-                          <button
-                            onClick={() => toggleExpansion(expansion.id)}
-                            className="text-gray-500 hover:text-gray-700 transition-colors"
-                          >
-                            {expandedExpansions.has(expansion.id) ? '▼' : '▶'}
-                          </button>
-                          <div className="text-sm font-medium text-gray-900">{expansion.title}</div>
-                          <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded">
-                            {expansion.sets.length} set
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="px-2 py-1 text-xs font-medium bg-purple-100 text-purple-800 rounded">
-                          {expansion.tcgType}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-500">
-                        <div>Serie</div>
-                        {expansion.releaseDate && (
-                          <div className="text-xs text-gray-400 mt-1">
-                            Rilascio: {new Date(expansion.releaseDate).toLocaleDateString('it-IT')}
+        {/* Content Area */}
+        {viewMode === 'list' ? (
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-xl overflow-hidden animate-fade-in premium-shadow">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50 border-b border-gray-200">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Serie / Set
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Tipo TCG
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Dettagli
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      URL Immagine
+                    </th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Azioni
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {filteredExpansions.map((expansion) => (
+                    <React.Fragment key={expansion.id}>
+                      {/* Riga Espansione */}
+                      <tr key={`expansion-${expansion.id}`} className="hover:bg-gray-50 bg-blue-50/30">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center gap-3">
+                            <button
+                              onClick={() => toggleExpansion(expansion.id)}
+                              className="text-gray-500 hover:text-gray-700 transition-colors"
+                            >
+                              {expandedExpansions.has(expansion.id) ? '▼' : '▶'}
+                            </button>
+                            <div className="text-sm font-medium text-gray-900">{expansion.title}</div>
+                            <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded">
+                              {expansion.sets.length} set
+                            </span>
                           </div>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {expansion.imageUrl ? (
-                          <div className="max-w-xs truncate" title={expansion.imageUrl}>
-                            {expansion.imageUrl}
-                          </div>
-                        ) : (
-                          'Nessuno'
-                        )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <button
-                          onClick={() => handleEdit(expansion)}
-                          className="px-3 py-1 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-all duration-300 hover:scale-105"
-                        >
-                          <span className="flex items-center gap-1">
-                            <span>✏️</span>
-                            Modifica
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className="px-2 py-1 text-xs font-medium bg-purple-100 text-purple-800 rounded">
+                            {expansion.tcgType}
                           </span>
-                        </button>
-                        <button
-                          onClick={() => handleDelete(expansion)}
-                          className="px-3 py-1 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 transition-all duration-300 hover:scale-105 ml-2"
-                        >
-                          <span className="flex items-center gap-1">
-                            <span>🗑️</span>
-                            Elimina
-                          </span>
-                        </button>
-                        <button
-                          onClick={() => handleCreateSet(expansion)}
-                          className="px-3 py-1 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition-all duration-300 hover:scale-105 ml-2"
-                        >
-                          <span className="flex items-center gap-1">
-                            <span className="text-white">➕</span>
-                            Set
-                          </span>
-                        </button>
-                      </td>
-                    </tr>
-
-                    {/* Righe Set - solo se espansione è aperta */}
-                    {expandedExpansions.has(expansion.id) && expansion.sets.map((set) => (
-                      <tr key={`set-${set.id}`} className="hover:bg-gray-50 bg-gray-50/50">
-                        <td className="px-6 py-3 whitespace-nowrap">
-                          <div className="ml-12 flex items-center gap-3">
-                            <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
-                              <span className="text-white text-xs">•</span>
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-500">
+                          <div>Serie</div>
+                          {expansion.releaseDate && (
+                            <div className="text-xs text-gray-400 mt-1">
+                              Rilascio: {new Date(expansion.releaseDate).toLocaleDateString('it-IT')}
                             </div>
-                            <div className="text-sm text-gray-900">{set.name}</div>
-                          </div>
+                          )}
                         </td>
-                        <td className="px-6 py-3 whitespace-nowrap">
-                          <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded">
-                            Set TCG
-                          </span>
-                        </td>
-                        <td className="px-6 py-3 text-sm text-gray-500">
-                          {set.setCode && <div>Codice: {set.setCode}</div>}
-                          {set.releaseDate && <div>Data: {new Date(set.releaseDate).toLocaleDateString('it-IT')}</div>}
-                          {set.cardCount && <div>Carte: {set.cardCount}</div>}
-                          {set.description && <div className="truncate max-w-xs">{set.description}</div>}
-                        </td>
-                        <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500">
-                          {set.imageUrl ? (
-                            <div className="max-w-xs truncate" title={set.imageUrl}>
-                              {set.imageUrl}
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {expansion.imageUrl ? (
+                            <div className="max-w-xs truncate" title={expansion.imageUrl}>
+                              {expansion.imageUrl}
                             </div>
                           ) : (
                             'Nessuno'
                           )}
                         </td>
-                        <td className="px-6 py-3 whitespace-nowrap text-right text-sm font-medium">
+                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                           <button
-                            onClick={() => handleReloadSet(set)}
-                            disabled={reloadingSetId === set.id}
-                            className="px-3 py-1 bg-amber-600 text-white text-sm rounded-lg hover:bg-amber-700 transition-all duration-300 hover:scale-105 mr-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                            title="Ricarica carte mancanti da JustTCG"
+                            onClick={() => handleEdit(expansion)}
+                            className="px-3 py-1 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-all duration-300 hover:scale-105"
                           >
-                            {reloadingSetId === set.id ? (
-                              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin inline-block"></div>
-                            ) : (
-                              <span>🔄</span>
-                            )}
+                            <span className="flex items-center gap-1">
+                              <span>✏️</span>
+                              Modifica
+                            </span>
                           </button>
                           <button
-                            onClick={() => handleResetSetFromTcgDex(set)}
-                            disabled={reloadingSetId === set.id}
-                            className="px-3 py-1 bg-purple-700 text-white text-sm rounded-lg hover:bg-purple-800 transition-all duration-300 hover:scale-105 mr-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                            title="Reset tramite Pokemon TCG API - inserisci set code"
+                            onClick={() => handleDelete(expansion)}
+                            className="px-3 py-1 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 transition-all duration-300 hover:scale-105 ml-2"
                           >
-                            {reloadingSetId === set.id ? (
-                              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin inline-block"></div>
-                            ) : (
-                              <span>🎴</span>
-                            )}
+                            <span className="flex items-center gap-1">
+                              <span>🗑️</span>
+                              Elimina
+                            </span>
                           </button>
                           <button
-                            onClick={() => handleResetSet(set)}
-                            disabled={reloadingSetId === set.id}
-                            className="px-3 py-1 bg-red-700 text-white text-sm rounded-lg hover:bg-red-800 transition-all duration-300 hover:scale-105 mr-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                            title="Reset completo - elimina tutto e ricarica da zero"
+                            onClick={() => handleCreateSet(expansion)}
+                            className="px-3 py-1 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition-all duration-300 hover:scale-105 ml-2"
                           >
-                            {reloadingSetId === set.id ? (
-                              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin inline-block"></div>
-                            ) : (
-                              <span>💥</span>
-                            )}
-                          </button>
-                          <button
-                            onClick={() => handleEdit(set, expansion)}
-                            className="px-3 py-1 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-all duration-300 hover:scale-105 mr-2"
-                          >
-                            <span>✏️</span>
-                          </button>
-                          <button
-                            onClick={() => handleDelete(set)}
-                            className="px-3 py-1 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 transition-all duration-300 hover:scale-105"
-                          >
-                            <span>🗑️</span>
+                            <span className="flex items-center gap-1">
+                              <span className="text-white">➕</span>
+                              Set
+                            </span>
                           </button>
                         </td>
                       </tr>
-                    ))}
-                  </React.Fragment>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      ) : (
-        /* Vista Card */
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredExpansions.map((expansion) => (
-            <div key={expansion.id} className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-lg transition-all duration-200">
-              {/* Header Espansione */}
-              <div className="bg-blue-600 p-6">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-xl font-bold text-white">{expansion.title}</h3>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => handleEdit(expansion)}
-                      className="group relative p-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-all duration-300 hover:scale-110 backdrop-blur-sm"
-                      title="Modifica espansione"
-                    >
-                      <span className="group-hover:rotate-12 transition-transform duration-300">✏️</span>
-                    </button>
-                    <button
-                      onClick={() => handleDelete(expansion)}
-                      className="group relative p-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-all duration-300 hover:scale-110 backdrop-blur-sm"
-                      title="Elimina espansione"
-                    >
-                      <span className="group-hover:rotate-12 transition-transform duration-300">🗑️</span>
-                    </button>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="px-3 py-1 text-xs font-medium bg-white/20 text-white rounded-full">
-                    {expansion.tcgType}
-                  </span>
-                  <span className="px-3 py-1 text-xs font-medium bg-green-500/20 text-green-100 rounded-full">
-                    {expansion.sets.length} set
-                  </span>
-                  {expansion.releaseDate && (
-                    <span className="px-3 py-1 text-xs font-medium bg-white/20 text-white rounded-full">
-                      {new Date(expansion.releaseDate).toLocaleDateString('it-IT')}
-                    </span>
-                  )}
-                </div>
-                {expansion.imageUrl && (
-                  <div className="text-xs text-white/80 truncate" title={expansion.imageUrl}>
-                    {expansion.imageUrl}
-                  </div>
-                )}
-              </div>
 
-              {/* Set dell'espansione */}
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h4 className="text-lg font-semibold text-gray-900">Set TCG</h4>
-                  <button
-                    onClick={() => handleCreateSet(expansion)}
-                    className="px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-all duration-300 hover:scale-105"
-                  >
-                    <span className="flex items-center gap-2">
-                      <span className="text-white">➕</span>
-                      Aggiungi Set
-                    </span>
-                  </button>
-                </div>
-
-                {expansion.sets.length === 0 ? (
-                  <div className="text-center py-8">
-                    <div className="text-gray-400 text-4xl mb-2">📦</div>
-                    <p className="text-gray-500 text-sm">Nessun set presente</p>
-                    <p className="text-gray-400 text-xs mt-1">Aggiungi il primo set a questa espansione</p>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {expansion.sets.map((set) => (
-                      <div key={set.id} className="bg-gray-50 rounded-lg p-4 border border-gray-100 hover:shadow-md transition-shadow">
-                        <div className="flex items-start justify-between mb-3">
-                          <div className="flex-1">
-                            <div className="font-semibold text-gray-900 text-sm mb-1">{set.name}</div>
-                            <div className="flex flex-wrap gap-2 mb-2">
-                              {set.setCode && (
-                                <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded">
-                                  {set.setCode}
-                                </span>
-                              )}
-                              {set.cardCount && (
-                                <span className="px-2 py-1 text-xs font-medium bg-purple-100 text-purple-800 rounded">
-                                  {set.cardCount} carte
-                                </span>
-                              )}
+                      {/* Righe Set - solo se espansione è aperta */}
+                      {expandedExpansions.has(expansion.id) && expansion.sets.map((set) => (
+                        <tr key={`set-${set.id}`} className="hover:bg-gray-50 bg-gray-50/50">
+                          <td className="px-6 py-3 whitespace-nowrap">
+                            <div className="ml-12 flex items-center gap-3">
+                              <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
+                                <span className="text-white text-xs">•</span>
+                              </div>
+                              <div className="text-sm text-gray-900">{set.name}</div>
                             </div>
-                            {set.releaseDate && (
-                              <div className="text-xs text-gray-600 mb-1">
-                                Rilasciato: {new Date(set.releaseDate).toLocaleDateString('it-IT')}
+                          </td>
+                          <td className="px-6 py-3 whitespace-nowrap">
+                            <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded">
+                              Set TCG
+                            </span>
+                          </td>
+                          <td className="px-6 py-3 text-sm text-gray-500">
+                            {set.setCode && <div>Codice: {set.setCode}</div>}
+                            {set.releaseDate && <div>Data: {new Date(set.releaseDate).toLocaleDateString('it-IT')}</div>}
+                            {set.cardCount && <div>Carte: {set.cardCount}</div>}
+                            {set.description && <div className="truncate max-w-xs">{set.description}</div>}
+                          </td>
+                          <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500">
+                            {set.imageUrl ? (
+                              <div className="max-w-xs truncate" title={set.imageUrl}>
+                                {set.imageUrl}
                               </div>
+                            ) : (
+                              'Nessuno'
                             )}
-                            {set.description && (
-                              <div className="text-xs text-gray-600 line-clamp-2">{set.description}</div>
-                            )}
-                            {set.imageUrl && (
-                              <div className="text-xs text-gray-500 truncate mt-1" title={set.imageUrl}>
-                                URL: {set.imageUrl}
-                              </div>
-                            )}
-                          </div>
-                          <div className="flex gap-1 ml-3">
+                          </td>
+                          <td className="px-6 py-3 whitespace-nowrap text-right text-sm font-medium">
                             <button
                               onClick={() => handleReloadSet(set)}
                               disabled={reloadingSetId === set.id}
-                              className="p-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-all duration-300 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
+                              className="px-3 py-1 bg-amber-600 text-white text-sm rounded-lg hover:bg-amber-700 transition-all duration-300 hover:scale-105 mr-2 disabled:opacity-50 disabled:cursor-not-allowed"
                               title="Ricarica carte mancanti da JustTCG"
                             >
                               {reloadingSetId === set.id ? (
-                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin inline-block"></div>
                               ) : (
                                 <span>🔄</span>
                               )}
@@ -748,11 +653,11 @@ export default function ExpansionsAndSetsManagement() {
                             <button
                               onClick={() => handleResetSetFromTcgDex(set)}
                               disabled={reloadingSetId === set.id}
-                              className="p-2 bg-purple-700 text-white rounded-lg hover:bg-purple-800 transition-all duration-300 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
+                              className="px-3 py-1 bg-purple-700 text-white text-sm rounded-lg hover:bg-purple-800 transition-all duration-300 hover:scale-105 mr-2 disabled:opacity-50 disabled:cursor-not-allowed"
                               title="Reset tramite Pokemon TCG API - inserisci set code"
                             >
                               {reloadingSetId === set.id ? (
-                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin inline-block"></div>
                               ) : (
                                 <span>🎴</span>
                               )}
@@ -760,218 +665,283 @@ export default function ExpansionsAndSetsManagement() {
                             <button
                               onClick={() => handleResetSet(set)}
                               disabled={reloadingSetId === set.id}
-                              className="p-2 bg-red-700 text-white rounded-lg hover:bg-red-800 transition-all duration-300 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
+                              className="px-3 py-1 bg-red-700 text-white text-sm rounded-lg hover:bg-red-800 transition-all duration-300 hover:scale-105 mr-2 disabled:opacity-50 disabled:cursor-not-allowed"
                               title="Reset completo - elimina tutto e ricarica da zero"
                             >
                               {reloadingSetId === set.id ? (
-                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin inline-block"></div>
                               ) : (
                                 <span>💥</span>
                               )}
                             </button>
                             <button
                               onClick={() => handleEdit(set, expansion)}
-                              className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-300 hover:scale-110"
-                              title="Modifica set"
+                              className="px-3 py-1 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-all duration-300 hover:scale-105 mr-2"
                             >
                               <span>✏️</span>
                             </button>
                             <button
                               onClick={() => handleDelete(set)}
-                              className="p-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-300 hover:scale-110"
-                              title="Elimina set"
+                              className="px-3 py-1 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 transition-all duration-300 hover:scale-105"
                             >
                               <span>🗑️</span>
                             </button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
-
-          {/* Card per aggiungere nuova espansione */}
-          <div className="bg-gray-100 rounded-xl border-2 border-dashed border-gray-300 hover:border-gray-400 transition-colors cursor-pointer flex items-center justify-center min-h-[300px]" onClick={handleCreateExpansion}>
-            <div className="text-center">
-              <div className="text-gray-400 text-6xl mb-4">➕</div>
-              <div className="text-gray-600 font-medium">Aggiungi Serie</div>
-              <div className="text-gray-400 text-sm mt-1">Crea una nuova espansione TCG</div>
+                          </td>
+                        </tr>
+                      ))}
+                    </React.Fragment>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
-        </div>
-      )}
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-fade-in pb-10">
+            {filteredExpansions.map((expansion) => (
+              <div key={expansion.id} className="bg-white rounded-3xl overflow-hidden border border-gray-100 premium-shadow group hover:border-primary/20 transition-all duration-500 flex flex-col">
+                {/* Expansion Header/Cover */}
+                <div className="relative h-48 overflow-hidden bg-gray-900">
+                  {expansion.imageUrl ? (
+                    <img src={expansion.imageUrl} alt={expansion.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-80" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-800 to-gray-950">
+                      <span className="text-4xl text-white/10 font-black italic">{expansion.tcgType}</span>
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent"></div>
+                  <div className="absolute bottom-4 left-6 right-6">
+                    <div className="text-[10px] font-black text-white/60 uppercase tracking-[0.2em] mb-1">{expansion.tcgType}</div>
+                    <h3 className="text-xl font-black text-white leading-tight">{expansion.title}</h3>
+                  </div>
+                  <div className="absolute top-4 right-4 flex gap-2">
+                    <button onClick={() => handleEdit(expansion)} className="w-10 h-10 glass-panel !bg-black/20 text-white rounded-xl flex items-center justify-center hover:!bg-primary transition-all active:scale-95">
+                      <span className="text-lg">✏️</span>
+                    </button>
+                    <button onClick={() => handleDelete(expansion)} className="w-10 h-10 glass-panel !bg-black/20 text-white rounded-xl flex items-center justify-center hover:!bg-red-500 transition-all active:scale-95">
+                      <span className="text-lg">🗑️</span>
+                    </button>
+                  </div>
+                </div>
 
-      {/* Modal */}
+                {/* Content */}
+                <div className="p-6 flex-1 flex flex-col">
+                  <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-50">
+                    <div className="flex flex-col">
+                      <span className="text-xs font-black text-gray-400 uppercase tracking-widest">Contenuto</span>
+                      <span className="text-lg font-black text-gray-900">{expansion.sets.length} Set Caricati</span>
+                    </div>
+                    <button
+                      onClick={() => handleCreateSet(expansion)}
+                      className="w-12 h-12 bg-primary/5 text-primary rounded-2xl flex items-center justify-center hover:bg-primary hover:text-white transition-all duration-300 active:scale-90"
+                      title="Aggiungi Set"
+                    >
+                      <span className="text-2xl">+</span>
+                    </button>
+                  </div>
+
+                  {expansion.sets.length === 0 ? (
+                    <div className="flex-1 flex flex-col items-center justify-center py-10 opacity-40">
+                      <span className="text-4xl mb-4">📦</span>
+                      <p className="text-xs font-bold uppercase tracking-widest text-gray-400">Nessun set trovato</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3 custom-scrollbar max-h-60 overflow-y-auto pr-2">
+                      {expansion.sets.map((set) => (
+                        <div key={set.id} className="p-4 bg-gray-50 rounded-2xl group/set transition-all hover:bg-white hover:ring-2 hover:ring-primary/20 hover:premium-shadow">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <div className="text-sm font-extrabold text-gray-900 leading-tight mb-1">{set.name}</div>
+                              <div className="flex gap-2">
+                                <span className="text-[10px] font-black text-primary uppercase tracking-widest">{set.setCode || 'NO CODE'}</span>
+                                {set.cardCount && (
+                                  <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">• {set.cardCount} Carte</span>
+                                )}
+                              </div>
+                            </div>
+                            <div className="flex gap-1 opacity-0 group-hover/set:opacity-100 transition-opacity">
+                              <button onClick={() => handleReloadSet(set)} className="w-8 h-8 flex items-center justify-center hover:bg-amber-50 rounded-lg text-amber-600 transition-colors" title="Reload">
+                                <span className="text-sm">🔄</span>
+                              </button>
+                              <button onClick={() => handleEdit(set, expansion)} className="w-8 h-8 flex items-center justify-center hover:bg-blue-50 rounded-lg text-blue-600 transition-colors" title="Edit">
+                                <span className="text-sm">✏️</span>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+
+            {/* Empty State / Add Card */}
+            <button
+              onClick={handleCreateExpansion}
+              className="bg-gray-50/50 rounded-3xl border-4 border-dashed border-gray-200 p-8 flex flex-col items-center justify-center gap-4 group hover:border-primary/40 hover:bg-primary/[0.02] transition-all min-h-[400px]"
+            >
+              <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center premium-shadow group-hover:scale-110 group-hover:bg-primary transition-all duration-500">
+                <span className="text-4xl group-hover:text-white transition-colors">✨</span>
+              </div>
+              <div className="text-center">
+                <div className="text-xl font-black text-gray-900 mb-1 group-hover:text-primary transition-colors">Nuova Serie</div>
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Inizia a gestire nuovi contenuti</p>
+              </div>
+            </button>
+          </div>
+        )}
+      </main>
+
+      {/* Modal - Modernized */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
-            <h3 className="text-xl font-bold mb-6 text-gray-900">
-              {editingItem ? 'Modifica' : 'Aggiungi'} {modalType === 'expansion' ? 'Serie' : 'Set TCG'}
-            </h3>
+        <div className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm flex items-center justify-center z-[100] p-4 animate-fade-in">
+          <div className="bg-white rounded-[2.5rem] p-8 w-full max-w-lg max-h-[90vh] overflow-y-auto custom-scrollbar premium-shadow animate-scale-in border border-white">
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <div className="text-[10px] font-black text-primary uppercase tracking-[0.2em] mb-1">Configurazione</div>
+                <h3 className="text-2xl font-black text-gray-900">
+                  {editingItem ? 'Modifica' : 'Aggiungi'} {modalType === 'expansion' ? 'Serie' : 'Set TCG'}
+                </h3>
+              </div>
+              <button
+                onClick={() => setShowModal(false)}
+                className="w-12 h-12 flex items-center justify-center rounded-2xl bg-gray-50 text-gray-400 hover:bg-gray-100 hover:text-gray-900 transition-all active:scale-90"
+              >
+                <span className="text-2xl">✕</span>
+              </button>
+            </div>
 
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <form onSubmit={handleSubmit} className="space-y-6">
               {modalType === 'expansion' ? (
                 <>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Titolo *
-                    </label>
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Titolo Serie *</label>
                     <input
                       type="text"
                       value={formData.title}
                       onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      className="w-full px-5 py-4 bg-gray-50 border-none rounded-2xl focus:ring-4 focus:ring-primary/10 focus:bg-white transition-all font-semibold placeholder:text-gray-300"
                       required
                       placeholder="Es: Scarlet & Violet"
                     />
                   </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Tipo TCG *
-                    </label>
-                    <select
-                      value={formData.tcgType}
-                      onChange={(e) => setFormData({ ...formData, tcgType: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                      required
-                    >
-                      <option value="POKEMON">Pokémon</option>
-                      <option value="MAGIC">Magic: The Gathering</option>
-                      <option value="YUGIOH">Yu-Gi-Oh!</option>
-                      <option value="ONE_PIECE">One Piece</option>
-                      <option value="DIGIMON">Digimon</option>
-                      <option value="LORCANA">Disney Lorcana</option>
-                      <option value="RIFTBOUND">Riftbound</option>
-                      <option value="DRAGON_BALL_SUPER_FUSION_WORLD">Dragon Ball Super Fusion World</option>
-                      <option value="FLESH_AND_BLOOD">Flesh and Blood</option>
-                      <option value="UNION_ARENA">Union Arena</option>
-                      <option value="OTHER">Altro</option>
-                    </select>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Tipo TCG *</label>
+                      <select
+                        value={formData.tcgType}
+                        onChange={(e) => setFormData({ ...formData, tcgType: e.target.value })}
+                        className="w-full px-5 py-4 bg-gray-50 border-none rounded-2xl focus:ring-4 focus:ring-primary/10 focus:bg-white transition-all font-bold appearance-none"
+                        required
+                      >
+                        <option value="POKEMON">Pokémon</option>
+                        <option value="MAGIC">Magic</option>
+                        <option value="YUGIOH">Yu-Gi-Oh!</option>
+                        <option value="ONE_PIECE">One Piece</option>
+                        <option value="LORCANA">Lorcana</option>
+                        <option value="OTHER">Altro</option>
+                      </select>
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Data Rilascio</label>
+                      <input
+                        type="date"
+                        value={formData.releaseDate}
+                        onChange={(e) => setFormData({ ...formData, releaseDate: e.target.value })}
+                        className="w-full px-5 py-4 bg-gray-50 border-none rounded-2xl focus:ring-4 focus:ring-primary/10 focus:bg-white transition-all font-bold"
+                      />
+                    </div>
                   </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Data Rilascio
-                    </label>
-                    <input
-                      type="date"
-                      value={formData.releaseDate}
-                      onChange={(e) => setFormData({ ...formData, releaseDate: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      URL Immagine
-                    </label>
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Cover Image URL</label>
                     <input
                       type="url"
                       value={formData.imageUrl}
                       onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                      placeholder="https://example.com/image.jpg"
+                      className="w-full px-5 py-4 bg-gray-50 border-none rounded-2xl focus:ring-4 focus:ring-primary/10 focus:bg-white transition-all font-semibold placeholder:text-gray-300"
+                      placeholder="https://..."
                     />
                   </div>
                 </>
               ) : (
                 <>
                   {selectedExpansion && (
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-                      <div className="text-sm text-blue-800">
-                        <strong>Serie:</strong> {selectedExpansion.title}
+                    <div className="bg-primary/5 rounded-2xl p-5 border border-primary/10 flex items-center justify-between">
+                      <div className="flex flex-col">
+                        <span className="text-[10px] font-black text-primary uppercase tracking-widest">Serie Destinazione</span>
+                        <span className="text-sm font-bold text-gray-900">{selectedExpansion.title}</span>
                       </div>
+                      <span className="px-3 py-1 bg-primary text-white text-[10px] font-bold rounded-lg uppercase tracking-wider">{selectedExpansion.tcgType}</span>
                     </div>
                   )}
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Nome Set *
-                    </label>
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Nome Set *</label>
                     <input
                       type="text"
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                      className="w-full px-5 py-4 bg-gray-50 border-none rounded-2xl focus:ring-4 focus:ring-primary/10 focus:bg-white transition-all font-semibold placeholder:text-gray-300"
                       required
                       placeholder="Es: Base Set"
                     />
                   </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Codice Set
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.setCode}
-                      onChange={(e) => setFormData({ ...formData, setCode: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-                      placeholder="Es: BS01"
-                    />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Codice Set</label>
+                      <input
+                        type="text"
+                        value={formData.setCode}
+                        onChange={(e) => setFormData({ ...formData, setCode: e.target.value })}
+                        className="w-full px-5 py-4 bg-gray-50 border-none rounded-2xl focus:ring-4 focus:ring-primary/10 focus:bg-white transition-all font-bold placeholder:text-gray-300"
+                        placeholder="Es: BS01"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Card Count</label>
+                      <input
+                        type="number"
+                        value={formData.cardCount}
+                        onChange={(e) => setFormData({ ...formData, cardCount: parseInt(e.target.value) || 0 })}
+                        className="w-full px-5 py-4 bg-gray-50 border-none rounded-2xl focus:ring-4 focus:ring-primary/10 focus:bg-white transition-all font-bold"
+                        min="0"
+                      />
+                    </div>
                   </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Numero Carte
-                    </label>
-                    <input
-                      type="number"
-                      value={formData.cardCount}
-                      onChange={(e) => setFormData({ ...formData, cardCount: parseInt(e.target.value) || 0 })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-                      min="0"
-                      placeholder="Es: 102"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Data Rilascio
-                    </label>
-                    <input
-                      type="date"
-                      value={formData.releaseDate}
-                      onChange={(e) => setFormData({ ...formData, releaseDate: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Descrizione
-                    </label>
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Descrizione Set</label>
                     <textarea
                       value={formData.description}
                       onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-                      rows={3}
-                      placeholder="Descrizione del set..."
+                      className="w-full px-5 py-4 bg-gray-50 border-none rounded-2xl focus:ring-4 focus:ring-primary/10 focus:bg-white transition-all font-semibold placeholder:text-gray-300 min-h-[100px]"
+                      placeholder="Breve introduzione al set..."
                     />
                   </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      URL Immagine
-                    </label>
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Set Asset URL (Packs/Logo)</label>
                     <input
                       type="url"
                       value={formData.imageUrl}
                       onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-                      placeholder="https://example.com/image.jpg"
+                      className="w-full px-5 py-4 bg-gray-50 border-none rounded-2xl focus:ring-4 focus:ring-primary/10 focus:bg-white transition-all font-semibold placeholder:text-gray-300"
+                      placeholder="https://..."
                     />
                   </div>
                 </>
               )}
-              <div className="flex gap-3 pt-6 border-t border-gray-200">
+
+              <div className="flex gap-4 pt-4">
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="flex-1 px-4 py-3 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors font-medium"
+                  className="flex-1 px-8 py-4 text-gray-500 font-bold uppercase tracking-widest text-xs hover:text-gray-900 transition-colors"
                 >
-                  Annulla
+                  Indietro
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all font-medium"
+                  className="flex-[2] px-8 py-4 bg-primary text-white rounded-2xl font-black uppercase tracking-widest text-xs shadow-lg shadow-primary/30 shadow-primary/20 hover:shadow-primary/50 hover:scale-[1.02] active:scale-95 transition-all"
                 >
-                  {editingItem ? 'Aggiorna' : 'Crea'}
+                  {editingItem ? 'Salva Modifiche' : 'Conferma e Crea'}
                 </button>
               </div>
             </form>
