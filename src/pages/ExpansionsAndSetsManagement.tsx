@@ -28,9 +28,16 @@ export default function ExpansionsAndSetsManagement() {
   const availableYears = useMemo(() => {
     const years = new Set<string>()
     expansions.forEach(exp => {
+      // Check expansion release date
       if (exp.releaseDate) {
         years.add(new Date(exp.releaseDate).getFullYear().toString())
       }
+      // Check sets release dates
+      exp.sets.forEach(set => {
+        if (set.releaseDate) {
+          years.add(new Date(set.releaseDate).getFullYear().toString())
+        }
+      })
     })
     return Array.from(years).sort((a, b) => parseInt(b) - parseInt(a))
   }, [expansions])
@@ -379,7 +386,10 @@ export default function ExpansionsAndSetsManagement() {
         set.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (set.setCode && set.setCode.toLowerCase().includes(searchTerm.toLowerCase()))
       )
-    const matchesYear = yearFilter === 'ALL' || (expansion.releaseDate && new Date(expansion.releaseDate).getFullYear().toString() === yearFilter)
+    const matchesYear = yearFilter === 'ALL' ||
+      (expansion.releaseDate && new Date(expansion.releaseDate).getFullYear().toString() === yearFilter) ||
+      expansion.sets.some(set => set.releaseDate && new Date(set.releaseDate).getFullYear().toString() === yearFilter)
+
     return matchesTcg && matchesSearch && matchesYear
   })
 
