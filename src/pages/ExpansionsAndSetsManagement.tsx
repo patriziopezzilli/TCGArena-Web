@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import { adminService } from '../services/api'
 import apiClient from '../services/api'
 import { useToast } from '../contexts/ToastContext'
@@ -23,6 +23,17 @@ export default function ExpansionsAndSetsManagement() {
   const [expandedExpansions, setExpandedExpansions] = useState<Set<number>>(new Set())
   const [tcgFilter, setTcgFilter] = useState<string>('ALL')
   const [searchTerm, setSearchTerm] = useState('')
+  const [yearFilter, setYearFilter] = useState<string>('ALL')
+
+  const availableYears = useMemo(() => {
+    const years = new Set<string>()
+    expansions.forEach(exp => {
+      if (exp.releaseDate) {
+        years.add(new Date(exp.releaseDate).getFullYear().toString())
+      }
+    })
+    return Array.from(years).sort((a, b) => parseInt(b) - parseInt(a))
+  }, [expansions])
   const [formData, setFormData] = useState({
     // Expansion fields
     title: '',
@@ -368,7 +379,8 @@ export default function ExpansionsAndSetsManagement() {
         set.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (set.setCode && set.setCode.toLowerCase().includes(searchTerm.toLowerCase()))
       )
-    return matchesTcg && matchesSearch
+    const matchesYear = yearFilter === 'ALL' || (expansion.releaseDate && new Date(expansion.releaseDate).getFullYear().toString() === yearFilter)
+    return matchesTcg && matchesSearch && matchesYear
   })
 
   if (loading) {
@@ -451,6 +463,18 @@ export default function ExpansionsAndSetsManagement() {
                 className="w-full pl-12 pr-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-primary focus:bg-white transition-all text-sm font-medium"
               />
             </div>
+
+            <select
+              value={yearFilter}
+              onChange={(e) => setYearFilter(e.target.value)}
+              className="px-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-primary focus:bg-white transition-all text-sm font-medium cursor-pointer hover:bg-gray-100 min-w-[140px]"
+            >
+              <option value="ALL">📅 Tutti gli anni</option>
+              {availableYears.map(year => (
+                <option key={year} value={year}>{year}</option>
+              ))}
+            </select>
+
             <div className="flex bg-gray-100/80 p-1 rounded-xl">
               <button
                 onClick={() => setViewMode('list')}
