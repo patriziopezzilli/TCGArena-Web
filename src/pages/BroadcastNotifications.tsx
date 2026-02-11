@@ -18,6 +18,8 @@ export default function BroadcastNotifications() {
   const [startDate, setStartDate] = useState('')
   const [expiryDate, setExpiryDate] = useState('')
   const [isPinned, setIsPinned] = useState(false)
+  const [tcgType, setTcgType] = useState<string>('ALL')
+  const [externalUrl, setExternalUrl] = useState('')
   const [sendPush, setSendPush] = useState(false)
   const [recipientsCount, setRecipientsCount] = useState<number | null>(null)
   const [loading, setLoading] = useState(false)
@@ -64,7 +66,9 @@ export default function BroadcastNotifications() {
           startDate: startDate ? startDate : null,  // null means "now" on backend
           expiryDate: expiryDate ? expiryDate : null,
           imageUrl: null,
-          isPinned
+          isPinned,
+          tcgType: tcgType === 'ALL' ? null : tcgType,
+          externalUrl: externalUrl.trim() || null
         }
 
         const response = await apiClient.post(
@@ -77,12 +81,14 @@ export default function BroadcastNotifications() {
         } else {
           showToast('✅ News broadcast creata con successo!', 'success')
         }
-        
+
         setTitle('')
         setMessage('')
         setStartDate('')
         setExpiryDate('')
         setIsPinned(false)
+        setTcgType('ALL')
+        setExternalUrl('')
         setSendPush(false)
       } catch (err: any) {
         console.error('Failed to create broadcast news:', err)
@@ -159,22 +165,20 @@ export default function BroadcastNotifications() {
       <div className="bg-white rounded-2xl border border-gray-100 p-2 shadow-sm inline-flex gap-2">
         <button
           onClick={() => setMode('news')}
-          className={`px-6 py-3 rounded-xl font-semibold transition-all flex items-center gap-2 ${
-            mode === 'news'
+          className={`px-6 py-3 rounded-xl font-semibold transition-all flex items-center gap-2 ${mode === 'news'
               ? 'bg-gray-900 text-white shadow-md'
               : 'text-gray-600 hover:bg-gray-50'
-          }`}
+            }`}
         >
           <NewspaperIcon className="w-5 h-5" />
           News Broadcast
         </button>
         <button
           onClick={() => setMode('push')}
-          className={`px-6 py-3 rounded-xl font-semibold transition-all flex items-center gap-2 ${
-            mode === 'push'
+          className={`px-6 py-3 rounded-xl font-semibold transition-all flex items-center gap-2 ${mode === 'push'
               ? 'bg-gray-900 text-white shadow-md'
               : 'text-gray-600 hover:bg-gray-50'
-          }`}
+            }`}
         >
           <RocketLaunchIcon className="w-5 h-5" />
           Solo Push
@@ -248,6 +252,46 @@ export default function BroadcastNotifications() {
                   <option value="EVENT">Evento</option>
                   <option value="GENERAL">Generale</option>
                 </select>
+              </div>
+
+              {/* TCG Type */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Destinatario TCG (Opzionale)
+                </label>
+                <select
+                  value={tcgType}
+                  onChange={(e) => setTcgType(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                >
+                  <option value="ALL">Tutti i TCG</option>
+                  <option value="POKEMON">Pokémon</option>
+                  <option value="POKEMON_JAPAN">Pokémon Japan</option>
+                  <option value="MAGIC">Magic: The Gathering</option>
+                  <option value="YUGIOH">Yu-Gi-Oh!</option>
+                  <option value="ONE_PIECE">One Piece</option>
+                  <option value="DIGIMON">Digimon</option>
+                  <option value="LORCANA">Disney Lorcana</option>
+                  <option value="RIFTBOUND">Riftbound</option>
+                  <option value="DRAGON_BALL_SUPER_FUSION_WORLD">Dragon Ball Super</option>
+                  <option value="FLESH_AND_BLOOD">Flesh and Blood</option>
+                  <option value="UNION_ARENA">Union Arena</option>
+                </select>
+              </div>
+
+              {/* External URL */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  URL Esterno (Link)
+                </label>
+                <input
+                  type="url"
+                  value={externalUrl}
+                  onChange={(e) => setExternalUrl(e.target.value)}
+                  placeholder="https://example.com/notizia"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                />
+                <div className="text-xs text-gray-400 mt-1">Link cliccabile dagli utenti</div>
               </div>
 
               {/* Date Range */}

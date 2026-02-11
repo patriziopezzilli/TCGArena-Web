@@ -15,6 +15,8 @@ interface ShopNewsItem {
     expiryDate?: string
     imageUrl?: string
     isPinned: boolean
+    tcgType?: string
+    externalUrl?: string
     createdAt: string
     updatedAt: string
 }
@@ -53,6 +55,8 @@ export default function ShopNews({ embedded = false }: ShopNewsProps) {
         expiryDate: '',
         imageUrl: '',
         isPinned: false,
+        tcgType: 'ALL',
+        externalUrl: '',
     })
 
     const userData = getMerchantUserData()
@@ -105,6 +109,8 @@ export default function ShopNews({ embedded = false }: ShopNewsProps) {
             expiryDate: '',
             imageUrl: '',
             isPinned: false,
+            tcgType: 'ALL',
+            externalUrl: '',
         })
         setShowModal(true)
     }
@@ -119,6 +125,8 @@ export default function ShopNews({ embedded = false }: ShopNewsProps) {
             expiryDate: item.expiryDate ? new Date(item.expiryDate).toISOString().slice(0, 16) : '',
             imageUrl: item.imageUrl || '',
             isPinned: item.isPinned,
+            tcgType: item.tcgType || 'ALL',
+            externalUrl: item.externalUrl || '',
         })
         setShowModal(true)
     }
@@ -136,6 +144,8 @@ export default function ShopNews({ embedded = false }: ShopNewsProps) {
                 expiryDate: formData.expiryDate || undefined,
                 imageUrl: formData.imageUrl || undefined,
                 isPinned: formData.isPinned,
+                tcgType: formData.tcgType === 'ALL' ? null : formData.tcgType,
+                externalUrl: formData.externalUrl.trim() || undefined,
             }
             if (editingNews) {
                 await merchantService.updateNews(shopId, String(editingNews.id), payload)
@@ -248,7 +258,11 @@ export default function ShopNews({ embedded = false }: ShopNewsProps) {
                                         {getNewsTypeBadge(item.newsType)}
                                         {item.isPinned && (
                                             <span className="px-2.5 py-1 rounded-lg text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200">
-                                                📌 In evidenza
+                                            </span>
+                                        )}
+                                        {item.tcgType && (
+                                            <span className="px-2.5 py-1 rounded-lg text-xs font-medium bg-purple-50 text-purple-700 border border-purple-200">
+                                                🃏 {item.tcgType}
                                             </span>
                                         )}
                                     </div>
@@ -323,6 +337,40 @@ export default function ShopNews({ embedded = false }: ShopNewsProps) {
                                         <option key={type.value} value={type.value}>{type.label}</option>
                                     ))}
                                 </select>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">TCG Specifico (Opzionale)</label>
+                                    <select
+                                        value={formData.tcgType}
+                                        onChange={(e) => setFormData({ ...formData, tcgType: e.target.value })}
+                                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-gray-900"
+                                    >
+                                        <option value="ALL">Tutti</option>
+                                        <option value="POKEMON">Pokémon</option>
+                                        <option value="POKEMON_JAPAN">Pokémon Japan</option>
+                                        <option value="MAGIC">Magic: The Gathering</option>
+                                        <option value="YUGIOH">Yu-Gi-Oh!</option>
+                                        <option value="ONE_PIECE">One Piece</option>
+                                        <option value="DIGIMON">Digimon</option>
+                                        <option value="LORCANA">Disney Lorcana</option>
+                                        <option value="RIFTBOUND">Riftbound</option>
+                                        <option value="DRAGON_BALL_SUPER_FUSION_WORLD">Dragon Ball Super</option>
+                                        <option value="FLESH_AND_BLOOD">Flesh and Blood</option>
+                                        <option value="UNION_ARENA">Union Arena</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">URL Esterno</label>
+                                    <input
+                                        type="url"
+                                        value={formData.externalUrl}
+                                        onChange={(e) => setFormData({ ...formData, externalUrl: e.target.value })}
+                                        placeholder="https://..."
+                                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-gray-900"
+                                    />
+                                </div>
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">
