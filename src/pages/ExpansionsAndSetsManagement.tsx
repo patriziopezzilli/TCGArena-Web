@@ -421,6 +421,7 @@ export default function ExpansionsAndSetsManagement() {
           {[
             { id: 'ALL', label: 'Tutti i TCG', icon: '🌐' },
             { id: 'POKEMON', label: 'Pokémon', icon: '⚡' },
+            { id: 'POKEMON_JAPAN', label: 'Pokémon Japan', icon: '🇯🇵' },
             { id: 'MAGIC', label: 'Magic: The Gathering', icon: '🔥' },
             { id: 'YUGIOH', label: 'Yu-Gi-Oh!', icon: '🔮' },
             { id: 'ONE_PIECE', label: 'One Piece', icon: '🏴‍☠️' },
@@ -869,6 +870,7 @@ export default function ExpansionsAndSetsManagement() {
                         required
                       >
                         <option value="POKEMON">Pokémon</option>
+                        <option value="POKEMON_JAPAN">Pokémon Japan</option>
                         <option value="MAGIC">Magic</option>
                         <option value="YUGIOH">Yu-Gi-Oh!</option>
                         <option value="ONE_PIECE">One Piece</option>

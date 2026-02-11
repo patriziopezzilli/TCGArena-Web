@@ -6,11 +6,12 @@ import {
   BanknotesIcon, SparklesIcon, RocketLaunchIcon
 } from '../components/Icons'
 
-type TCGType = 'POKEMON' | 'MAGIC' | 'YUGIOH' | 'ONE_PIECE' | 'DIGIMON' | 'LORCANA' | 'RIFTBOUND' | 'DRAGON_BALL_SUPER_FUSION_WORLD' | 'FLESH_AND_BLOOD' | 'UNION_ARENA'
+type TCGType = 'POKEMON' | 'POKEMON_JAPAN' | 'MAGIC' | 'YUGIOH' | 'ONE_PIECE' | 'DIGIMON' | 'LORCANA' | 'RIFTBOUND' | 'DRAGON_BALL_SUPER_FUSION_WORLD' | 'FLESH_AND_BLOOD' | 'UNION_ARENA'
 
 // TCG supported types
 const TCG_TYPES: { value: TCGType; label: string; color: string }[] = [
   { value: 'POKEMON', label: 'Pokémon', color: 'bg-yellow-500' },
+  { value: 'POKEMON_JAPAN', label: 'Pokémon Japan', color: 'bg-yellow-600' },
   { value: 'MAGIC', label: 'Magic: The Gathering', color: 'bg-purple-500' },
   { value: 'YUGIOH', label: 'Yu-Gi-Oh!', color: 'bg-blue-500' },
   { value: 'ONE_PIECE', label: 'One Piece', color: 'bg-red-500' },
