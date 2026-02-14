@@ -4,7 +4,7 @@ import apiClient from '../services/api'
 import { useToast } from '../contexts/ToastContext'
 import {
   MegaphoneIcon, UsersIcon, PencilIcon, RocketLaunchIcon,
-  ExclamationTriangleIcon, InformationCircleIcon, NewspaperIcon
+  ExclamationTriangleIcon, InformationCircleIcon, NewspaperIcon, GlobeAltIcon
 } from '../components/Icons'
 
 type NewsType = 'ANNOUNCEMENT' | 'NEW_STOCK' | 'TOURNAMENT' | 'SALE' | 'EVENT' | 'GENERAL'
@@ -12,6 +12,9 @@ type NewsType = 'ANNOUNCEMENT' | 'NEW_STOCK' | 'TOURNAMENT' | 'SALE' | 'EVENT' |
 export default function BroadcastNotifications() {
   const { showToast } = useToast()
   const [mode, setMode] = useState<'push' | 'news'>('news') // Default to news mode
+  const [language, setLanguage] = useState('it')
+  const [isGlobal, setIsGlobal] = useState(false)
+
   const [title, setTitle] = useState('')
   const [message, setMessage] = useState('')
   const [newsType, setNewsType] = useState<NewsType>('ANNOUNCEMENT')
@@ -52,9 +55,16 @@ export default function BroadcastNotifications() {
       return
     }
 
+    // Prepare localization data
+    const localizationData = {
+      language: isGlobal ? null : language,
+      isGlobal
+    }
+
     if (mode === 'news') {
       // Send as broadcast news (saved in DB)
-      const confirmMessage = `Stai per creare una notizia broadcast${sendPush ? ` e inviarla a ${recipientsCount} utenti` : ''}. Continuare?`
+      const targetText = isGlobal ? "tutti gli utenti (Global)" : `utenti lingua ${language.toUpperCase()}`
+      const confirmMessage = `Stai per creare una notizia broadcast per ${targetText}${sendPush ? ` e inviarla come push` : ''}. Continuare?`
       if (!confirm(confirmMessage)) return
 
       setSending(true)
@@ -68,7 +78,8 @@ export default function BroadcastNotifications() {
           imageUrl: null,
           isPinned,
           tcgType: tcgType === 'ALL' ? null : tcgType,
-          externalUrl: externalUrl.trim() || null
+          externalUrl: externalUrl.trim() || null,
+          ...localizationData
         }
 
         const response = await apiClient.post(
@@ -82,14 +93,7 @@ export default function BroadcastNotifications() {
           showToast('✅ News broadcast creata con successo!', 'success')
         }
 
-        setTitle('')
-        setMessage('')
-        setStartDate('')
-        setExpiryDate('')
-        setIsPinned(false)
-        setTcgType('ALL')
-        setExternalUrl('')
-        setSendPush(false)
+        resetForm()
       } catch (err: any) {
         console.error('Failed to create broadcast news:', err)
         showToast('Errore nella creazione della news: ' + (err.response?.data?.message || err.message), 'error')
@@ -103,19 +107,20 @@ export default function BroadcastNotifications() {
         return
       }
 
-      const confirmMessage = `Stai per inviare una notifica a ${recipientsCount} utenti. Continuare?`
+      const targetText = isGlobal ? "tutti gli utenti" : `utenti lingua ${language.toUpperCase()}`
+      const confirmMessage = `Stai per inviare una notifica a ${targetText}. Continuare?`
       if (!confirm(confirmMessage)) return
 
       setSending(true)
       try {
         const response = await apiClient.post('/admin/broadcast/send', {
           title: title.trim(),
-          message: message.trim()
+          message: message.trim(),
+          ...localizationData
         })
 
         showToast(`✅ Notifica inviata a ${response.data.usersNotified} utenti!`, 'success')
-        setTitle('')
-        setMessage('')
+        resetForm()
       } catch (err: any) {
         console.error('Failed to send broadcast:', err)
         showToast('Errore nell\'invio della notifica: ' + (err.response?.data?.message || err.message), 'error')
@@ -123,6 +128,18 @@ export default function BroadcastNotifications() {
         setSending(false)
       }
     }
+  }
+
+  const resetForm = () => {
+    setTitle('')
+    setMessage('')
+    setStartDate('')
+    setExpiryDate('')
+    setIsPinned(false)
+    setTcgType('ALL')
+    setExternalUrl('')
+    setSendPush(false)
+    // Keep localization settings as they are often reused
   }
 
   return (
@@ -166,8 +183,8 @@ export default function BroadcastNotifications() {
         <button
           onClick={() => setMode('news')}
           className={`px-6 py-3 rounded-xl font-semibold transition-all flex items-center gap-2 ${mode === 'news'
-              ? 'bg-gray-900 text-white shadow-md'
-              : 'text-gray-600 hover:bg-gray-50'
+            ? 'bg-gray-900 text-white shadow-md'
+            : 'text-gray-600 hover:bg-gray-50'
             }`}
         >
           <NewspaperIcon className="w-5 h-5" />
@@ -176,8 +193,8 @@ export default function BroadcastNotifications() {
         <button
           onClick={() => setMode('push')}
           className={`px-6 py-3 rounded-xl font-semibold transition-all flex items-center gap-2 ${mode === 'push'
-              ? 'bg-gray-900 text-white shadow-md'
-              : 'text-gray-600 hover:bg-gray-50'
+            ? 'bg-gray-900 text-white shadow-md'
+            : 'text-gray-600 hover:bg-gray-50'
             }`}
         >
           <RocketLaunchIcon className="w-5 h-5" />
@@ -200,6 +217,54 @@ export default function BroadcastNotifications() {
         </div>
 
         <div className="p-6 space-y-6">
+          {/* Localization Settings */}
+          <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100 space-y-3">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                <GlobeAltIcon className="w-5 h-5 text-blue-600" />
+                Targeting Lingua
+              </label>
+              <div className="flex items-center gap-2">
+                {isGlobal && <span className="text-xs font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded-full">GLOBAL</span>}
+                {!isGlobal && <span className="text-xs font-bold text-gray-600 bg-gray-100 px-2 py-1 rounded-full">{language.toUpperCase()}</span>}
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-6">
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={isGlobal}
+                  onChange={(e) => setIsGlobal(e.target.checked)}
+                  className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                />
+                <span className="text-sm text-gray-700">
+                  🌍 Global (Tutte le lingue)
+                </span>
+              </label>
+
+              {!isGlobal && (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-500">Lingua:</span>
+                  <select
+                    value={language}
+                    onChange={(e) => setLanguage(e.target.value)}
+                    className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-blue-500 transition-all"
+                  >
+                    <option value="it">🇮🇹 Italiano</option>
+                    <option value="en">🇬🇧 English</option>
+                    {/* Add more languages as needed */}
+                  </select>
+                </div>
+              )}
+            </div>
+            <p className="text-xs text-gray-500">
+              {isGlobal
+                ? "Il messaggio verrà inviato a tutti gli utenti indipendentemente dalla lingua impostata."
+                : `Il messaggio verrà inviato SOLO agli utenti che hanno impostato la lingua su ${language === 'it' ? 'Italiano' : 'Inglese'}.`}
+            </p>
+          </div>
+
           {/* Title Input */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
