@@ -11,6 +11,7 @@ type ModalType = 'expansion' | 'set'
 
 export default function ExpansionsAndSetsManagement() {
   const [viewMode, setViewMode] = useState<ViewMode>('list')
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [expansions, setExpansions] = useState<ExpansionWithDate[]>([])
   const [stats, setStats] = useState<TCGStats[]>([])
   const [loading, setLoading] = useState(true)
@@ -407,15 +408,26 @@ export default function ExpansionsAndSetsManagement() {
   }
 
   return (
-    <div className="flex h-[calc(100vh-theme(spacing.16))] -m-6 overflow-hidden bg-gray-50/50">
-      {/* Sidebar Filtri TCG */}
-      <aside className="w-72 bg-white border-r border-gray-200 flex flex-col flex-shrink-0 animate-fade-in">
-        <div className="p-6 border-b border-gray-100">
-          <h2 className="text-xl font-extrabold text-gray-900 flex items-center gap-2">
-            <span className="text-primary italic">TCG</span>
-            <span>Arena</span>
-          </h2>
-          <p className="text-[10px] text-gray-400 mt-2 uppercase tracking-[0.2em] font-bold">Expansion Control</p>
+    <div className="flex flex-col lg:flex-row h-[calc(100vh-theme(spacing.16))] -m-6 overflow-hidden bg-gray-50/50">
+      {/* Sidebar Filtri TCG - Responsive Version */}
+      <aside className={`
+        fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-gray-200 transform transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0
+        ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+      `}>
+        <div className="p-6 border-b border-gray-100 flex items-center justify-between lg:block">
+          <div>
+            <h2 className="text-xl font-extrabold text-gray-900 flex items-center gap-2">
+              <span className="text-primary italic">TCG</span>
+              <span>Arena</span>
+            </h2>
+            <p className="text-[10px] text-gray-400 mt-1 uppercase tracking-[0.2em] font-bold">Expansion Control</p>
+          </div>
+          <button
+            onClick={() => setIsSidebarOpen(false)}
+            className="lg:hidden w-10 h-10 flex items-center justify-center rounded-xl bg-gray-50 text-gray-400"
+          >
+            ✕
+          </button>
         </div>
         <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-1">
           {[
@@ -459,11 +471,31 @@ export default function ExpansionsAndSetsManagement() {
         </div>
       </aside>
 
+      {/* Mobile Backdrop */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-40 lg:hidden animate-fade-in"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       {/* Main Content Area */}
-      <main className="flex-1 overflow-y-auto custom-scrollbar p-8 bg-grid-pattern">
+      <main className="flex-1 overflow-y-auto custom-scrollbar p-4 md:p-8 bg-grid-pattern relative">
+        {/* Mobile Header Toggle */}
+        <div className="lg:hidden flex items-center justify-between mb-4 bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+          <button
+            onClick={() => setIsSidebarOpen(true)}
+            className="flex items-center gap-2 text-sm font-bold text-gray-600"
+          >
+            <span className="text-lg">☰</span> Filtra TCG
+          </button>
+          <div className="flex gap-2 text-[10px] font-black text-primary uppercase tracking-widest bg-primary/5 px-3 py-1.5 rounded-lg border border-primary/10">
+            {tcgFilter.replace('_', ' ')}
+          </div>
+        </div>
         {/* Top Floating Header */}
-        <div className="glass-panel rounded-2xl p-4 mb-8 flex flex-col md:flex-row items-center justify-between gap-4 sticky top-0 z-20 premium-shadow">
-          <div className="flex-1 w-full flex items-center gap-4">
+        <div className="glass-panel rounded-2xl p-4 mb-6 flex flex-col items-stretch lg:flex-row lg:items-center justify-between gap-4 sticky top-0 z-20 premium-shadow">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 flex-1">
             <div className="relative group flex-1">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors">🔍</span>
               <input
@@ -475,40 +507,40 @@ export default function ExpansionsAndSetsManagement() {
               />
             </div>
 
-            <select
-              value={yearFilter}
-              onChange={(e) => setYearFilter(e.target.value)}
-              className="px-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-primary focus:bg-white transition-all text-sm font-medium cursor-pointer hover:bg-gray-100 min-w-[140px]"
-            >
-              <option value="ALL">📅 Tutti gli anni</option>
-              {availableYears.map(year => (
-                <option key={year} value={year}>{year}</option>
-              ))}
-            </select>
+            <div className="flex gap-2 min-w-max">
+              <select
+                value={yearFilter}
+                onChange={(e) => setYearFilter(e.target.value)}
+                className="flex-1 sm:w-auto px-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-primary focus:bg-white transition-all text-sm font-medium cursor-pointer hover:bg-gray-100"
+              >
+                <option value="ALL">📅 Tutti gli anni</option>
+                {availableYears.map(year => (
+                  <option key={year} value={year}>{year}</option>
+                ))}
+              </select>
 
-            <div className="flex bg-gray-100/80 p-1 rounded-xl">
-              <button
-                onClick={() => setViewMode('list')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${viewMode === 'list' ? 'bg-white text-primary shadow-sm' : 'text-gray-500 hover:text-gray-700'
-                  }`}
-              >
-                📋 Lista
-              </button>
-              <button
-                onClick={() => setViewMode('cards')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${viewMode === 'cards' ? 'bg-white text-primary shadow-sm' : 'text-gray-500 hover:text-gray-700'
-                  }`}
-              >
-                🎴 Card
-              </button>
+              <div className="flex bg-gray-100/80 p-1 rounded-xl">
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all ${viewMode === 'list' ? 'bg-white text-primary shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                >
+                  📋
+                </button>
+                <button
+                  onClick={() => setViewMode('cards')}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all ${viewMode === 'cards' ? 'bg-white text-primary shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                >
+                  🎴
+                </button>
+              </div>
             </div>
           </div>
 
           <button
             onClick={handleCreateExpansion}
-            className="w-full md:w-auto px-8 py-3 bg-primary text-white rounded-xl font-bold hover:bg-blue-700 transition-all shadow-lg shadow-primary/20 hover:scale-[1.03] active:scale-95 flex items-center justify-center gap-2"
+            className="px-6 py-3 bg-primary text-white rounded-xl font-bold hover:bg-blue-700 transition-all shadow-lg shadow-primary/20 hover:scale-[1.03] active:scale-95 flex items-center justify-center gap-2 text-sm sm:text-base"
           >
-            <span className="text-lg">✨</span> Nuova Serie
+            <span>✨</span> Nuova Serie
           </button>
         </div>
 
@@ -547,193 +579,156 @@ export default function ExpansionsAndSetsManagement() {
 
         {/* Content Area */}
         {viewMode === 'list' ? (
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-xl overflow-hidden animate-fade-in premium-shadow">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50 border-b border-gray-200">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Serie / Set
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Tipo TCG
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Dettagli
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      URL Immagine
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Azioni
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {filteredExpansions.map((expansion) => (
-                    <React.Fragment key={expansion.id}>
-                      {/* Riga Espansione */}
-                      <tr key={`expansion-${expansion.id}`} className="hover:bg-gray-50 bg-blue-50/30">
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center gap-3">
-                            <button
-                              onClick={() => toggleExpansion(expansion.id)}
-                              className="text-gray-500 hover:text-gray-700 transition-colors"
-                            >
-                              {expandedExpansions.has(expansion.id) ? '▼' : '▶'}
-                            </button>
-                            <div className="text-sm font-medium text-gray-900">{expansion.title}</div>
-                            <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded">
-                              {expansion.sets.length} set
-                            </span>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className="px-2 py-1 text-xs font-medium bg-purple-100 text-purple-800 rounded">
-                            {expansion.tcgType}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-500">
-                          <div>Serie</div>
-                          {expansion.releaseDate && (
-                            <div className="text-xs text-gray-400 mt-1">
-                              Rilascio: {new Date(expansion.releaseDate).toLocaleDateString('it-IT')}
+          <div className="space-y-4 animate-fade-in pb-10">
+            {/* Desktop Table View */}
+            <div className="hidden lg:block bg-white rounded-2xl border border-gray-100 shadow-xl overflow-hidden premium-shadow">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-widest">Serie / Set</th>
+                      <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-widest">Tipo TCG</th>
+                      <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-widest">Dettagli</th>
+                      <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-widest">Immagine</th>
+                      <th className="px-6 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-widest">Azioni</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {filteredExpansions.map((expansion) => (
+                      <React.Fragment key={expansion.id}>
+                        <tr className="hover:bg-gray-50 bg-blue-50/30 group">
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center gap-3">
+                              <button onClick={() => toggleExpansion(expansion.id)} className="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-gray-100 text-gray-500 hover:text-primary transition-all">
+                                {expandedExpansions.has(expansion.id) ? '▼' : '▶'}
+                              </button>
+                              <div className="text-sm font-black text-gray-900">{expansion.title}</div>
+                              <span className="px-2.5 py-1 text-[10px] font-black bg-blue-100 text-blue-700 rounded-lg uppercase tracking-wider">
+                                {expansion.sets.length} set
+                              </span>
                             </div>
-                          )}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {expansion.imageUrl ? (
-                            <div className="max-w-xs truncate" title={expansion.imageUrl}>
-                              {expansion.imageUrl}
-                            </div>
-                          ) : (
-                            'Nessuno'
-                          )}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                          <button
-                            onClick={() => handleEdit(expansion)}
-                            className="px-3 py-1 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-all duration-300 hover:scale-105"
-                          >
-                            <span className="flex items-center gap-1">
-                              <span>✏️</span>
-                              Modifica
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className="px-3 py-1 text-[10px] font-black bg-purple-100 text-purple-700 rounded-lg uppercase tracking-wider">
+                              {expansion.tcgType.replace('_', ' ')}
                             </span>
-                          </button>
-                          <button
-                            onClick={() => handleDelete(expansion)}
-                            className="px-3 py-1 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 transition-all duration-300 hover:scale-105 ml-2"
-                          >
-                            <span className="flex items-center gap-1">
-                              <span>🗑️</span>
-                              Elimina
-                            </span>
-                          </button>
-                          <button
-                            onClick={() => handleCreateSet(expansion)}
-                            className="px-3 py-1 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition-all duration-300 hover:scale-105 ml-2"
-                          >
-                            <span className="flex items-center gap-1">
-                              <span className="text-white">➕</span>
-                              Set
-                            </span>
-                          </button>
-                        </td>
-                      </tr>
-
-                      {/* Righe Set - solo se espansione è aperta */}
-                      {expandedExpansions.has(expansion.id) && expansion.sets.map((set) => (
-                        <tr key={`set-${set.id}`} className="hover:bg-gray-50 bg-gray-50/50">
-                          <td className="px-6 py-3 whitespace-nowrap">
-                            <div className="ml-12 flex items-center gap-3">
-                              <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
-                                <span className="text-white text-xs">•</span>
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-500">
+                            {expansion.releaseDate && (
+                              <div className="text-xs font-bold text-gray-400">
+                                Rilascio: {new Date(expansion.releaseDate).toLocaleDateString('it-IT')}
                               </div>
-                              <div className="text-sm text-gray-900">{set.name}</div>
-                            </div>
-                          </td>
-                          <td className="px-6 py-3 whitespace-nowrap">
-                            <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded">
-                              Set TCG
-                            </span>
-                          </td>
-                          <td className="px-6 py-3 text-sm text-gray-500">
-                            {set.setCode && <div>Codice: {set.setCode}</div>}
-                            {set.releaseDate && <div>Data: {new Date(set.releaseDate).toLocaleDateString('it-IT')}</div>}
-                            {set.cardCount && <div>Carte: {set.cardCount}</div>}
-                            {set.description && <div className="truncate max-w-xs">{set.description}</div>}
-                          </td>
-                          <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500">
-                            {set.imageUrl ? (
-                              <div className="max-w-xs truncate" title={set.imageUrl}>
-                                {set.imageUrl}
-                              </div>
-                            ) : (
-                              'Nessuno'
                             )}
                           </td>
-                          <td className="px-6 py-3 whitespace-nowrap text-right text-sm font-medium">
-                            <button
-                              onClick={() => handleReloadSet(set)}
-                              disabled={reloadingSetId === set.id}
-                              className="px-3 py-1 bg-amber-600 text-white text-sm rounded-lg hover:bg-amber-700 transition-all duration-300 hover:scale-105 mr-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                              title="Ricarica carte mancanti da JustTCG"
-                            >
-                              {reloadingSetId === set.id ? (
-                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin inline-block"></div>
-                              ) : (
-                                <span>🔄</span>
-                              )}
-                            </button>
-                            <button
-                              onClick={() => handleResetSetFromTcgDex(set)}
-                              disabled={reloadingSetId === set.id}
-                              className="px-3 py-1 bg-purple-700 text-white text-sm rounded-lg hover:bg-purple-800 transition-all duration-300 hover:scale-105 mr-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                              title="Reset tramite Pokemon TCG API - inserisci set code"
-                            >
-                              {reloadingSetId === set.id ? (
-                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin inline-block"></div>
-                              ) : (
-                                <span>🎴</span>
-                              )}
-                            </button>
-                            <button
-                              onClick={() => handleResetSet(set)}
-                              disabled={reloadingSetId === set.id}
-                              className="px-3 py-1 bg-red-700 text-white text-sm rounded-lg hover:bg-red-800 transition-all duration-300 hover:scale-105 mr-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                              title="Reset completo - elimina tutto e ricarica da zero"
-                            >
-                              {reloadingSetId === set.id ? (
-                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin inline-block"></div>
-                              ) : (
-                                <span>💥</span>
-                              )}
-                            </button>
-                            <button
-                              onClick={() => handleEdit(set, expansion)}
-                              className="px-3 py-1 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-all duration-300 hover:scale-105 mr-2"
-                            >
-                              <span>✏️</span>
-                            </button>
-                            <button
-                              onClick={() => handleDelete(set)}
-                              className="px-3 py-1 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 transition-all duration-300 hover:scale-105"
-                            >
-                              <span>🗑️</span>
-                            </button>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            {expansion.imageUrl ? (
+                              <div className="w-10 h-10 rounded-lg overflow-hidden border border-gray-100 bg-gray-50 shadow-sm">
+                                <img src={expansion.imageUrl} alt="" className="w-full h-full object-cover" />
+                              </div>
+                            ) : (
+                              <span className="text-[10px] font-bold text-gray-300 uppercase tracking-widest">No Cover</span>
+                            )}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-right space-x-2">
+                            <button onClick={() => handleEdit(expansion)} className="p-2 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-600 hover:text-white transition-all shadow-sm">✏️</button>
+                            <button onClick={() => handleDelete(expansion)} className="p-2 bg-red-50 text-red-600 rounded-xl hover:bg-red-600 hover:text-white transition-all shadow-sm">🗑️</button>
+                            <button onClick={() => handleCreateSet(expansion)} className="p-2 bg-green-50 text-green-600 rounded-xl hover:bg-green-600 hover:text-white transition-all shadow-sm" title="Aggiungi Set">➕</button>
                           </td>
                         </tr>
+                        {/* Righe Set Desktop */}
+                        {expandedExpansions.has(expansion.id) && expansion.sets.map((set) => (
+                          <tr key={`set-${set.id}`} className="hover:bg-gray-50 bg-gray-50/20">
+                            <td className="px-6 py-3 whitespace-nowrap">
+                              <div className="ml-12 flex items-center gap-3">
+                                <div className="w-1.5 h-1.5 bg-primary rounded-full" />
+                                <div className="text-sm font-bold text-gray-700">{set.name}</div>
+                              </div>
+                            </td>
+                            <td className="px-6 py-3 whitespace-nowrap">
+                              <span className="px-2 py-0.5 text-[9px] font-black bg-gray-100 text-gray-500 rounded uppercase tracking-widest">Set TCG</span>
+                            </td>
+                            <td className="px-6 py-3 text-xs text-gray-500">
+                              <div className="flex gap-3 font-bold opacity-60">
+                                {set.setCode && <span>#{set.setCode}</span>}
+                                {set.cardCount && <span>🎴 {set.cardCount}</span>}
+                              </div>
+                            </td>
+                            <td className="px-6 py-3">
+                              {set.imageUrl && <div className="w-8 h-8 rounded bg-gray-50 border border-gray-100 overflow-hidden"><img src={set.imageUrl} alt="" className="w-full h-full object-contain" /></div>}
+                            </td>
+                            <td className="px-6 py-3 whitespace-nowrap text-right space-x-1">
+                              <button onClick={() => handleReloadSet(set)} disabled={reloadingSetId === set.id} className="p-1.5 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors" title="Reload">{reloadingSetId === set.id ? '⌛' : '🔄'}</button>
+                              <button onClick={() => handleResetSetFromTcgDex(set)} disabled={reloadingSetId === set.id} className="p-1.5 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors" title="Reset TCGDex">🎴</button>
+                              <button onClick={() => handleResetSet(set)} disabled={reloadingSetId === set.id} className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Reset Full">💥</button>
+                              <button onClick={() => handleEdit(set, expansion)} className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">✏️</button>
+                              <button onClick={() => handleDelete(set)} className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors">🗑️</button>
+                            </td>
+                          </tr>
+                        ))}
+                      </React.Fragment>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Mobile List View (Card Based) */}
+            <div className="lg:hidden space-y-4">
+              {filteredExpansions.map((expansion) => (
+                <div key={expansion.id} className="bg-white rounded-3xl border border-gray-100 overflow-hidden premium-shadow">
+                  <div className="p-4 flex items-center justify-between bg-blue-50/30">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-2xl bg-white border border-gray-100 flex-shrink-0 overflow-hidden">
+                        {expansion.imageUrl ? <img src={expansion.imageUrl} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-xs text-gray-300 font-bold">No Image</div>}
+                      </div>
+                      <div>
+                        <div className="text-sm font-black text-gray-900">{expansion.title}</div>
+                        <div className="text-[10px] font-black text-primary uppercase tracking-widest">{expansion.tcgType.replace('_', ' ')}</div>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <button onClick={() => handleEdit(expansion)} className="w-8 h-8 flex items-center justify-center rounded-xl bg-blue-100 text-blue-600">✏️</button>
+                      <button onClick={() => toggleExpansion(expansion.id)} className="w-8 h-8 flex items-center justify-center rounded-xl bg-white border border-gray-200 shadow-sm text-gray-400">
+                        {expandedExpansions.has(expansion.id) ? '▼' : '▶'}
+                      </button>
+                    </div>
+                  </div>
+
+                  {expandedExpansions.has(expansion.id) && (
+                    <div className="p-4 bg-gray-50/50 space-y-3 border-t border-gray-100">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Set Disponibili ({expansion.sets.length})</span>
+                        <button onClick={() => handleCreateSet(expansion)} className="text-[10px] font-black text-primary uppercase bg-primary/10 px-3 py-1 rounded-lg">➕ Aggiungi Set</button>
+                      </div>
+                      {expansion.sets.map((set) => (
+                        <div key={set.id} className="bg-white p-3 rounded-2xl border border-gray-100 flex items-center justify-between group">
+                          <div className="flex items-center gap-3">
+                            <div className="w-1.5 h-1.5 bg-primary/30 rounded-full" />
+                            <div>
+                              <div className="text-xs font-black text-gray-800">{set.name}</div>
+                              <div className="text-[9px] font-bold text-gray-400">#{set.setCode || '???'} • {set.cardCount || 0} Carte</div>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <button onClick={() => handleReloadSet(set)} className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-amber-50 text-amber-600 text-xs" title="Reload">🔄</button>
+                            <button onClick={() => handleResetSetFromTcgDex(set)} className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-purple-50 text-purple-600 text-xs" title="Reset TCGDex">🎴</button>
+                            <button onClick={() => handleResetSet(set)} className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-red-50 text-red-600 text-xs" title="Reset Full">💥</button>
+                            <button onClick={() => handleEdit(set, expansion)} className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-blue-50 text-blue-600 text-xs">✏️</button>
+                            <button onClick={() => handleDelete(set)} className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-red-50 text-red-600 text-xs">🗑️</button>
+                          </div>
+                        </div>
                       ))}
-                    </React.Fragment>
-                  ))}
-                </tbody>
-              </table>
+                      {expansion.sets.length === 0 && <div className="text-center py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Nessun set in questa serie</div>}
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-fade-in pb-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 animate-fade-in pb-10">
             {filteredExpansions.map((expansion) => (
-              <div key={expansion.id} className="bg-white rounded-3xl overflow-hidden border border-gray-100 premium-shadow group hover:border-primary/20 transition-all duration-500 flex flex-col">
+              <div key={expansion.id} className="bg-white rounded-3xl overflow-hidden border border-gray-100 premium-shadow group hover:border-primary/20 transition-all duration-500 flex flex-col h-full">
                 {/* Expansion Header/Cover */}
                 <div className="relative h-48 overflow-hidden bg-gray-900">
                   {expansion.imageUrl ? (
