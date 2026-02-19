@@ -302,5 +302,39 @@
             "urgent": "{{count}} urgenti",
             "goDashboard": "Vai alla dashboard"
         }
+    },
+    "shopRecruitment": {
+        "header": {
+            "register": "Registra Negozio"
+        },
+        "hero": {
+            "title1": "Porta il tuo Negozio",
+            "title2": "Nel Futuro",
+            "description": "Unisciti a TCG Arena e trasforma il modo in cui gestisci tornei, vendite e la tua community. Completamente gratuito, per sempre.",
+            "cta": "Inizia Ora"
+        },
+        "marketing": {
+            "title": "La Community ti Vuole!",
+            "message": "Se hai ricevuto questo link, significa che i tuoi giocatori locali vogliono trovarti su TCG Arena. Soddisfa la loro richiesta!"
+        },
+        "features": {
+            "visibility": {
+                "title": "Visibilità Totale",
+                "desc": "Raggiungi migliaia di giocatori nella tua zona. Il tuo negozio apparirà sulla mappa e nelle ricerche di chi cerca tornei e carte."
+            },
+            "management": {
+                "title": "Gestione Semplificata",
+                "desc": "Gestisci inventario, ordini e prenotazioni da un unico pannello di controllo intuitivo e moderno."
+            },
+            "tournaments": {
+                "title": "Tornei & Eventi",
+                "desc": "Crea e gestisci tornei con facilità. Pairing automatici, calcolo classifiche e notifiche push ai partecipanti."
+            }
+        },
+        "trust": {
+            "title": "Gratuito. Davvero.",
+            "desc": "Nessuna commissione, nessun abbonamento mensile. TCG Arena è nato per supportare la community e i negozi locali.",
+            "cta": "Registra il tuo negozio"
+        }
     }
 }

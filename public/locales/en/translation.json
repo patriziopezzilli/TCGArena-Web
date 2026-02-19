@@ -27,7 +27,7 @@
             "playerDesc": "Find shops, reserve cards, and join tournaments",
             "shopTitle": "Shop",
             "shopDesc": "Manage your business, inventory, and tournaments",
-            "chooseProfile": "Choose your profile to start",
+            "choose profile": "Choose your profile to start",
             "rightsReserved": "All rights reserved.",
             "smartSearchTitle": "Smart Search",
             "reservationsTitle": "Reservations",
@@ -293,6 +293,40 @@
             "featureTracking": "Full tracking",
             "featureCustomers": "New customers",
             "featureFirst": "First in Italy"
+        }
+    },
+    "shopRecruitment": {
+        "header": {
+            "register": "Register Shop"
+        },
+        "hero": {
+            "title1": "Bring Your Shop",
+            "title2": "Into The Future",
+            "description": "Join TCG Arena and transform how you manage tournaments, sales, and your community. Completely free, forever.",
+            "cta": "Start Now"
+        },
+        "marketing": {
+            "title": "The Community Wants You!",
+            "message": "If you received this link, it means your local players want to find you on TCG Arena. Answer their call!"
+        },
+        "features": {
+            "visibility": {
+                "title": "Total Visibility",
+                "desc": "Reach thousands of players in your area. Your shop will appear on the map and in searches for tournaments and cards."
+            },
+            "management": {
+                "title": "Simplified Management",
+                "desc": "Manage inventory, orders, and reservations from a single, intuitive, and modern dashboard."
+            },
+            "tournaments": {
+                "title": "Tournaments & Events",
+                "desc": "Create and manage tournaments easily. Automatic pairings, ranking calculations, and push notifications to participants."
+            }
+        },
+        "trust": {
+            "title": "Free. Seriously.",
+            "desc": "No commissions, no monthly subscriptions. TCG Arena was born to support the community and local shops.",
+            "cta": "Register your shop"
         }
     }
 }
