@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { merchantService } from '../services/api'
 import { useToast } from '../contexts/ToastContext'
 import {
@@ -76,6 +77,7 @@ interface MerchantInventoryProps {
 
 export default function MerchantInventory({ embedded = false }: MerchantInventoryProps) {
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const { showToast } = useToast()
   const [loading, setLoading] = useState(true)
   const [inventory, setInventory] = useState<InventoryCard[]>([])
@@ -681,7 +683,7 @@ export default function MerchantInventory({ embedded = false }: MerchantInventor
                       disabled={loading}
                       className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors disabled:opacity-50"
                     >
-                      {loading ? 'Caricamento...' : 'Carica Altre Carte'}
+                      {loading ? t('common.loading') : t('common.load_more')}
                     </button>
                   </div>
                 )}

@@ -25,6 +25,7 @@ import ShareShop from './pages/ShareShop'
 import ShareTournament from './pages/ShareTournament'
 import ShareEvent from './pages/ShareEvent'
 import ShareCard from './pages/ShareCard'
+import ShopRecruitment from './pages/ShopRecruitment'
 
 function App() {
   return (
@@ -59,6 +60,9 @@ function App() {
           <Route path="/share/tournament/:id" element={<ShareTournament />} />
           <Route path="/share/event/:id" element={<ShareEvent />} />
           <Route path="/share/card/:id" element={<ShareCard />} />
+
+          {/* Shop Recruitment - Invite Link */}
+          <Route path="/invite-shop" element={<ShopRecruitment />} />
         </Routes>
         <ToastContainer />
       </BrowserRouter>
