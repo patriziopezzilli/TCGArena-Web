@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { merchantService } from '../services/api'
 
 export default function MerchantRegister() {
+    const { t } = useTranslation()
     const navigate = useNavigate()
     const [formData, setFormData] = useState({
         username: '',
@@ -86,7 +88,7 @@ export default function MerchantRegister() {
         setError('')
 
         if (formData.password !== formData.confirmPassword) {
-            setError('Le password non coincidono')
+            setError(t('auth.register.errorPasswordsMismatch'))
             return
         }
 
@@ -102,7 +104,7 @@ export default function MerchantRegister() {
             // Navigate to login or auto-login (usually redirect to login)
             navigate('/merchant/login')
         } catch (err: any) {
-            setError(err.response?.data || 'Errore durante la registrazione. Riprova.')
+            setError(err.response?.data || t('auth.register.errorGeneric'))
         } finally {
             setLoading(false)
         }
@@ -126,9 +128,9 @@ export default function MerchantRegister() {
                 {/* Card */}
                 <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-xl border border-gray-100 p-8 md:p-10 transform transition-all duration-300 hover:shadow-2xl">
                     <div className="text-center mb-8">
-                        <h2 className="text-2xl font-bold text-gray-900 mb-2">Registrazione Merchant</h2>
+                        <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('auth.register.title')}</h2>
                         <p className="text-sm text-gray-600">
-                            Crea il tuo account e gestisci il tuo negozio
+                            {t('auth.register.subtitle')}
                         </p>
                     </div>
 
@@ -141,37 +143,36 @@ export default function MerchantRegister() {
                         </div>
                     )}
 
-                    {/* Shop Info Section */}
-                    <div className="space-y-5 pt-2">
-                        {/* Removed Toggle Claim Mode */}
-                    </div>
-
                     <form onSubmit={handleSubmit} className="space-y-5">
                         {/* User Info Section */}
                         <div className="space-y-5 border-b border-gray-100 pb-6">
-                            <h3 className="text-lg font-semibold text-gray-900">Dati Account</h3>
+                            <h3 className="text-lg font-semibold text-gray-900">{t('auth.register.accountData')}</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                                 <InputField
-                                    id="username" label="Username" value={formData.username}
+                                    id="username" label={t('auth.register.username')} value={formData.username}
                                     onChange={(val: string) => setFormData({ ...formData, username: val })}
                                     focused={focusedField === 'username'} onFocus={() => setFocusedField('username')} onBlur={() => setFocusedField(null)}
+                                    required
                                 />
                                 <InputField
-                                    id="email" label="Email" type="email" value={formData.email}
+                                    id="email" label={t('auth.register.email')} type="email" value={formData.email}
                                     onChange={(val: string) => setFormData({ ...formData, email: val })}
                                     focused={focusedField === 'email'} onFocus={() => setFocusedField('email')} onBlur={() => setFocusedField(null)}
+                                    required
                                 />
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                                 <InputField
-                                    id="password" label="Password" type="password" value={formData.password}
+                                    id="password" label={t('auth.register.password')} type="password" value={formData.password}
                                     onChange={(val: string) => setFormData({ ...formData, password: val })}
                                     focused={focusedField === 'password'} onFocus={() => setFocusedField('password')} onBlur={() => setFocusedField(null)}
+                                    required
                                 />
                                 <InputField
-                                    id="confirmPassword" label="Conferma Password" type="password" value={formData.confirmPassword}
+                                    id="confirmPassword" label={t('auth.register.confirmPassword')} type="password" value={formData.confirmPassword}
                                     onChange={(val: string) => setFormData({ ...formData, confirmPassword: val })}
                                     focused={focusedField === 'confirmPassword'} onFocus={() => setFocusedField('confirmPassword')} onBlur={() => setFocusedField(null)}
+                                    required
                                 />
                             </div>
                         </div>
@@ -179,14 +180,14 @@ export default function MerchantRegister() {
                         {/* Shop Info Section */}
                         <div className="space-y-5 pt-2">
                             <div className="flex items-center justify-between">
-                                <h3 className="text-lg font-semibold text-gray-900">Dettagli Negozio</h3>
+                                <h3 className="text-lg font-semibold text-gray-900">{t('auth.register.shopDetails')}</h3>
                                 {formData.existingShopId && (
                                     <button
                                         type="button"
                                         onClick={handleClearLinkedShop}
                                         className="text-sm text-red-600 hover:text-red-800 font-medium transition-colors"
                                     >
-                                        Scollega attività
+                                        {t('auth.register.unlinkShop')}
                                     </button>
                                 )}
                             </div>
@@ -194,7 +195,7 @@ export default function MerchantRegister() {
                             <div className="relative">
                                 <InputField
                                     id="shopName"
-                                    label={formData.existingShopId ? "Negozio Collegato" : "Nome Negozio (Inizia a digitare per cercare)"}
+                                    label={formData.existingShopId ? t('auth.register.linkedShop') : t('auth.register.shopNamePlaceholder')}
                                     value={formData.shopName}
                                     onChange={(val: string) => {
                                         setFormData({ ...formData, shopName: val })
@@ -208,6 +209,7 @@ export default function MerchantRegister() {
                                         setTimeout(() => setShowSuggestions(false), 200)
                                     }}
                                     disabled={!!formData.existingShopId}
+                                    required
                                 />
 
                                 {searching && (
@@ -219,7 +221,7 @@ export default function MerchantRegister() {
                                 {showSuggestions && searchResults.length > 0 && !formData.existingShopId && (
                                     <div className="absolute z-50 w-full mt-1 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden max-h-60 overflow-y-auto">
                                         <div className="p-2 bg-gray-50 border-b border-gray-100 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                                            Attività trovate
+                                            {t('auth.register.foundShops')}
                                         </div>
                                         {searchResults.map((shop) => (
                                             <button
@@ -237,40 +239,44 @@ export default function MerchantRegister() {
                                             onClick={() => setShowSuggestions(false)}
                                             className="w-full text-center px-4 py-2 bg-gray-50 text-gray-500 text-sm hover:text-gray-900 hover:bg-gray-100 transition-colors"
                                         >
-                                            Non è il tuo negozio? Continua a compilare
+                                            {t('auth.register.notYourShop')}
                                         </button>
                                     </div>
                                 )}
                             </div>
                             <InputField
-                                id="description" label="Descrizione (Opzionale)" value={formData.description}
+                                id="description" label={t('auth.register.description')} value={formData.description}
                                 onChange={(val: string) => setFormData({ ...formData, description: val })}
                                 focused={focusedField === 'description'} onFocus={() => setFocusedField('description')} onBlur={() => setFocusedField(null)}
                             />
                             <InputField
-                                id="address" label="Indirizzo" value={formData.address}
+                                id="address" label={t('auth.register.address')} value={formData.address}
                                 onChange={(val: string) => setFormData({ ...formData, address: val })}
                                 focused={focusedField === 'address'} onFocus={() => setFocusedField('address')} onBlur={() => setFocusedField(null)}
                                 disabled={!!formData.existingShopId}
+                                required
                             />
                             <div className="grid grid-cols-2 gap-5">
                                 <InputField
-                                    id="city" label="Città" value={formData.city}
+                                    id="city" label={t('auth.register.city')} value={formData.city}
                                     onChange={(val: string) => setFormData({ ...formData, city: val })}
                                     focused={focusedField === 'city'} onFocus={() => setFocusedField('city')} onBlur={() => setFocusedField(null)}
                                     disabled={!!formData.existingShopId}
+                                    required
                                 />
                                 <InputField
-                                    id="zipCode" label="CAP" value={formData.zipCode}
+                                    id="zipCode" label={t('auth.register.zipCode')} value={formData.zipCode}
                                     onChange={(val: string) => setFormData({ ...formData, zipCode: val })}
                                     focused={focusedField === 'zipCode'} onFocus={() => setFocusedField('zipCode')} onBlur={() => setFocusedField(null)}
                                     disabled={!!formData.existingShopId}
+                                    required
                                 />
                             </div>
                             <InputField
-                                id="phone" label="Telefono" value={formData.phone}
+                                id="phone" label={t('auth.register.phone')} value={formData.phone}
                                 onChange={(val: string) => setFormData({ ...formData, phone: val })}
                                 focused={focusedField === 'phone'} onFocus={() => setFocusedField('phone')} onBlur={() => setFocusedField(null)}
+                                required
                             />
                         </div>
 
@@ -283,11 +289,11 @@ export default function MerchantRegister() {
                                 {loading ? (
                                     <>
                                         <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                                        Registrazione...
+                                        {t('auth.register.submitting')}
                                     </>
                                 ) : (
                                     <>
-                                        Registrati
+                                        {t('auth.register.submit')}
                                         <span className="transform transition-transform duration-300 group-hover:translate-x-1">→</span>
                                     </>
                                 )}
@@ -298,12 +304,12 @@ export default function MerchantRegister() {
 
                     <div className="mt-6 text-center">
                         <p className="text-sm text-gray-600">
-                            Hai già un account?{' '}
+                            {t('auth.register.hasAccount')}{' '}
                             <Link
                                 to="/merchant/login"
                                 className="font-semibold text-gray-900 hover:text-primary transition-colors duration-200 inline-flex items-center gap-1 group"
                             >
-                                Accedi
+                                {t('auth.register.loginLink')}
                                 <span className="transform transition-transform duration-200 group-hover:translate-x-1">→</span>
                             </Link>
                         </p>
@@ -316,7 +322,7 @@ export default function MerchantRegister() {
                         className="text-sm text-gray-500 hover:text-gray-900 transition-colors duration-200 inline-flex items-center gap-1 group"
                     >
                         <span className="transform transition-transform duration-200 group-hover:-translate-x-1">←</span>
-                        Torna alla homepage
+                        {t('auth.register.backHome')}
                     </Link>
                 </div>
             </div>
@@ -324,7 +330,7 @@ export default function MerchantRegister() {
     )
 }
 
-function InputField({ id, label, type = 'text', value, onChange, focused, onFocus, onBlur, disabled = false }: any) {
+function InputField({ id, label, type = 'text', value, onChange, focused, onFocus, onBlur, disabled = false, required = false }: any) {
     return (
         <div className="space-y-2">
             <label
@@ -346,7 +352,7 @@ function InputField({ id, label, type = 'text', value, onChange, focused, onFocu
                     ${focused ? 'bg-white border-gray-900' : 'border-gray-100'}
                     ${disabled ? 'opacity-60 cursor-not-allowed' : ''}
                 `}
-                    required={!label.includes('Opzionale')}
+                    required={required}
                 />
                 <div className={`absolute bottom-0 left-0 h-0.5 bg-gray-900 rounded-full transition-all duration-300 ${focused ? 'w-full' : 'w-0'}`}></div>
             </div>

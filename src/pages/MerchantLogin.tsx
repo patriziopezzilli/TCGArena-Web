@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { merchantService } from '../services/api'
 
 export default function MerchantLogin() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const [formData, setFormData] = useState({
     username: '',
@@ -35,7 +37,7 @@ export default function MerchantLogin() {
       // Redirect to dashboard
       navigate('/merchant/dashboard')
     } catch (err: any) {
-      setError(err.response?.data || 'Errore durante il login. Verifica le credenziali.')
+      setError(err.response?.data || t('auth.login.errorGeneric'))
     } finally {
       setLoading(false)
     }
@@ -59,9 +61,9 @@ export default function MerchantLogin() {
         {/* Card */}
         <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-xl border border-gray-100 p-8 md:p-10 transform transition-all duration-300 hover:shadow-2xl">
           <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Bentornato</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('auth.login.title')}</h2>
             <p className="text-sm text-gray-600">
-              Accedi per gestire il tuo negozio
+              {t('auth.login.subtitle')}
             </p>
           </div>
 
@@ -81,7 +83,7 @@ export default function MerchantLogin() {
                 className={`block text-sm font-medium transition-colors duration-200 ${focusedField === 'username' ? 'text-gray-900' : 'text-gray-600'
                   }`}
               >
-                Username
+                {t('auth.login.username')}
               </label>
               <div className="relative">
                 <input
@@ -92,7 +94,7 @@ export default function MerchantLogin() {
                   onFocus={() => setFocusedField('username')}
                   onBlur={() => setFocusedField(null)}
                   className="w-full px-4 py-3.5 bg-gray-50 border-2 border-gray-100 rounded-xl focus:bg-white focus:border-gray-900 transition-all duration-300 outline-none placeholder:text-gray-400"
-                  placeholder="Il tuo username"
+                  placeholder={t('auth.login.usernamePlaceholder')}
                   required
                 />
                 <div className={`absolute bottom-0 left-0 h-0.5 bg-gray-900 rounded-full transition-all duration-300 ${focusedField === 'username' ? 'w-full' : 'w-0'
@@ -106,7 +108,7 @@ export default function MerchantLogin() {
                 className={`block text-sm font-medium transition-colors duration-200 ${focusedField === 'password' ? 'text-gray-900' : 'text-gray-600'
                   }`}
               >
-                Password
+                {t('auth.login.password')}
               </label>
               <div className="relative">
                 <input
@@ -117,7 +119,7 @@ export default function MerchantLogin() {
                   onFocus={() => setFocusedField('password')}
                   onBlur={() => setFocusedField(null)}
                   className="w-full px-4 py-3.5 bg-gray-50 border-2 border-gray-100 rounded-xl focus:bg-white focus:border-gray-900 transition-all duration-300 outline-none placeholder:text-gray-400"
-                  placeholder="••••••••••"
+                  placeholder={t('auth.login.passwordPlaceholder')}
                   required
                 />
                 <div className={`absolute bottom-0 left-0 h-0.5 bg-gray-900 rounded-full transition-all duration-300 ${focusedField === 'password' ? 'w-full' : 'w-0'
@@ -134,11 +136,11 @@ export default function MerchantLogin() {
                 {loading ? (
                   <>
                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                    Accesso in corso...
+                    {t('auth.login.submitting')}
                   </>
                 ) : (
                   <>
-                    Accedi
+                    {t('auth.login.submit')}
                     <span className="transform transition-transform duration-300 group-hover:translate-x-1">→</span>
                   </>
                 )}
@@ -150,12 +152,12 @@ export default function MerchantLogin() {
           {/* Registration link */}
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
-              Non hai un account?{' '}
+              {t('auth.login.noAccount')}{' '}
               <Link
                 to="/merchant/register"
                 className="font-semibold text-gray-900 hover:text-primary transition-colors duration-200 inline-flex items-center gap-1 group"
               >
-                Registrati
+                {t('auth.login.registerLink')}
                 <span className="transform transition-transform duration-200 group-hover:translate-x-1">→</span>
               </Link>
             </p>
@@ -168,7 +170,7 @@ export default function MerchantLogin() {
             className="text-sm text-gray-500 hover:text-gray-900 transition-colors duration-200 inline-flex items-center gap-1 group"
           >
             <span className="transform transition-transform duration-200 group-hover:-translate-x-1">←</span>
-            Torna alla homepage
+            {t('auth.login.backHome')}
           </Link>
         </div>
       </div>

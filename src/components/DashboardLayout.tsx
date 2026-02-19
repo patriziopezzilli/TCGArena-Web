@@ -1,5 +1,6 @@
 import { ReactNode, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import NotificationDropdown from './NotificationDropdown'
 
 interface MenuItem {
@@ -41,6 +42,7 @@ export default function DashboardLayout({
     activeTab,
     onTabChange
 }: DashboardLayoutProps) {
+    const { t } = useTranslation()
     const navigate = useNavigate()
     const location = useLocation()
     const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -91,7 +93,7 @@ export default function DashboardLayout({
                     <div className="flex items-center gap-3">
                         <div>
                             <span className="font-bold text-gray-900">TCG Arena</span>
-                            <span className="text-gray-400 font-medium ml-1">Business</span>
+                            <span className="text-gray-400 font-medium ml-1">{t('common.business')}</span>
                         </div>
                     </div>
                 </div>
@@ -106,7 +108,7 @@ export default function DashboardLayout({
                         </div>
                         <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium text-gray-900 truncate">
-                                {userName || 'Utente'}
+                                {userName || t('common.user')}
                             </p>
                             {shopName && (
                                 <p className="text-xs text-gray-500 truncate">{shopName}</p>
@@ -168,7 +170,7 @@ export default function DashboardLayout({
                         <span className="group-hover:rotate-12 transition-transform duration-200">
                             <LogoutIcon />
                         </span>
-                        <span className="font-medium text-sm">Esci</span>
+                        <span className="font-medium text-sm">{t('common.logout')}</span>
                     </button>
                 </div>
             </aside>
@@ -208,7 +210,7 @@ export default function DashboardLayout({
                                         {userName?.charAt(0)?.toUpperCase() || 'U'}
                                     </span>
                                 </div>
-                                <span className="text-sm font-medium text-gray-700">{userName}</span>
+                                <span className="text-sm font-medium text-gray-700">{userName || t('common.user')}</span>
                             </div>
                         </div>
                     </div>

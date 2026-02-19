@@ -1,0 +1,297 @@
+{
+    "common": {
+        "back": "Back",
+        "close": "Close",
+        "loading": "Loading...",
+        "error": "Error",
+        "success": "Success",
+        "business": "Business",
+        "user": "User",
+        "logout": "Logout"
+    },
+    "nav": {
+        "tournaments": "Events",
+        "requests": "Requests",
+        "rewards": "Rewards",
+        "login": "Login",
+        "register": "Start Now",
+        "downloadApp": "Download App"
+    },
+    "landing": {
+        "choice": {
+            "title1": "Your TCG Arena,",
+            "title2": "wherever you are",
+            "subtitle": "Join the largest card game community in Italy. Find shops, participate in tournaments, and manage your collection.",
+            "playerTitle": "Player",
+            "playerDesc": "Find shops, reserve cards, and join tournaments",
+            "shopTitle": "Shop",
+            "shopDesc": "Manage your business, inventory, and tournaments",
+            "chooseProfile": "Choose your profile to start",
+            "rightsReserved": "All rights reserved.",
+            "smartSearchTitle": "Smart Search",
+            "reservationsTitle": "Reservations",
+            "description": "The ultimate platform for TCG enthusiasts and shops.",
+            "downloadOn": "Download on",
+            "appStore": "App Store",
+            "availableOn": "Available on",
+            "googlePlay": "Google Play",
+            "comingSoon": "Coming Soon",
+            "playerCardTitle": "I'm a Player",
+            "playerCardDesc": "Explore the TCG world, find events, and manage your collection.",
+            "shopCardTitle": "I'm a Shop",
+            "shopCardDesc": "Grow your business, manage inventory, and organize tournaments.",
+            "tournamentCardTitle": "Join a Tournament",
+            "tournamentCardDesc": "Have a code? Join instantly as a guest.",
+            "tcgSectionTitle": "We support your favorite TCGs",
+            "moreTcg": "And many more...",
+            "appPreview": "App Preview",
+            "fullExperience": "The full experience",
+            "interfaceDesc": "Manage everything from our intuitive mobile app.",
+            "shopsOnPlatform": "Shops on the platform",
+            "cardsAvailable": "Cards available",
+            "tournamentsPerMonth": "Tournaments per month",
+            "manyPossibilities": "Endless Possibilities",
+            "platformDescription": "Our platform offers everything you need to enjoy your passion to the fullest.",
+            "smartSearchDesc": "Find cards by name, expansion, or rarity.",
+            "localTournamentsTitle": "Local Tournaments",
+            "localTournamentsDesc": "Discover and join events near you.",
+            "reservationsDesc": "Reserve cards online and pick them up in-store.",
+            "startToday": "Start today",
+            "imPlayer": "I'm a Player",
+            "imShop": "I'm a Shop"
+        },
+        "player": {
+            "badge": "For Players",
+            "title": "The whole TCG world in one app",
+            "desc": "Find the closest shops, reserve the cards you seek, and join tournaments in seconds. Your passion deserves the best.",
+            "appStore": "Download on App Store",
+            "googlePlay": "Download on Google Play",
+            "availableNow": "Available now on iOS and Android",
+            "radar": {
+                "badge": "Trade Radar Active",
+                "title": "Find the cards you seek,",
+                "subtitle": "near you",
+                "desc1": "Use our Trade Radar to instantly locate shops that have the cards missing from your collection.",
+                "desc2": "Stop wasting time searching: reserve in-app and pick up in-store.",
+                "feat1": "Real-time shop localization",
+                "feat2": "Immediate availability check",
+                "feat3": "Secure one-click reservation"
+            },
+            "features": {
+                "title": "Unique Player Experience",
+                "search": "Search for cards and shops filtering by game, rarity, and expansion.",
+                "reserve": "Lock the cards you want and pick them up at your convenience at your trusted shop.",
+                "tournaments": "Join official events and climb the urban rankings.",
+                "requests": "Send valuation requests for your cards directly to shops.",
+                "rewards": "Earn participation points and redeem them for exclusive rewards.",
+                "collectionTitle": "Collection Management",
+                "collection": "Track your cards and their market value."
+            },
+            "tournaments": {
+                "modalTitle": "Join Tournament",
+                "modalSubtitle": "Enter your details and tournament code",
+                "emailLabel": "Email *",
+                "firstNameLabel": "First Name *",
+                "lastNameLabel": "Last Name *",
+                "codeLabel": "Tournament Code *",
+                "emailPlaceholder": "Your email",
+                "firstNamePlaceholder": "First Name",
+                "lastNamePlaceholder": "Last Name",
+                "codePlaceholder": "Ex: ABC12",
+                "errorCodeLength": "Code must be 5 characters",
+                "errorNotFound": "Invalid code or tournament not found",
+                "errorFillFields": "Please fill all fields",
+                "errorGeneric": "Error during registration",
+                "lookupButton": "Find Tournament",
+                "registering": "Registering...",
+                "registerButton": "Confirm Registration",
+                "lookup": "Loading...",
+                "successTitle": "Registration Completed!",
+                "successDesc": "We've sent you a confirmation email with tournament details.",
+                "date": "Date",
+                "location": "Location",
+                "seats": "Seats",
+                "fee": "Entry Fee",
+                "enrollingAs": "You are registering as:"
+            }
+        },
+        "shop": {
+            "business": "Business",
+            "freeBadge": "100% Free - Forever",
+            "title": "Bring your shop into the future",
+            "desc": "Digitize your TCG shop for free. Reach thousands of players in your area and grow your business.",
+            "cta": "Start for Free",
+            "alreadyRegistered": "Already registered? Login",
+            "trust1": "No credit card required",
+            "trust2": "5-minute setup",
+            "benefit1": "Monthly cost",
+            "benefit2": "Sales commission",
+            "benefit3": "Active players",
+            "benefit4": "Online visibility",
+            "whyTitle": "Why choose TCG Arena?",
+            "whySubtitle": "The platform designed to grow TCG shops in Italy",
+            "why1": {
+                "title": "Immediate Visibility",
+                "desc": "Appear in searches for thousands of players in your area. Get found by those looking for cards, tournaments, and events."
+            },
+            "why2": {
+                "title": "Simplified Management",
+                "desc": "Intuitive dashboard to manage inventory, reservations, and tournaments. Bulk import cards with one click."
+            },
+            "why3": {
+                "title": "Automated Tournaments",
+                "desc": "Create tournaments, manage registrations, and rank participants. Automatic notifications to registered players."
+            },
+            "why4": {
+                "title": "Direct Communication",
+                "desc": "Receive requests from customers, publish news, and updates. Build a loyal community around your shop."
+            },
+            "features": {
+                "title": "Everything you need",
+                "inventoryTitle": "Inventory Management",
+                "inventory": "Upload cards individually or in bulk. Real-time updates.",
+                "tournamentsTitle": "Organize Tournaments",
+                "tournaments": "Create official and local tournaments. Automatic registration management.",
+                "reservationsTitle": "Reservation System",
+                "reservations": "Customers reserve, you confirm. In-store QR validation.",
+                "requestsTitle": "Customer Requests",
+                "requests": "Receive valuation and availability requests directly in-app.",
+                "newsTitle": "Publish News",
+                "news": "Communicate news, arrivals, and promotions to your followers.",
+                "analyticsTitle": "Analytics",
+                "analytics": "Monitor reservations, visits, and interest in your cards."
+            },
+            "ctaTitle": "Start today. It's free.",
+            "ctaSubtitle": "No hidden costs. No commissions. Only growth for your shop.",
+            "registerNow": "Register for Free",
+            "login": "Login",
+            "quickStart": "Register in minutes and start now"
+        }
+    },
+    "auth": {
+        "login": {
+            "title": "Welcome Back",
+            "subtitle": "Login to manage your shop",
+            "username": "Username",
+            "usernamePlaceholder": "Your username",
+            "password": "Password",
+            "passwordPlaceholder": "••••••••••",
+            "submit": "Login",
+            "submitting": "Logging in...",
+            "noAccount": "Don't have an account?",
+            "registerLink": "Register",
+            "backHome": "Back to homepage",
+            "errorGeneric": "Error during login. Please check your credentials."
+        },
+        "register": {
+            "title": "Merchant Registration",
+            "subtitle": "Create your account and manage your shop",
+            "accountData": "Account Data",
+            "username": "Username",
+            "email": "Email",
+            "password": "Password",
+            "confirmPassword": "Confirm Password",
+            "shopDetails": "Shop Details",
+            "unlinkShop": "Unlink activity",
+            "linkedShop": "Linked Shop",
+            "shopNameLabel": "Shop Name",
+            "shopNamePlaceholder": "Start typing to search",
+            "foundShops": "Shops found",
+            "notYourShop": "Not your shop? Keep filling in",
+            "description": "Description (Optional)",
+            "address": "Address",
+            "city": "City",
+            "zipCode": "ZIP Code",
+            "phone": "Phone",
+            "submit": "Register",
+            "submitting": "Registering...",
+            "hasAccount": "Already have an account?",
+            "loginLink": "Login",
+            "backHome": "Back to homepage",
+            "errorPasswordsMismatch": "Passwords do not match",
+            "errorGeneric": "Error during registration. Please try again."
+        }
+    },
+    "merchant": {
+        "menu": {
+            "dashboard": "Dashboard",
+            "inventory": "Inventory",
+            "reservations": "Reservations",
+            "tournaments": "Tournaments",
+            "tournamentRequests": "Tournament Requests",
+            "customerRequests": "Customer Requests",
+            "subscribers": "Subscribers",
+            "news": "News",
+            "rewards": "Partner Rewards",
+            "settings": "Settings",
+            "logout": "Logout"
+        },
+        "dashboard": {
+            "welcome": "Welcome, {{name}}",
+            "summary": "Here's a summary of your shop's activities",
+            "activeShop": "Active Shop",
+            "pendingApproval": {
+                "title": "Shop Awaiting Approval",
+                "description": "Your shop has been successfully registered but is not yet active. Our team is verifying the information provided.",
+                "shopInfo": "Shop Information",
+                "shopName": "Shop Name",
+                "address": "Address",
+                "phone": "Phone",
+                "type": "Type",
+                "waitingVerification": "Awaiting verification",
+                "emailNotification": "You will receive an email notification when the shop is activated."
+            },
+            "loading": "Loading...",
+            "error": {
+                "title": "An error occurred",
+                "backLogin": "Back to login"
+            },
+            "stats": {
+                "inventory": "Cards in Inventory",
+                "reservations": "Active Reservations",
+                "tournaments": "Scheduled Tournaments",
+                "requests": "Pending Requests",
+                "subscribers": "Notification Subscribers"
+            },
+            "quickActions": {
+                "title": "Quick Actions",
+                "inventory": {
+                    "title": "Inventory Management",
+                    "desc": "Add, edit, and delete cards from your inventory"
+                },
+                "reservations": {
+                    "title": "Reservations",
+                    "desc": "Manage reservations and scan QRs for pickups"
+                },
+                "tournaments": {
+                    "title": "Tournaments",
+                    "desc": "Create and manage tournaments for your customers"
+                },
+                "requests": {
+                    "title": "Customer Requests",
+                    "desc": "Respond to availability and valuation requests"
+                },
+                "subscribers": {
+                    "title": "Notification Subscribers",
+                    "desc": "Manage subscribers and send updates"
+                },
+                "news": {
+                    "title": "News",
+                    "desc": "Publish news, offers, and updates"
+                },
+                "manage": "Manage"
+            }
+        },
+        "graad": {
+            "badge": "New Q1 2026",
+            "title": "Grading Service with GRAAD",
+            "description": "In the first quarter of 2026, TCG Arena will introduce a revolutionary mechanism that will allow your customers to request card grading in a few simple steps, directly from your shop. Join the GRAAD family to be among the first in Italy to offer this exclusive service and expand your customer base!",
+            "ctaPartner": "Become a GRAAD Partner",
+            "ctaServices": "Discover services",
+            "featureApp": "In-app requests",
+            "featureTracking": "Full tracking",
+            "featureCustomers": "New customers",
+            "featureFirst": "First in Italy"
+        }
+    }
+}

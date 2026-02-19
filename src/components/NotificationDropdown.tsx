@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { merchantService } from '../services/api'
 
 interface NotificationItem {
@@ -77,6 +78,7 @@ const getTypeColor = (type: NotificationItem['type'], urgent: boolean) => {
 }
 
 export default function NotificationDropdown({ className = '' }: NotificationDropdownProps) {
+    const { t } = useTranslation()
     const navigate = useNavigate()
     const [isOpen, setIsOpen] = useState(false)
     const [notifications, setNotifications] = useState<NotificationItem[]>([])
@@ -151,10 +153,12 @@ export default function NotificationDropdown({ className = '' }: NotificationDro
                     {/* Header */}
                     <div className="px-4 py-3 border-b border-gray-100 bg-gray-50">
                         <div className="flex items-center justify-between">
-                            <h3 className="font-semibold text-gray-900">Notifiche</h3>
+                            <h3 className="font-semibold text-gray-900">{t('merchant.notifications.title')}</h3>
                             {notifications.length > 0 && (
                                 <span className="text-xs text-gray-500">
-                                    {urgentCount > 0 ? `${urgentCount} urgenti` : `${notifications.length} totali`}
+                                    {urgentCount > 0
+                                        ? t('merchant.notifications.urgent', { count: urgentCount })
+                                        : t('merchant.notifications.total', { count: notifications.length })}
                                 </span>
                             )}
                         </div>
@@ -171,8 +175,8 @@ export default function NotificationDropdown({ className = '' }: NotificationDro
                                 <svg className="w-12 h-12 mx-auto text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                                 </svg>
-                                <p className="text-sm text-gray-500">Nessuna notifica</p>
-                                <p className="text-xs text-gray-400 mt-1">Tutto sotto controllo!</p>
+                                <p className="text-sm text-gray-500">{t('merchant.notifications.empty')}</p>
+                                <p className="text-xs text-gray-400 mt-1">{t('merchant.notifications.allClear')}</p>
                             </div>
                         ) : (
                             <div className="divide-y divide-gray-100">
@@ -217,7 +221,7 @@ export default function NotificationDropdown({ className = '' }: NotificationDro
                                 }}
                                 className="text-xs text-gray-500 hover:text-gray-700 font-medium"
                             >
-                                Vai alla dashboard
+                                {t('merchant.notifications.goDashboard')}
                             </button>
                         </div>
                     )}

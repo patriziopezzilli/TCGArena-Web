@@ -2,10 +2,13 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { AppleIcon, GooglePlayIcon } from '../components/Icons'
+import { useTranslation } from 'react-i18next'
+import LanguageSwitcher from '../components/LanguageSwitcher'
 
 type ViewMode = 'choice' | 'player' | 'shop'
 
 export default function Landing() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const [viewMode, setViewMode] = useState<ViewMode>('choice')
   // Tournament join modal state
@@ -53,7 +56,7 @@ export default function Landing() {
   // Tournament join functions
   const lookupTournament = async () => {
     if (tournamentCode.length !== 5) {
-      setTournamentError('Il codice deve essere di 5 caratteri')
+      setTournamentError(t('landing.player.tournaments.errorCodeLength'))
       return
     }
     setTournamentLoading(true)
@@ -65,7 +68,7 @@ export default function Landing() {
       setTournamentData(response.data)
       setTournamentStep('details')
     } catch (err: any) {
-      setTournamentError('Codice torneo non valido o torneo non trovato')
+      setTournamentError(t('landing.player.tournaments.errorNotFound'))
     } finally {
       setTournamentLoading(false)
     }
@@ -73,7 +76,7 @@ export default function Landing() {
 
   const registerForTournament = async () => {
     if (!guestData.email || !guestData.firstName || !guestData.lastName) {
-      setTournamentError('Compila tutti i campi')
+      setTournamentError(t('landing.player.tournaments.errorFillFields'))
       return
     }
     setTournamentLoading(true)
@@ -85,7 +88,7 @@ export default function Landing() {
       )
       setTournamentStep('success')
     } catch (err: any) {
-      setTournamentError(err.response?.data?.error || "Errore durante l'iscrizione")
+      setTournamentError(err.response?.data?.error || t('landing.player.tournaments.errorGeneric'))
     } finally {
       setTournamentLoading(false)
     }
@@ -110,51 +113,54 @@ export default function Landing() {
             <div className="flex items-center gap-2">
               <span className="text-xl font-bold text-gray-900">TCG Arena</span>
             </div>
-            <button
-              onClick={() => navigate('/merchant/login')}
-              className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
-            >
-              Accedi
-            </button>
+            <div className="flex items-center gap-4">
+              <LanguageSwitcher />
+              <button
+                onClick={() => navigate('/merchant/login')}
+                className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+              >
+                {t('nav.login')}
+              </button>
+            </div>
           </div>
         </nav>
 
         {/* Hero - Choice Section */}
-        <section className="pt-20 md:pt-52 pb-6 md:pb-24 px-4 md:px-6 min-h-[85vh] md:min-h-0 flex flex-col justify-center md:block">
+        <section className="pt-32 md:pt-52 pb-6 md:pb-24 px-4 md:px-6 min-h-[85vh] md:min-h-0 flex flex-col justify-center md:block">
           <div className="max-w-4xl mx-auto text-center mb-10 md:mb-20">
-            {/* Mobile: GIANT slogan with typewriter */}
-            <h1 className="md:hidden text-[4.5rem] sm:text-[5.5rem] font-bold text-gray-900 tracking-tighter leading-[0.95]">
-              <span className="block animate-typewriter">Giocatori.</span>
-              <span className="block animate-typewriter" style={{ animationDelay: '0.8s' }}>Negozi.</span>
-              <span className="text-gray-400 block mt-2">Un'unica arena.</span>
+            {/* Mobile Title */}
+            <h1 className="md:hidden flex flex-col items-center text-5xl sm:text-6xl font-black text-gray-900 tracking-tighter leading-tight text-center mb-6">
+              <span className="block animate-typewriter w-fit mx-auto">{t('landing.choice.title1')}</span>
+              <span className="block animate-typewriter w-fit mx-auto" style={{ animationDelay: '0.8s' }}>{t('landing.choice.title2')}</span>
+              <span className="text-gray-400 block mt-6 text-2xl sm:text-3xl font-black tracking-tight">{t('landing.choice.subtitle')}</span>
             </h1>
-            {/* Desktop: 2 lines as before */}
-            <h1 className="hidden md:block text-7xl lg:text-8xl font-bold text-gray-900 tracking-tight leading-[1.25]">
-              <span className="inline-block animate-typewriter">Giocatori. Negozi.</span>
-              <br />
-              <span className="text-gray-400 block mt-4">Un'unica arena.</span>
+            {/* Desktop Title */}
+            <h1 className="hidden md:flex flex-col items-center text-7xl lg:text-8xl font-black text-gray-900 tracking-tighter leading-[1.1] text-center mb-8">
+              <span className="block animate-typewriter w-fit mx-auto">{t('landing.choice.title1')}</span>
+              <span className="block animate-typewriter w-fit mx-auto" style={{ animationDelay: '0.8s' }}>{t('landing.choice.title2')}</span>
+              <span className="text-gray-400 block mt-8 text-3xl lg:text-4xl font-black tracking-tight">{t('landing.choice.subtitle')}</span>
             </h1>
-            <p className="text-xs md:text-xl text-gray-500 max-w-2xl mx-auto mt-3 md:mt-8 px-2 md:px-0">
-              La prima piattaforma italiana che unisce giocatori e negozi TCG.
+            <p className="text-base md:text-xl text-gray-500 max-w-2xl mx-auto mt-4 md:mt-8 px-4 md:px-0 leading-relaxed">
+              {t('landing.choice.description')}
             </p>
 
-            {/* App Store Badges - Text Only, Prominent & Uniform */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-10 md:mt-12 animate-fade-in-up animation-delay-100">
+            {/* App Store Badges */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8 md:mt-12 animate-fade-in-up animation-delay-100">
               <button
                 onClick={() => window.open('https://apps.apple.com/it/app/tcg-arena/id6757301894', '_blank')}
-                className="w-full sm:w-auto min-w-[200px] h-28 flex flex-col items-center justify-center bg-gray-900 hover:bg-gray-800 text-white px-8 rounded-xl transition-all hover:scale-105 shadow-xl border-2 border-gray-900 group"
+                className="w-full sm:w-auto min-w-[200px] h-20 flex flex-col items-center justify-center bg-gray-900 hover:bg-gray-800 text-white px-8 rounded-xl transition-all hover:scale-105 shadow-xl border-2 border-gray-900 group"
               >
-                <div className="text-[12px] font-medium text-gray-300 leading-none mb-1 text-center uppercase tracking-wider">Scarica su</div>
-                <div className="text-xl font-bold leading-none text-center">App Store</div>
+                <div className="text-[10px] md:text-[12px] font-medium text-gray-300 leading-none mb-1 text-center uppercase tracking-wider">{t('landing.choice.downloadOn')}</div>
+                <div className="text-lg md:text-xl font-bold leading-none text-center">{t('landing.choice.appStore')}</div>
               </button>
 
               <button
                 disabled
-                className="w-full sm:w-auto min-w-[200px] h-28 flex flex-col items-center justify-center bg-gray-100 text-gray-400 px-8 rounded-xl border-2 border-gray-200 cursor-not-allowed opacity-80"
+                className="w-full sm:w-auto min-w-[200px] h-20 flex flex-col items-center justify-center bg-gray-100 text-gray-400 px-8 rounded-xl border-2 border-gray-200 cursor-not-allowed opacity-80"
               >
-                <div className="text-[12px] font-medium text-gray-400 leading-none mb-1 text-center uppercase tracking-wider">Disponibile su</div>
-                <div className="text-xl font-bold leading-none text-center">Google Play</div>
-                <span className="text-[10px] font-bold bg-gray-200 text-gray-500 px-2 py-0.5 rounded-full inline-block">Prossimamente</span>
+                <div className="text-[10px] md:text-[12px] font-medium text-gray-400 leading-none mb-1 text-center uppercase tracking-wider">{t('landing.choice.availableOn')}</div>
+                <div className="text-lg md:text-xl font-bold leading-none text-center">{t('landing.choice.googlePlay')}</div>
+                <span className="text-[9px] md:text-[10px] font-bold bg-gray-200 text-gray-500 px-2 py-0.5 rounded-full inline-block mt-1">{t('landing.choice.comingSoon')}</span>
               </button>
             </div>
           </div>
@@ -176,9 +182,9 @@ export default function Landing() {
                 <PlayerIcon className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 text-gray-600 group-hover:text-white transition-colors" />
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 group-hover:text-gray-900">Sei un Giocatore?</h3>
+                <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 group-hover:text-gray-900">{t('landing.choice.playerCardTitle')}</h3>
                 <p className="text-gray-500 text-xs sm:text-sm md:text-base group-hover:text-gray-600 transition-colors">
-                  Cerca carte, prenota, partecipa a tornei
+                  {t('landing.choice.playerCardDesc')}
                 </p>
               </div>
               <ArrowRightIcon className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-gray-300 group-hover:text-gray-900 group-hover:translate-x-1 transition-all duration-300 flex-shrink-0" />
@@ -199,9 +205,9 @@ export default function Landing() {
                 <ShopIcon className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 text-gray-600 group-hover:text-white transition-colors" />
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 group-hover:text-gray-900">Sei un Negozio?</h3>
+                <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 group-hover:text-gray-900">{t('landing.choice.shopCardTitle')}</h3>
                 <p className="text-gray-500 text-xs sm:text-sm md:text-base group-hover:text-gray-600 transition-colors">
-                  Digitalizza il tuo negozio. Gratis.
+                  {t('landing.choice.shopCardDesc')}
                 </p>
               </div>
               <ArrowRightIcon className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-gray-300 group-hover:text-gray-900 group-hover:translate-x-1 transition-all duration-300 flex-shrink-0" />
@@ -222,9 +228,9 @@ export default function Landing() {
                 <TrophyIcon className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 text-amber-600 group-hover:text-white transition-colors" />
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 group-hover:text-gray-900">Partecipa ad un Torneo</h3>
+                <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 group-hover:text-gray-900">{t('landing.choice.tournamentCardTitle')}</h3>
                 <p className="text-gray-500 text-xs sm:text-sm md:text-base group-hover:text-gray-600 transition-colors">
-                  Hai un codice? Iscriviti senza app
+                  {t('landing.choice.tournamentCardDesc')}
                 </p>
               </div>
               <ArrowRightIcon className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-amber-300 group-hover:text-amber-600 group-hover:translate-x-1 transition-all duration-300 flex-shrink-0" />
@@ -236,7 +242,7 @@ export default function Landing() {
         <section className="py-16 px-6 bg-gray-50">
           <div className="max-w-6xl mx-auto">
             <h2 className="text-2xl md:text-3xl font-bold text-gray-900 text-center mb-12">
-              I TCG piu popolari, tutti in un unico posto
+              {t('landing.choice.tcgSectionTitle')}
             </h2>
             <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-6">
               {/* Pokemon */}
@@ -337,7 +343,7 @@ export default function Landing() {
                   text-gray-400 font-bold text-2xl md:text-3xl">
                   +
                 </div>
-                <p className="font-medium text-gray-500 text-xs md:text-sm">e tanti altri...</p>
+                <p className="font-medium text-gray-500 text-xs md:text-sm">{t('landing.choice.moreTcg')}</p>
               </div>
             </div>
           </div>
@@ -348,13 +354,13 @@ export default function Landing() {
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-16">
               <span className="inline-block px-4 py-2 rounded-full bg-gray-800 text-gray-300 text-sm font-medium mb-6 border border-gray-700">
-                Anteprima App
+                {t('landing.choice.appPreview')}
               </span>
               <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
-                Scopri l'esperienza completa
+                {t('landing.choice.fullExperience')}
               </h2>
               <p className="text-gray-400 max-w-2xl mx-auto text-lg">
-                Un'interfaccia moderna e intuitiva progettata per mettere tutto ciò che ti serve a portata di mano.
+                {t('landing.choice.interfaceDesc')}
               </p>
             </div>
 
@@ -384,15 +390,15 @@ export default function Landing() {
             <div className="grid md:grid-cols-3 gap-8 text-center">
               <div className="p-6">
                 <p className="text-4xl md:text-5xl font-bold text-gray-900 mb-2">2000+</p>
-                <p className="text-gray-500">Negozi sulla piattaforma</p>
+                <p className="text-gray-500">{t('landing.choice.shopsOnPlatform')}</p>
               </div>
               <div className="p-6">
                 <p className="text-4xl md:text-5xl font-bold text-gray-900 mb-2">400K+</p>
-                <p className="text-gray-500">Carte disponibili</p>
+                <p className="text-gray-500">{t('landing.choice.cardsAvailable')}</p>
               </div>
               <div className="p-6">
                 <p className="text-4xl md:text-5xl font-bold text-gray-900 mb-2">50+</p>
-                <p className="text-gray-500">Tornei ogni mese</p>
+                <p className="text-gray-500">{t('landing.choice.tournamentsPerMonth')}</p>
               </div>
             </div>
           </div>
@@ -402,27 +408,26 @@ export default function Landing() {
         <section className="py-16 px-6 bg-gray-50">
           <div className="max-w-6xl mx-auto">
             <h2 className="text-2xl md:text-3xl font-bold text-gray-900 text-center mb-4">
-              Una piattaforma, tante possibilita
+              {t('landing.choice.manyPossibilities')}
             </h2>
             <p className="text-gray-500 text-center mb-12 max-w-2xl mx-auto">
-              Che tu sia un giocatore appassionato o un negozio specializzato,
-              TCG Arena ti offre gli strumenti giusti
+              {t('landing.choice.platformDescription')}
             </p>
             <div className="grid md:grid-cols-3 gap-6">
               <FeatureCard
                 icon={<SearchIcon className="w-6 h-6" />}
-                title="Ricerca Intelligente"
-                description="Trova carte per nome, set o rarita. Confronta prezzi tra negozi."
+                title={t('landing.choice.smartSearchTitle')}
+                description={t('landing.choice.smartSearchDesc')}
               />
               <FeatureCard
                 icon={<TrophyIcon className="w-6 h-6" />}
-                title="Tornei Locali"
-                description="Scopri tornei nella tua zona. Iscriviti e gioca."
+                title={t('landing.choice.localTournamentsTitle')}
+                description={t('landing.choice.localTournamentsDesc')}
               />
               <FeatureCard
                 icon={<BookmarkIcon className="w-6 h-6" />}
-                title="Prenotazioni"
-                description="Prenota carte e ritirala in negozio. Semplice e veloce."
+                title={t('landing.choice.reservationsTitle')}
+                description={t('landing.choice.reservationsDesc')}
               />
             </div>
           </div>
@@ -432,10 +437,10 @@ export default function Landing() {
         <section className="py-20 px-6">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Inizia oggi
+              {t('landing.choice.startToday')}
             </h2>
             <p className="text-lg text-gray-500 mb-8">
-              Scegli il tuo profilo e scopri cosa TCG Arena puo fare per te
+              {t('landing.choice.chooseProfile')}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button
@@ -444,7 +449,7 @@ export default function Landing() {
                   hover:bg-gray-800 hover:shadow-lg hover:-translate-y-0.5
                   transition-all duration-300"
               >
-                Sono un Giocatore
+                {t('landing.choice.imPlayer')}
               </button>
               <button
                 onClick={() => setViewMode('shop')}
@@ -452,7 +457,7 @@ export default function Landing() {
                   hover:bg-gray-50 hover:border-gray-300 hover:-translate-y-0.5
                   transition-all duration-300"
               >
-                Sono un Negozio
+                {t('landing.choice.imShop')}
               </button>
             </div>
           </div>
@@ -463,7 +468,7 @@ export default function Landing() {
         {/* Footer */}
         <footer className="border-t border-gray-100 py-8 px-6">
           <div className="max-w-7xl mx-auto text-center text-gray-400 text-sm">
-            <p>© 2025 TCG Arena. Tutti i diritti riservati.</p>
+            <p>© 2025 TCG Arena. {t("landing.choice.rightsReserved")}</p>
           </div>
         </footer>
 
@@ -500,20 +505,23 @@ export default function Landing() {
               className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
             >
               <ArrowLeftIcon className="w-4 h-4" />
-              <span className="text-sm font-medium">Indietro</span>
+              <span className="text-sm font-medium">{t('common.back')}</span>
             </button>
             <div className="flex items-center gap-2">
               <span className="text-xl font-bold text-gray-900">TCG Arena</span>
             </div>
-            <a
-              href="https://apps.apple.com/it/app/tcg-arena/id6757301894"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-5 py-2.5 text-sm font-medium text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-2"
-            >
-              <AppleIcon className="w-4 h-4" />
-              Scarica l'App
-            </a>
+            <div className="flex items-center gap-4">
+              <LanguageSwitcher />
+              <a
+                href="https://apps.apple.com/it/app/tcg-arena/id6757301894"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-5 py-2.5 text-sm font-medium text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-2"
+              >
+                <AppleIcon className="w-4 h-4" />
+                {t('nav.downloadApp')}
+              </a>
+            </div>
           </div>
         </nav>
 
@@ -525,16 +533,13 @@ export default function Landing() {
               <div>
                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-full text-sm text-gray-600 mb-6">
                   <PlayerIcon className="w-4 h-4" />
-                  <span>Per Giocatori e Collezionisti</span>
+                  <span>{t('landing.player.badge')}</span>
                 </div>
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 tracking-tight leading-tight">
-                  Tutto il TCG
-                  <br />
-                  in tasca
+                  {t('landing.player.title')}
                 </h1>
                 <p className="text-lg text-gray-500 mb-8 max-w-lg">
-                  Cerca carte nei negozi vicini, prenota con un tap, partecipa a tornei
-                  e gestisci la tua collezione. Tutto da un'unica app.
+                  {t('landing.player.desc')}
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4">
                   <a
@@ -544,7 +549,7 @@ export default function Landing() {
                     className="px-8 py-4 text-base font-medium text-white bg-gray-900 rounded-xl hover:bg-gray-800 transition-colors inline-flex items-center justify-center gap-3"
                   >
                     <AppleIcon className="w-5 h-5" />
-                    Scarica su App Store
+                    {t('landing.player.appStore')}
                   </a>
                   <a
                     href="https://play.google.com/store/apps/details?id=it.tcgarena.app"
@@ -553,13 +558,13 @@ export default function Landing() {
                     className="px-8 py-4 text-base font-medium text-white bg-green-600 rounded-xl hover:bg-green-700 transition-colors inline-flex items-center justify-center gap-3"
                   >
                     <GooglePlayIcon className="w-5 h-5" />
-                    Scarica su Google Play
+                    {t('landing.player.googlePlay')}
                   </a>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-gray-400 mt-4">
                   <span className="flex items-center gap-1.5">
                     <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                    Disponibile ora su iOS e Android
+                    {t('landing.player.availableNow')}
                   </span>
                 </div>
               </div>
@@ -602,7 +607,7 @@ export default function Landing() {
                   ))}
                 </div>
                 {/* Caption */}
-                <p className="text-center text-gray-400 text-sm mt-4">Disponibile ora su iOS e Android</p>
+                <p className="text-center text-gray-400 text-sm mt-4">{t('landing.player.availableNow')}</p>
               </div>
             </div>
           </div>
@@ -645,37 +650,36 @@ export default function Landing() {
               <div className="text-center lg:text-left order-1 lg:order-2">
                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-500/10 border border-green-500/20 rounded-full text-sm text-green-400 mb-6">
                   <RadarIcon className="w-4 h-4 animate-pulse" />
-                  <span className="font-medium">Novità Esclusiva</span>
+                  <span className="font-medium">{t('landing.player.radar.badge')}</span>
                 </div>
                 <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 tracking-tight">
-                  Trade Radar
+                  {t('landing.player.radar.title')}
                   <br />
-                  <span className="text-gray-500">Trova scambi vicini a te</span>
+                  <span className="text-gray-500">{t('landing.player.radar.subtitle')}</span>
                 </h2>
                 <p className="text-lg text-gray-400 mb-8 leading-relaxed">
-                  Il nostro algoritmo di matching incrocia le tue carte "Cerco" con le carte "Offro" degli altri giocatori.
+                  {t('landing.player.radar.desc1')}
                   <br /><br />
-                  Apri il radar e vedi in tempo reale chi ha le carte che ti servono intorno a te.
-                  Chatta, accordati e scambia di persona.
+                  {t('landing.player.radar.desc2')}
                 </p>
                 <ul className="space-y-4 text-left mx-auto lg:mx-0 max-w-md">
                   <li className="flex items-center gap-3 text-gray-300">
                     <div className="w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center text-green-400">
                       <CheckIcon className="w-4 h-4" />
                     </div>
-                    <span>Matching automatico basato sulle tue liste</span>
+                    <span>{t('landing.player.radar.feat1')}</span>
                   </li>
                   <li className="flex items-center gap-3 text-gray-300">
                     <div className="w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center text-green-400">
                       <CheckIcon className="w-4 h-4" />
                     </div>
-                    <span>Chat integrata per accordarsi</span>
+                    <span>{t('landing.player.radar.feat2')}</span>
                   </li>
                   <li className="flex items-center gap-3 text-gray-300">
                     <div className="w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center text-green-400">
                       <CheckIcon className="w-4 h-4" />
                     </div>
-                    <span>Guadagna punti fedeltà per ogni scambio concluso</span>
+                    <span>{t('landing.player.radar.feat3')}</span>
                   </li>
                 </ul>
               </div>
@@ -687,38 +691,38 @@ export default function Landing() {
         <section className="py-20 px-6 bg-gray-50">
           <div className="max-w-6xl mx-auto">
             <h2 className="text-3xl font-bold text-gray-900 mb-12 text-center">
-              Funzionalita per Giocatori
+              {t('landing.player.features.title')}
             </h2>
             <div className="grid md:grid-cols-3 gap-8">
               <FeatureCard
                 icon={<SearchIcon className="w-6 h-6" />}
-                title="Cerca Carte"
-                description="Trova carte nei negozi della tua zona. Confronta prezzi e disponibilita in tempo reale."
+                title={t('landing.choice.smartSearchTitle')}
+                description={t('landing.player.features.search')}
               />
               <FeatureCard
                 icon={<BookmarkIcon className="w-6 h-6" />}
-                title="Prenota e Ritira"
-                description="Prenota le carte che vuoi e ritirala in negozio. Niente piu sorprese."
+                title={t('landing.choice.reservationsTitle')}
+                description={t('landing.player.features.reserve')}
               />
               <FeatureCard
                 icon={<TrophyIcon className="w-6 h-6" />}
-                title="Tornei"
-                description="Scopri tornei nella tua citta, iscriviti e traccia i tuoi risultati."
+                title={t('nav.tournaments')}
+                description={t('landing.player.features.tournaments')}
               />
               <FeatureCard
                 icon={<MessageIcon className="w-6 h-6" />}
-                title="Richieste Dirette"
-                description="Contatta i negozi per valutazioni, disponibilita o proposte di acquisto."
+                title={t('nav.requests')}
+                description={t('landing.player.features.requests')}
               />
               <FeatureCard
                 icon={<GiftIcon className="w-6 h-6" />}
-                title="Sistema Premi"
-                description="Guadagna punti partecipando a tornei e giocando. Piu giochi, piu vinci."
+                title={t('nav.rewards')}
+                description={t('landing.player.features.rewards')}
               />
               <FeatureCard
                 icon={<CollectionIcon className="w-6 h-6" />}
-                title="La Tua Collezione"
-                description="Gestisci la tua collezione digitale e condividila con altri giocatori."
+                title={t('landing.player.features.collectionTitle')}
+                description={t('landing.player.features.collection')}
               />
             </div>
           </div>
@@ -728,10 +732,10 @@ export default function Landing() {
         <section className="py-20 px-6">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Pronto a iniziare?
+              {t('landing.shop.ctaTitle')}
             </h2>
             <p className="text-lg text-gray-500 mb-8">
-              Scarica l'app e scopri tutti i negozi e le carte vicino a te
+              {t('landing.choice.chooseProfile')}
             </p>
             <a
               href="https://apps.apple.com/it/app/tcg-arena/id6757301894"
@@ -740,7 +744,7 @@ export default function Landing() {
               className="inline-flex items-center gap-3 px-10 py-4 text-base font-medium text-white bg-gray-900 rounded-xl hover:bg-gray-800 transition-colors"
             >
               <AppleIcon className="w-5 h-5" />
-              Scarica su App Store
+              {t('landing.player.appStore')}
             </a>
             <a
               href="https://play.google.com/store/apps/details?id=it.tcgarena.app"
@@ -749,22 +753,21 @@ export default function Landing() {
               className="inline-flex items-center gap-3 px-10 py-4 text-base font-medium text-white bg-green-600 rounded-xl hover:bg-green-700 transition-colors ml-4"
             >
               <GooglePlayIcon className="w-5 h-5" />
-              Scarica su Google Play
+              {t('landing.player.googlePlay')}
             </a>
-            <p className="text-sm text-gray-400 mt-4">Disponibile ora su iOS e Android</p>
+            <p className="text-sm text-gray-400 mt-4">{t('landing.player.availableNow')}</p>
           </div>
         </section>
 
         {/* Footer */}
         <footer className="border-t border-gray-100 py-8 px-6">
           <div className="max-w-7xl mx-auto text-center text-gray-400 text-sm">
-            <p>© 2025 TCG Arena. Tutti i diritti riservati.</p>
+            <p>© 2025 TCG Arena. {t('landing.choice.rightsReserved')}</p>
           </div>
         </footer>
       </div>
     )
   }
-
   // Shop View
   return (
     <div className="min-h-screen bg-white">
@@ -776,24 +779,25 @@ export default function Landing() {
             className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
           >
             <ArrowLeftIcon className="w-4 h-4" />
-            <span className="text-sm font-medium">Indietro</span>
+            <span className="text-sm font-medium">{t('common.back')}</span>
           </button>
           <div className="flex items-center gap-2">
             <span className="text-xl font-bold text-gray-900">TCG Arena</span>
-            <span className="text-gray-400 font-medium">Business</span>
+            <span className="text-gray-400 font-medium">{t('landing.shop.business')}</span>
           </div>
           <div className="flex items-center gap-3">
+            <LanguageSwitcher />
             <button
               onClick={() => navigate('/merchant/login')}
               className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
             >
-              Accedi
+              {t('nav.login')}
             </button>
             <button
               onClick={() => navigate('/merchant/register')}
               className="px-5 py-2.5 text-sm font-medium text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors"
             >
-              Registrati Gratis
+              {t('nav.register')}
             </button>
           </div>
         </div>
@@ -807,16 +811,13 @@ export default function Landing() {
             <div className="animate-fade-in-up">
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-50 border border-green-200 rounded-full text-sm text-green-700 mb-6">
                 <CheckIcon className="w-4 h-4" />
-                <span className="font-medium">100% Gratuito - Per sempre</span>
+                <span className="font-medium">{t('landing.shop.freeBadge')}</span>
               </div>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 tracking-tight leading-tight">
-                Porta il tuo negozio
-                <br />
-                <span className="text-gray-400">nel futuro</span>
+                {t('landing.shop.title')}
               </h1>
               <p className="text-lg text-gray-500 mb-8 max-w-lg">
-                Digitalizza il tuo negozio TCG senza costi. Raggiungi migliaia di giocatori
-                nella tua zona e fai crescere il tuo business.
+                {t('landing.shop.desc')}
               </p>
               <div className="flex flex-col sm:flex-row gap-4 mb-8">
                 <button
@@ -825,7 +826,7 @@ export default function Landing() {
                     hover:bg-gray-800 hover:shadow-lg hover:-translate-y-0.5
                     transition-all duration-300"
                 >
-                  Inizia Gratis
+                  {t('landing.shop.cta')}
                 </button>
                 <button
                   onClick={() => navigate('/merchant/login')}
@@ -833,18 +834,18 @@ export default function Landing() {
                     hover:bg-gray-50 hover:border-gray-300
                     transition-all duration-300"
                 >
-                  Sei gia registrato? Accedi
+                  {t('landing.shop.alreadyRegistered')}
                 </button>
               </div>
               {/* Trust indicators */}
               <div className="flex items-center gap-6 text-sm text-gray-400">
                 <span className="flex items-center gap-2">
                   <CheckIcon className="w-4 h-4 text-green-500" />
-                  Nessuna carta di credito
+                  {t('landing.shop.trust1')}
                 </span>
                 <span className="flex items-center gap-2">
                   <CheckIcon className="w-4 h-4 text-green-500" />
-                  Setup in 5 minuti
+                  {t('landing.shop.trust2')}
                 </span>
               </div>
             </div>
@@ -903,19 +904,19 @@ export default function Landing() {
           <div className="grid md:grid-cols-4 gap-8 text-center">
             <div className="p-4">
               <p className="text-3xl font-bold mb-1">0€</p>
-              <p className="text-gray-400 text-sm">Costo mensile</p>
+              <p className="text-gray-400 text-sm">{t('landing.shop.benefit1')}</p>
             </div>
             <div className="p-4">
               <p className="text-3xl font-bold mb-1">0%</p>
-              <p className="text-gray-400 text-sm">Commissioni vendita</p>
+              <p className="text-gray-400 text-sm">{t('landing.shop.benefit2')}</p>
             </div>
             <div className="p-4">
               <p className="text-3xl font-bold mb-1">1000+</p>
-              <p className="text-gray-400 text-sm">Giocatori attivi</p>
+              <p className="text-gray-400 text-sm">{t('landing.shop.benefit3')}</p>
             </div>
             <div className="p-4">
               <p className="text-3xl font-bold mb-1">24/7</p>
-              <p className="text-gray-400 text-sm">Visibilita online</p>
+              <p className="text-gray-400 text-sm">{t('landing.shop.benefit4')}</p>
             </div>
           </div>
         </div>
@@ -925,50 +926,46 @@ export default function Landing() {
       <section className="py-20 px-6">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl font-bold text-gray-900 mb-4 text-center">
-            Perche scegliere TCG Arena?
+            {t('landing.shop.whyTitle')}
           </h2>
           <p className="text-gray-500 text-center mb-12 max-w-2xl mx-auto">
-            La piattaforma pensata per far crescere i negozi TCG in Italia
+            {t('landing.shop.whySubtitle')}
           </p>
           <div className="grid md:grid-cols-2 gap-8">
             <div className="p-6 bg-gray-50 rounded-xl hover:shadow-lg transition-shadow duration-300">
               <div className="w-12 h-12 bg-gray-900 rounded-xl flex items-center justify-center text-white mb-4">
                 <ChartIcon className="w-6 h-6" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Visibilita Immediata</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">{t('landing.shop.why1.title')}</h3>
               <p className="text-gray-500">
-                Appari nelle ricerche di migliaia di giocatori nella tua zona.
-                Fatti trovare da chi cerca carte, tornei ed eventi.
+                {t('landing.shop.why1.desc')}
               </p>
             </div>
             <div className="p-6 bg-gray-50 rounded-xl hover:shadow-lg transition-shadow duration-300">
               <div className="w-12 h-12 bg-gray-900 rounded-xl flex items-center justify-center text-white mb-4">
                 <InventoryIcon className="w-6 h-6" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Gestione Semplificata</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">{t('landing.shop.why2.title')}</h3>
               <p className="text-gray-500">
-                Dashboard intuitiva per gestire inventario, prenotazioni e tornei.
-                Import bulk delle carte con un click.
+                {t('landing.shop.why2.desc')}
               </p>
             </div>
             <div className="p-6 bg-gray-50 rounded-xl hover:shadow-lg transition-shadow duration-300">
               <div className="w-12 h-12 bg-gray-900 rounded-xl flex items-center justify-center text-white mb-4">
                 <TrophyIcon className="w-6 h-6" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Tornei Automatizzati</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">{t('landing.shop.why3.title')}</h3>
               <p className="text-gray-500">
-                Crea tornei, gestisci iscrizioni e classifica partecipanti.
-                Notifiche automatiche ai giocatori iscritti.
+                {t('landing.shop.why3.desc')}
               </p>
             </div>
             <div className="p-6 bg-gray-50 rounded-xl hover:shadow-lg transition-shadow duration-300">
               <div className="w-12 h-12 bg-gray-900 rounded-xl flex items-center justify-center text-white mb-4">
                 <MessageIcon className="w-6 h-6" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Comunicazione Diretta</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">{t('landing.shop.why4.title')}</h3>
               <p className="text-gray-500">
-                Ricevi richieste dai clienti, pubblica news e aggiornamenti.
-                Costruisci una community fedele attorno al tuo negozio.
+                {t('landing.shop.why4.desc')}
               </p>
             </div>
           </div>
@@ -979,38 +976,39 @@ export default function Landing() {
       <section className="py-20 px-6 bg-gray-50">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl font-bold text-gray-900 mb-12 text-center">
-            Tutto quello che ti serve
+            {t('landing.shop.features.title')}
           </h2>
           <div className="grid md:grid-cols-3 gap-6">
             <FeatureCard
               icon={<InventoryIcon className="w-6 h-6" />}
-              title="Gestione Inventario"
-              description="Carica carte singolarmente o in bulk. Aggiornamenti in tempo reale."
+              title={t('landing.shop.features.inventoryTitle')}
+              description={t('landing.shop.features.inventory')}
             />
+
             <FeatureCard
               icon={<TrophyIcon className="w-6 h-6" />}
-              title="Organizza Tornei"
-              description="Crea tornei ufficiali e locali. Gestione automatica iscrizioni."
+              title={t('landing.shop.features.tournamentsTitle')}
+              description={t('landing.shop.features.tournaments')}
             />
             <FeatureCard
               icon={<BookmarkIcon className="w-6 h-6" />}
-              title="Sistema Prenotazioni"
-              description="I clienti prenotano, tu confermi. Validazione QR in negozio."
+              title={t('landing.shop.features.reservationsTitle')}
+              description={t('landing.shop.features.reservations')}
             />
             <FeatureCard
               icon={<MessageIcon className="w-6 h-6" />}
-              title="Richieste Clienti"
-              description="Ricevi richieste di valutazione e disponibilita direttamente in app."
+              title={t("landing.shop.features.requestsTitle")}
+              description={t("landing.shop.features.requests")}
             />
             <FeatureCard
               icon={<NewsIcon className="w-6 h-6" />}
-              title="Pubblica Notizie"
-              description="Comunica novita, arrivi e promozioni ai tuoi follower."
+              title={t("landing.shop.features.newsTitle")}
+              description={t("landing.shop.features.news")}
             />
             <FeatureCard
               icon={<ChartIcon className="w-6 h-6" />}
-              title="Statistiche"
-              description="Monitora prenotazioni, visite e interesse per le tue carte."
+              title={t("landing.shop.features.analyticsTitle")}
+              description={t("landing.shop.features.analytics")}
             />
           </div>
         </div>
@@ -1020,10 +1018,10 @@ export default function Landing() {
       <section className="py-20 px-6 bg-gray-900 text-white">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Inizia oggi. E gratis.
+            {t("landing.shop.ctaTitle")}
           </h2>
           <p className="text-lg text-gray-400 mb-8">
-            Nessun costo nascosto. Nessuna commissione. Solo crescita per il tuo negozio.
+            {t("landing.shop.ctaSubtitle")}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
@@ -1032,7 +1030,7 @@ export default function Landing() {
                 hover:bg-gray-100 hover:shadow-lg
                 transition-all duration-300"
             >
-              Registrati Gratis
+              {t("landing.shop.registerNow")}
             </button>
             <button
               onClick={() => navigate('/merchant/login')}
@@ -1040,11 +1038,11 @@ export default function Landing() {
                 hover:bg-gray-800 hover:border-gray-500
                 transition-all duration-300"
             >
-              Accedi
+              {t("landing.shop.login")}
             </button>
           </div>
           <p className="mt-6 text-sm text-gray-500">
-            Registrati in pochi minuti e inizia subito
+            {t("landing.shop.quickStart")}
           </p>
         </div>
       </section>
@@ -1052,7 +1050,7 @@ export default function Landing() {
       {/* Footer */}
       <footer className="border-t border-gray-100 py-8 px-6">
         <div className="max-w-7xl mx-auto text-center text-gray-400 text-sm">
-          <p>© 2025 TCG Arena. Tutti i diritti riservati.</p>
+          <p>© 2025 TCG Arena. {t("landing.choice.rightsReserved")}</p>
         </div>
       </footer>
     </div>
@@ -1232,9 +1230,11 @@ function TournamentJoinModal({
   step, code, setCode, tournamentData, guestData, setGuestData,
   loading, error, onLookup, onRegister, onClose, onBack
 }: TournamentJoinModalProps) {
+  const { t, i18n } = useTranslation()
+
   const formatDate = (dateStr: string) => {
     if (!dateStr) return ''
-    return new Date(dateStr).toLocaleString('it-IT', {
+    return new Date(dateStr).toLocaleString(i18n.language === 'en' ? 'en-US' : 'it-IT', {
       weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit'
     })
   }
@@ -1245,6 +1245,7 @@ function TournamentJoinModal({
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+          title={t('common.close')}
         >
           <CloseIcon className="w-6 h-6" />
         </button>
@@ -1255,50 +1256,50 @@ function TournamentJoinModal({
               <div className="w-16 h-16 bg-amber-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
                 <TrophyIcon className="w-8 h-8 text-amber-600" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-900">Partecipa al Torneo</h2>
-              <p className="text-gray-500 mt-2">Inserisci i tuoi dati e il codice del torneo</p>
+              <h2 className="text-2xl font-bold text-gray-900">{t('landing.player.tournaments.modalTitle')}</h2>
+              <p className="text-gray-500 mt-2">{t('landing.player.tournaments.modalSubtitle')}</p>
             </div>
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('landing.player.tournaments.emailLabel')}</label>
                 <input
                   type="email"
                   value={guestData.email}
                   onChange={(e) => setGuestData({ ...guestData, email: e.target.value })}
-                  placeholder="La tua email"
+                  placeholder={t('landing.player.tournaments.emailPlaceholder')}
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none transition-all"
                 />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Nome *</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('landing.player.tournaments.firstNameLabel')}</label>
                   <input
                     type="text"
                     value={guestData.firstName}
                     onChange={(e) => setGuestData({ ...guestData, firstName: e.target.value })}
-                    placeholder="Nome"
+                    placeholder={t('landing.player.tournaments.firstNamePlaceholder')}
                     className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none transition-all"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Cognome *</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('landing.player.tournaments.lastNameLabel')}</label>
                   <input
                     type="text"
                     value={guestData.lastName}
                     onChange={(e) => setGuestData({ ...guestData, lastName: e.target.value })}
-                    placeholder="Cognome"
+                    placeholder={t('landing.player.tournaments.lastNamePlaceholder')}
                     className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none transition-all"
                   />
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Codice Torneo *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('landing.player.tournaments.codeLabel')}</label>
                 <input
                   type="text"
                   value={code}
                   onChange={(e) => setCode(e.target.value.toUpperCase().slice(0, 5))}
-                  placeholder="Es: ABC12"
+                  placeholder={t('landing.player.tournaments.codePlaceholder')}
                   maxLength={5}
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none transition-all text-center text-2xl font-mono tracking-widest uppercase"
                 />
@@ -1316,7 +1317,7 @@ function TournamentJoinModal({
               disabled={loading || code.length !== 5 || !guestData.email || !guestData.firstName || !guestData.lastName}
               className="w-full mt-6 py-4 bg-amber-500 text-white font-semibold rounded-xl hover:bg-amber-600 disabled:bg-gray-200 disabled:text-gray-400 transition-colors"
             >
-              {loading ? 'Caricamento...' : 'Cerca Torneo'}
+              {loading ? t('landing.player.tournaments.lookup') : t('landing.player.tournaments.lookupButton')}
             </button>
           </>
         )}
@@ -1328,7 +1329,7 @@ function TournamentJoinModal({
               className="flex items-center gap-2 text-gray-500 hover:text-gray-700 mb-4 transition-colors"
             >
               <ArrowLeftIcon className="w-4 h-4" />
-              <span className="text-sm">Indietro</span>
+              <span className="text-sm">{t('common.back')}</span>
             </button>
 
             <div className="text-center mb-6">
@@ -1338,22 +1339,22 @@ function TournamentJoinModal({
 
             <div className="space-y-3 bg-gray-50 rounded-xl p-4 mb-6">
               <div className="flex justify-between">
-                <span className="text-gray-500">📅 Data</span>
+                <span className="text-gray-500">📅 {t('landing.player.tournaments.date')}</span>
                 <span className="font-medium">{formatDate(tournamentData.startDate)}</span>
               </div>
               {tournamentData.location && (
                 <div className="flex justify-between">
-                  <span className="text-gray-500">📍 Luogo</span>
+                  <span className="text-gray-500">📍 {t('landing.player.tournaments.location')}</span>
                   <span className="font-medium">{tournamentData.location.name || tournamentData.location.address}</span>
                 </div>
               )}
               <div className="flex justify-between">
-                <span className="text-gray-500">👥 Posti</span>
+                <span className="text-gray-500">👥 {t('landing.player.tournaments.seats')}</span>
                 <span className="font-medium">{tournamentData.currentParticipants || 0} / {tournamentData.maxParticipants}</span>
               </div>
               {tournamentData.entryFee > 0 && (
                 <div className="flex justify-between">
-                  <span className="text-gray-500">💰 Quota</span>
+                  <span className="text-gray-500">💰 {t('landing.player.tournaments.fee')}</span>
                   <span className="font-medium">€{tournamentData.entryFee}</span>
                 </div>
               )}
@@ -1361,7 +1362,7 @@ function TournamentJoinModal({
 
             <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
               <p className="text-sm text-amber-800">
-                <strong>Stai per iscriverti come:</strong><br />
+                <strong>{t('landing.player.tournaments.enrollingAs')}</strong><br />
                 {guestData.firstName} {guestData.lastName} ({guestData.email})
               </p>
             </div>
@@ -1377,7 +1378,7 @@ function TournamentJoinModal({
               disabled={loading}
               className="w-full py-4 bg-amber-500 text-white font-semibold rounded-xl hover:bg-amber-600 disabled:bg-gray-200 disabled:text-gray-400 transition-colors"
             >
-              {loading ? 'Iscrizione in corso...' : 'Conferma Iscrizione'}
+              {loading ? t('landing.player.tournaments.registering') : t('landing.player.tournaments.registerButton')}
             </button>
           </>
         )}
@@ -1387,15 +1388,15 @@ function TournamentJoinModal({
             <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <CheckIcon className="w-10 h-10 text-green-600" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Iscrizione Completata!</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('landing.player.tournaments.successTitle')}</h2>
             <p className="text-gray-500 mb-6">
-              Ti abbiamo inviato una email di conferma con i dettagli del torneo.
+              {t('landing.player.tournaments.successDesc')}
             </p>
             <button
               onClick={onClose}
               className="px-8 py-3 bg-gray-900 text-white font-semibold rounded-xl hover:bg-gray-800 transition-colors"
             >
-              Chiudi
+              {t('common.close')}
             </button>
           </div>
         )}

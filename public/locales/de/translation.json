@@ -1,0 +1,305 @@
+{
+    "common": {
+        "back": "Zurück",
+        "close": "Schließen",
+        "loading": "Laden...",
+        "error": "Fehler",
+        "success": "Erfolg",
+        "business": "Business",
+        "user": "Benutzer",
+        "logout": "Abmelden"
+    },
+    "nav": {
+        "tournaments": "Events",
+        "requests": "Anfragen",
+        "rewards": "Belohnungen",
+        "login": "Login",
+        "register": "Jetzt starten",
+        "downloadApp": "App herunterladen"
+    },
+    "landing": {
+        "choice": {
+            "title1": "Deine TCG Arena,",
+            "title2": "wo auch immer du bist",
+            "subtitle": "Tritt der größten Kartenspiel-Community in Italien bei. Finde Läden, nimm an Turnieren teil und verwalte deine Sammlung.",
+            "playerTitle": "Spieler",
+            "playerDesc": "Finde Läden, reserviere Karten und nimm an Turnieren teil",
+            "shopTitle": "Laden",
+            "shopDesc": "Verwalte dein Geschäft, Inventar und Turniere",
+            "chooseProfile": "Wähle dein Profil, um zu starten",
+            "rightsReserved": "Alle Rechte vorbehalten.",
+            "smartSearchTitle": "Intelligente Suche",
+            "reservationsTitle": "Reservierungen",
+            "description": "Die ultimative Plattform für TCG-Enthusiasten und Läden.",
+            "downloadOn": "Herunterladen auf",
+            "appStore": "App Store",
+            "availableOn": "Verfügbar auf",
+            "googlePlay": "Google Play",
+            "comingSoon": "Demnächst verfügbar",
+            "playerCardTitle": "Ich bin ein Spieler",
+            "playerCardDesc": "Erkunde die TCG-Welt, finde Events und verwalte deine Sammlung.",
+            "shopCardTitle": "Ich bin ein Laden",
+            "shopCardDesc": "Lass dein Geschäft wachsen, verwalte das Inventar und organisiere Turniere.",
+            "tournamentCardTitle": "Einem Turnier beitreten",
+            "tournamentCardDesc": "Hast du einen Code? Tritt sofort als Gast bei.",
+            "tcgSectionTitle": "Wir unterstützen deine Lieblings-TCGs",
+            "moreTcg": "Und viele mehr...",
+            "appPreview": "App-Vorschau",
+            "fullExperience": "Das volle Erlebnis",
+            "interfaceDesc": "Verwalte alles über unsere intuitive mobile App.",
+            "shopsOnPlatform": "Läden auf der Plattform",
+            "cardsAvailable": "Verfügbare Karten",
+            "tournamentsPerMonth": "Turniere pro Monat",
+            "manyPossibilities": "Unendliche Möglichkeiten",
+            "platformDescription": "Unsere Plattform bietet alles, was du brauchst, um deine Leidenschaft voll auszuleben.",
+            "smartSearchDesc": "Finde Karten nach Name, Erweiterung oder Seltenheit.",
+            "localTournamentsTitle": "Lokale Turniere",
+            "localTournamentsDesc": "Entdecke und nimm an Events in deiner Nähe teil.",
+            "reservationsDesc": "Reserviere Karten online und hole sie im Laden ab.",
+            "startToday": "Starte noch heute",
+            "imPlayer": "Ich bin Spieler",
+            "imShop": "Ich bin ein Laden"
+        },
+        "player": {
+            "badge": "Für Spieler",
+            "title": "Die ganze TCG-Welt in einer App",
+            "desc": "Finde die nächstgelegenen Läden, reserviere die Karten, die du suchst, und tritt in Sekundenschnelle Turnieren bei. Deine Leidenschaft verdient das Beste.",
+            "appStore": "Im App Store herunterladen",
+            "googlePlay": "Bei Google Play herunterladen",
+            "availableNow": "Jetzt auf iOS und Android verfügbar",
+            "radar": {
+                "badge": "Trade Radar Aktiv",
+                "title": "Finde die Karten, die du suchst,",
+                "subtitle": "in deiner Nähe",
+                "desc1": "Nutze unser Trade Radar, um sofort Läden zu finden, die die Karten haben, die in deiner Sammlung fehlen.",
+                "desc2": "Verliere keine Zeit mehr mit Suchen: Reserviere in der App und hole sie im Laden ab.",
+                "feat1": "Echtzeit-Standortbestimmung von Läden",
+                "feat2": "Sofortige Verfügbarkeitsprüfung",
+                "feat3": "Sichere Reservierung mit einem Klick"
+            },
+            "features": {
+                "title": "Einzigartiges Spielerlebnis",
+                "search": "Suche nach Karten und Läden, gefiltert nach Spiel, Seltenheit und Erweiterung.",
+                "reserve": "Sichere dir die gewünschten Karten und hole sie entspannt in deinem Vertrauensladen ab.",
+                "tournaments": "Nimm an offiziellen Events teil und steige in den Ranglisten deiner Stadt auf.",
+                "requests": "Sende Bewertungsanfragen für deine Karten direkt an die Läden.",
+                "rewards": "Sammle Teilnahmepunkte und tausche sie gegen exklusive Belohnungen ein.",
+                "collectionTitle": "Sammlungsverwaltung",
+                "collection": "Verfolge deine Karten und ichren Marktwert."
+            },
+            "tournaments": {
+                "modalTitle": "Turnier beitreten",
+                "modalSubtitle": "Gib deine Daten und den Turniercode ein",
+                "emailLabel": "E-Mail *",
+                "firstNameLabel": "Vorname *",
+                "lastNameLabel": "Nachname *",
+                "codeLabel": "Turniercode *",
+                "emailPlaceholder": "Deine E-Mail",
+                "firstNamePlaceholder": "Vorname",
+                "lastNamePlaceholder": "Nachname",
+                "codePlaceholder": "Beispiel: ABC12",
+                "errorCodeLength": "Der Code muss 5 Zeichen lang sein",
+                "errorNotFound": "Ungültiger Code oder Turnier nicht gefunden",
+                "errorFillFields": "Bitte alle Felder ausfüllen",
+                "errorGeneric": "Fehler bei der Anmeldung",
+                "lookupButton": "Turnier finden",
+                "registering": "Anmeldung läuft...",
+                "registerButton": "Anmeldung bestätigen",
+                "lookup": "Laden...",
+                "successTitle": "Anmeldung abgeschlossen!",
+                "successDesc": "Wir haben dir eine Bestätigungs-E-Mail mit den Turnierdetails gesendet.",
+                "date": "Datum",
+                "location": "Ort",
+                "seats": "Plätze",
+                "fee": "Teilnahmegebühr",
+                "enrollingAs": "Du meldest dich an als:"
+            }
+        },
+        "shop": {
+            "business": "Business",
+            "freeBadge": "100 % Kostenlos - Für immer",
+            "title": "Bringe deinen Laden in die Zukunft",
+            "desc": "Digitalisiere deinen TCG-Laden kostenlos. Erreiche Tausende von Spielern in deiner Umgebung und lass dein Geschäft wachsen.",
+            "cta": "Kostenlos starten",
+            "alreadyRegistered": "Bereits registriert? Login",
+            "trust1": "Keine Kreditkarte erforderlich",
+            "trust2": "Setup in 5 Minuten",
+            "benefit1": "Monatliche Kosten",
+            "benefit2": "Verkaufsprovision",
+            "benefit3": "Aktive Spieler",
+            "benefit4": "Online-Sichtbarkeit",
+            "whyTitle": "Warum TCG Arena wählen?",
+            "whySubtitle": "Die Plattform, die entwickelt wurde, um TCG-Läden wachsen zu lassen",
+            "why1": {
+                "title": "Sofortige Sichtbarkeit",
+                "desc": "Erscheine in den Suchanfragen von Tausenden von Spielern in deiner Nähe. Lass dich von denen finden, die nach Karten, Turnieren und Events suchen."
+            },
+            "why2": {
+                "title": "Vereinfachte Verwaltung",
+                "desc": "Intuitives Dashboard zur Verwaltung von Inventar, Reservierungen und Turnieren. Bulk-Import von Karten mit einem Klick."
+            },
+            "why3": {
+                "title": "Automatisierte Turniere",
+                "desc": "Erstelle Turniere, verwalte Anmeldungen und erstelle Ranglisten. Automatische Benachrichtigungen an angemeldete Spieler."
+            },
+            "why4": {
+                "title": "Direkte Kommunikation",
+                "desc": "Erhalte Kundenanfragen, veröffentliche News und Updates. Baue eine loyale Community um deinen Laden auf."
+            },
+            "features": {
+                "title": "Alles, was du brauchst",
+                "inventoryTitle": "Inventarverwaltung",
+                "inventory": "Lade Karten einzeln oder gesammelt hoch. Echtzeit-Updates.",
+                "tournamentsTitle": "Turniere organisieren",
+                "tournaments": "Erstelle offizielle und lokale Turniere. Automatisierte Anmeldeverwaltung.",
+                "reservationsTitle": "Reservierungssystem",
+                "reservations": "Kunden reservieren, du bestätigst. QR-Validierung im Laden.",
+                "requestsTitle": "Kundenanfragen",
+                "requests": "Erhalte Bewertungs- und Verfügbarkeitsanfragen direkt in der App.",
+                "newsTitle": "News veröffentlichen",
+                "news": "Kommuniziere Neuigkeiten, Lieferungen und Aktionen an deine Follower.",
+                "analyticsTitle": "Statistiken",
+                "analytics": "Überwache Reservierungen, Besuche und das Interesse an deinen Karten."
+            },
+            "ctaTitle": "Starte heute. Es ist kostenlos.",
+            "ctaSubtitle": "Keine versteckten Kosten. Keine Provisionen. Nur Wachstum für deinen Laden.",
+            "registerNow": "Kostenlos registrieren",
+            "login": "Login",
+            "quickStart": "In wenigen Minuten registrieren und sofort starten"
+        }
+    },
+    "auth": {
+        "login": {
+            "title": "Willkommen zurück",
+            "subtitle": "Loggen Sie sich ein, um Ihren Laden zu verwalten",
+            "username": "Benutzername",
+            "usernamePlaceholder": "Ihr Benutzername",
+            "password": "Passwort",
+            "passwordPlaceholder": "••••••••••",
+            "submit": "Login",
+            "submitting": "Login läuft...",
+            "noAccount": "Sie haben noch kein Konto?",
+            "registerLink": "Registrieren",
+            "backHome": "Zurück zur Startseite",
+            "errorGeneric": "Fehler beim Login. Bitte überprüfen Sie Ihre Anmeldedaten."
+        },
+        "register": {
+            "title": "Händler-Registrierung",
+            "subtitle": "Erstellen Sie Ihr Konto und verwalten Sie Ihren Laden",
+            "accountData": "Kontodaten",
+            "username": "Benutzername",
+            "email": "E-Mail",
+            "password": "Passwort",
+            "confirmPassword": "Passwort bestätigen",
+            "shopDetails": "Ladendetails",
+            "unlinkShop": "Aktivität entkoppeln",
+            "linkedShop": "Gekoppelter Laden",
+            "shopNameLabel": "Ladenname",
+            "shopNamePlaceholder": "Tippen Sie, um zu suchen",
+            "foundShops": "Gefundene Läden",
+            "notYourShop": "Nicht Ihr Laden? Füllen Sie weiter aus",
+            "description": "Beschreibung (Optional)",
+            "address": "Adresse",
+            "city": "Stadt",
+            "zipCode": "Postleitzahl",
+            "phone": "Telefon",
+            "submit": "Registrieren",
+            "submitting": "Registrierung läuft...",
+            "hasAccount": "Sie haben bereits ein Konto?",
+            "loginLink": "Login",
+            "backHome": "Zurück zur Startseite",
+            "errorPasswordsMismatch": "Die Passwörter stimmen nicht überein",
+            "errorGeneric": "Fehler bei der Registrierung. Bitte versuchen Sie es erneut."
+        }
+    },
+    "merchant": {
+        "menu": {
+            "dashboard": "Dashboard",
+            "inventory": "Inventar",
+            "reservations": "Reservierungen",
+            "tournaments": "Turniere",
+            "tournamentRequests": "Turnieranfragen",
+            "customerRequests": "Kundenanfragen",
+            "subscribers": "Abonnenten",
+            "news": "Neuigkeiten",
+            "rewards": "Partner-Prämien",
+            "settings": "Einstellungen",
+            "logout": "Logout"
+        },
+        "dashboard": {
+            "welcome": "Willkommen, {{name}}",
+            "summary": "Hier ist eine Zusammenfassung der Aktivitäten Ihres Ladens",
+            "activeShop": "Aktiver Laden",
+            "pendingApproval": {
+                "title": "Laden wartet auf Genehmigung",
+                "description": "Ihr Laden wurde erfolgreich registriert, ist aber noch nicht aktiv. Unser Team überprüft die bereitgestellten Informationen.",
+                "shopInfo": "Laden-Informationen",
+                "shopName": "Ladenname",
+                "address": "Adresse",
+                "phone": "Telefon",
+                "type": "Typ",
+                "waitingVerification": "Warten auf Überprüfung",
+                "emailNotification": "Sie erhalten eine E-Mail-Benachrichtigung, wenn der Laden aktiviert wurde."
+            },
+            "loading": "Laden...",
+            "error": {
+                "title": "Ein Fehler ist aufgetreten",
+                "backLogin": "Zurück zum Login"
+            },
+            "stats": {
+                "inventory": "Karten im Inventar",
+                "reservations": "Aktive Reservierungen",
+                "tournaments": "Geplante Turniere",
+                "requests": "Offene Anfragen",
+                "subscribers": "Benachrichtigungs-Abonnenten"
+            },
+            "quickActions": {
+                "title": "Quick Actions",
+                "inventory": {
+                    "title": "Inventarverwaltung",
+                    "desc": "Karten zum Inventar hinzufügen, bearbeiten und löschen"
+                },
+                "reservations": {
+                    "title": "Reservierungen",
+                    "desc": "Reservierungen verwalten und QRs für Abholungen scannen"
+                },
+                "tournaments": {
+                    "title": "Turniere",
+                    "desc": "Erstellen und verwalten Sie Turniere für Ihre Kunden"
+                },
+                "requests": {
+                    "title": "Kundenanfragen",
+                    "desc": "Reagieren Sie auf Verfügbarkeits- und Bewertungsanfragen"
+                },
+                "subscribers": {
+                    "title": "Benachrichtigungs-Abonnenten",
+                    "desc": "Abonnenten verwalten und Updates senden"
+                },
+                "news": {
+                    "title": "Neuigkeiten",
+                    "desc": "Veröffentlichen Sie Neuigkeiten, Angebote und Updates"
+                },
+                "manage": "Verwalten"
+            }
+        },
+        "graad": {
+            "badge": "Neu Q1 2026",
+            "title": "Grading-Service mit GRAAD",
+            "description": "Im ersten Quartal 2026 wird TCG Arena einen revolutionären Mechanismus einführen, der es Ihren Kunden ermöglicht, die Kartenbewertung in wenigen einfachen Schritten direkt in Ihrem Laden zu beantragen. Treten Sie der GRAAD-Familie bei, um einer der Ersten in Italien zu sein, die diesen exklusiven Service anbieten und Ihren Kundenstamm erweitern!",
+            "ctaPartner": "GRAAD-Partner werden",
+            "ctaServices": "Services entdecken",
+            "featureApp": "In-App-Anfragen",
+            "featureTracking": "Vollständiges Tracking",
+            "featureCustomers": "Neue Kunden",
+            "featureFirst": "Erster in Italien"
+        },
+        "notifications": {
+            "title": "Benachrichtigungen",
+            "empty": "Keine Benachrichtigungen",
+            "allClear": "Alles unter Kontrolle!",
+            "total": "{{count}} insgesamt",
+            "urgent": "{{count}} dringend",
+            "goDashboard": "Zum Dashboard"
+        }
+    }
+}
