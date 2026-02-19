@@ -24,41 +24,82 @@ export default function ShopRecruitment() {
             </header>
 
             {/* Hero Section */}
-            <main className="pt-32 pb-20 px-6">
-                <div className="max-w-4xl mx-auto text-center mb-20">
-                    <div className="inline-flex items-center justify-center p-3 bg-white/5 rounded-2xl mb-8 border border-white/10 animate-fade-in">
-                        <span className="text-4xl">🏪</span>
-                    </div>
+            <main className="relative pt-32 pb-20 px-6 overflow-hidden">
+                {/* Custom Floating Animation */}
+                <style dangerouslySetInnerHTML={{
+                    __html: `
+                    @keyframes float {
+                        0%, 100% { transform: translateY(0) rotate(0deg); }
+                        33% { transform: translateY(-20px) rotate(2deg); }
+                        66% { transform: translateY(10px) rotate(-1deg); }
+                    }
+                    .animate-float {
+                        animation: float 15s ease-in-out infinite;
+                    }
+                `}} />
 
-                    <h1 className="text-5xl md:text-7xl font-bold mb-8 tracking-tight">
+                {/* Animated TCG Background */}
+                <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden opacity-30 select-none">
+                    <div className="absolute inset-0 bg-gradient-to-b from-blue-600/5 via-transparent to-black z-10" />
+                    {[
+                        { src: '/images/tcg/pokemon.png', size: 'w-24', top: '10%', left: '5%', delay: '0s', duration: '20s' },
+                        { src: '/images/tcg/onepiece.png', size: 'w-20', top: '30%', right: '10%', delay: '2s', duration: '18s' },
+                        { src: '/images/tcg/magic.png', size: 'w-28', bottom: '20%', left: '15%', delay: '5s', duration: '25s' },
+                        { src: '/images/tcg/yugioh.png', size: 'w-24', top: '60%', right: '20%', delay: '1s', duration: '22s' },
+                        { src: '/images/tcg/lorcana.png', size: 'w-20', top: '15%', left: '45%', delay: '8s', duration: '28s' },
+                        { src: '/images/tcg/dragonball.png', size: 'w-24', bottom: '40%', right: '5%', delay: '3s', duration: '21s' },
+                        { src: '/images/tcg/digimon.png', size: 'w-16', top: '50%', left: '10%', delay: '10s', duration: '19s' },
+                        { src: '/images/tcg/union_arena.png', size: 'w-20', bottom: '10%', right: '40%', delay: '6s', duration: '23s' },
+                    ].map((logo, i) => (
+                        <div
+                            key={i}
+                            className={`absolute ${logo.size} opacity-10 hover:opacity-50 transition-opacity duration-1000`}
+                            style={{
+                                top: logo.top,
+                                left: logo.left,
+                                right: logo.right,
+                                bottom: logo.bottom,
+                                animation: `float ${logo.duration} ease-in-out infinite`,
+                                animationDelay: logo.delay
+                            }}
+                        >
+                            <img src={logo.src} alt="" className="w-full h-full object-contain filter grayscale brightness-200 contrast-125" />
+                        </div>
+                    ))}
+                </div>
+
+                <div className="max-w-4xl mx-auto text-center mb-20 relative z-10">
+                    <h1 className="text-5xl md:text-8xl font-black mb-8 tracking-tighter leading-tight">
                         {t('shopRecruitment.hero.title1')} <br />
-                        <span className="bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+                        <span className="bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(168,85,247,0.4)]">
                             {t('shopRecruitment.hero.title2')}
                         </span>
                     </h1>
 
-                    <p className="text-xl text-gray-400 mb-12 max-w-2xl mx-auto leading-relaxed">
+                    <p className="text-xl text-gray-400 mb-12 max-w-2xl mx-auto leading-relaxed font-medium">
                         {t('shopRecruitment.hero.description')}
                     </p>
 
                     {/* Marketing Message - Community Want You */}
-                    <div className="max-w-2xl mx-auto mb-12 p-6 rounded-2xl bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20 text-center animate-bounce-subtle">
-                        <div className="flex items-center justify-center gap-2 mb-2">
-                            <span className="text-2xl">❤️</span>
-                            <h3 className="text-lg font-bold text-blue-400">{t('shopRecruitment.marketing.title')}</h3>
+                    <div className="max-w-2xl mx-auto mb-12 p-8 rounded-3xl bg-white/[0.03] backdrop-blur-xl border border-white/10 text-center animate-bounce-subtle shadow-2xl shadow-blue-500/10">
+                        <div className="flex items-center justify-center gap-3 mb-3">
+                            <span className="text-3xl">❤️</span>
+                            <h3 className="text-xl font-bold bg-gradient-to-r from-blue-400 to-blue-200 bg-clip-text text-transparent">
+                                {t('shopRecruitment.marketing.title')}
+                            </h3>
                         </div>
-                        <p className="text-gray-300">
+                        <p className="text-gray-300 text-lg leading-relaxed">
                             {t('shopRecruitment.marketing.message')}
                         </p>
                     </div>
 
                     <Link
                         to="/merchant/register"
-                        className="inline-flex items-center gap-3 px-8 py-4 bg-white text-black rounded-2xl font-bold text-lg hover:scale-105 transition-transform shadow-lg shadow-white/10"
+                        className="inline-flex items-center gap-4 px-10 py-5 bg-white text-black rounded-2xl font-black text-xl hover:scale-105 active:scale-95 transition-all shadow-[0_0_50px_rgba(255,255,255,0.2)]"
                     >
                         {t('shopRecruitment.hero.cta')}
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                        <svg className="w-6 h-6 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                         </svg>
                     </Link>
                 </div>
